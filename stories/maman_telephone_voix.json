@@ -1,0 +1,1054 @@
+{
+ "title": "Ma mère au téléphone vs ma mère avec moi",
+ "header": "Maman au tel vs maman avec moi",
+ "fps": 30,
+ "words_per_second": 2.6,
+ "voice": "fr-FR-HenriNeural",
+ "captions": {
+  "size": 28,
+  "y": 0.8,
+  "max_words": 2,
+  "highlight": "#ffd93b"
+ },
+ "cast": {
+  "moi": {
+   "skin": "light",
+   "hair": "short",
+   "hair_color": "#4a2f1f",
+   "shirt": "#3550a8",
+   "pants": "#232742",
+   "acc": [
+    "hoodie"
+   ]
+  },
+  "mere": {
+   "skin": "medium",
+   "hair": "bun",
+   "hair_color": "#2a1a14",
+   "shirt": "#38b49a",
+   "pants": "#38b49a",
+   "shoes": "#f39ab4",
+   "acc": [
+    "dress",
+    "earrings"
+   ]
+  },
+  "tante": {
+   "skin": "tan",
+   "hair": "long",
+   "hair_color": "#c2452d",
+   "shirt": "#9a6ad6",
+   "pants": "#3a2f5a",
+   "acc": []
+  },
+  "pere": {
+   "skin": "medium",
+   "hair": "short",
+   "hair_color": "#2a1a14",
+   "shirt": "#f0f0f0",
+   "pants": "#3d3d55",
+   "acc": [
+    "mustache",
+    "glasses"
+   ]
+  },
+  "soeur": {
+   "skin": "light",
+   "hair": "ponytail",
+   "hair_color": "#e0b040",
+   "shirt": "#f06a6a",
+   "pants": "#2b2f45",
+   "size": 0.8
+  }
+ },
+ "scenes": [
+  {
+   "text": "Ma mère a deux voix.",
+   "bg": {
+    "type": "split",
+    "left": "#ffe08a",
+    "right": "#bfc4d6"
+   },
+   "chars": [
+    {
+     "id": "mere",
+     "x": 34,
+     "expr": "happy",
+     "hold": "phone",
+     "anim": "bounce"
+    },
+    {
+     "id": "mere",
+     "x": 100,
+     "expr": "angry",
+     "anim": "shake"
+    }
+   ],
+   "fx": [
+    "flash"
+   ],
+   "duration": 1.574,
+   "word_times": [
+    [
+     0.0,
+     0.225
+    ],
+    [
+     0.225,
+     0.6
+    ],
+    [
+     0.6,
+     0.75
+    ],
+    [
+     0.75,
+     1.124
+    ],
+    [
+     1.124,
+     1.574
+    ]
+   ]
+  },
+  {
+   "text": "La première, c'est celle du téléphone.",
+   "bg": {
+    "type": "room",
+    "wall": "#a6dccd"
+   },
+   "chars": [
+    {
+     "id": "mere",
+     "x": 67,
+     "expr": "happy",
+     "pose": "wave",
+     "hold": "phone"
+    }
+   ],
+   "props": [
+    {
+     "type": "heart",
+     "x": 40,
+     "y": 95,
+     "anim": "float",
+     "at_word": 3
+    },
+    {
+     "type": "star",
+     "x": 96,
+     "y": 100,
+     "anim": "float",
+     "at_word": 5
+    }
+   ],
+   "duration": 2.134,
+   "word_times": [
+    [
+     0.0,
+     0.164
+    ],
+    [
+     0.164,
+     0.711
+    ],
+    [
+     0.711,
+     1.04
+    ],
+    [
+     1.04,
+     1.368
+    ],
+    [
+     1.368,
+     1.532
+    ],
+    [
+     1.532,
+     2.134
+    ]
+   ]
+  },
+  {
+   "text": "Allôôô ma chérie ! Oui oui tout va très bien hamdoulilah !",
+   "bg": {
+    "type": "burst",
+    "color": "#ffd6e0",
+    "color2": "#ffc2d1"
+   },
+   "chars": [
+    {
+     "id": "mere",
+     "x": 67,
+     "expr": "laugh",
+     "hold": "phone",
+     "anim": "bounce"
+    }
+   ],
+   "props": [
+    {
+     "type": "heart",
+     "x": 30,
+     "y": 70,
+     "anim": "float"
+    },
+    {
+     "type": "heart",
+     "x": 106,
+     "y": 60,
+     "anim": "float"
+    }
+   ],
+   "fx": [
+    "zoom"
+   ],
+   "duration": 4.773,
+   "word_times": [
+    [
+     0.0,
+     0.566
+    ],
+    [
+     0.566,
+     0.809
+    ],
+    [
+     0.809,
+     1.537
+    ],
+    [
+     1.537,
+     1.861
+    ],
+    [
+     1.861,
+     2.184
+    ],
+    [
+     2.184,
+     2.589
+    ],
+    [
+     2.589,
+     2.831
+    ],
+    [
+     2.831,
+     3.236
+    ],
+    [
+     3.236,
+     3.64
+    ],
+    [
+     3.64,
+     4.773
+    ]
+   ]
+  },
+  {
+   "text": "Elle rigole, elle chante, elle parle comme une présentatrice météo.",
+   "bg": {
+    "type": "room",
+    "wall": "#a6dccd"
+   },
+   "chars": [
+    {
+     "id": "mere",
+     "x": 44,
+     "expr": "laugh",
+     "hold": "phone",
+     "anim": "bounce"
+    },
+    {
+     "id": "moi",
+     "x": 100,
+     "expr": "worried",
+     "flip": true,
+     "bubble": "question"
+    }
+   ],
+   "duration": 4.339,
+   "word_times": [
+    [
+     0.0,
+     0.319
+    ],
+    [
+     0.319,
+     0.83
+    ],
+    [
+     0.83,
+     1.149
+    ],
+    [
+     1.149,
+     1.659
+    ],
+    [
+     1.659,
+     1.978
+    ],
+    [
+     1.978,
+     2.361
+    ],
+    [
+     2.361,
+     2.744
+    ],
+    [
+     2.744,
+     2.999
+    ],
+    [
+     2.999,
+     3.893
+    ],
+    [
+     3.893,
+     4.339
+    ]
+   ]
+  },
+  {
+   "text": "Et là, elle raccroche.",
+   "bg": {
+    "type": "plain",
+    "color": "#2c2f4a"
+   },
+   "chars": [
+    {
+     "id": "mere",
+     "x": 67,
+     "expr": "neutral",
+     "anim": "none"
+    }
+   ],
+   "props": [
+    {
+     "type": "phone",
+     "x": 100,
+     "y": 150,
+     "at_word": 3
+    }
+   ],
+   "fx": [
+    "zoom"
+   ],
+   "duration": 2.42,
+   "word_times": [
+    [
+     0.0,
+     0.233
+    ],
+    [
+     0.233,
+     0.544
+    ],
+    [
+     0.544,
+     0.933
+    ],
+    [
+     1.494,
+     2.349
+    ]
+   ]
+  },
+  {
+   "text": "Pourquoi ta chambre ressemble à un champ de bataille ?",
+   "bg": {
+    "type": "burst",
+    "color": "#f38c8c",
+    "color2": "#f6a9a9"
+   },
+   "chars": [
+    {
+     "id": "mere",
+     "x": 67,
+     "expr": "angry",
+     "anim": "shake",
+     "bubble": "anger"
+    }
+   ],
+   "fx": [
+    "shake",
+    "flash"
+   ],
+   "duration": 2.622,
+   "word_times": [
+    [
+     0.0,
+     0.429
+    ],
+    [
+     0.429,
+     0.572
+    ],
+    [
+     0.572,
+     0.953
+    ],
+    [
+     0.953,
+     1.43
+    ],
+    [
+     1.43,
+     1.525
+    ],
+    [
+     1.525,
+     1.668
+    ],
+    [
+     1.668,
+     1.954
+    ],
+    [
+     1.954,
+     2.097
+    ],
+    [
+     2.097,
+     2.622
+    ]
+   ]
+  },
+  {
+   "text": "Moi j'ai rien fait, j'étais juste en train de respirer.",
+   "bg": {
+    "type": "room",
+    "wall": "#cdd3f0"
+   },
+   "chars": [
+    {
+     "id": "moi",
+     "x": 67,
+     "expr": "shocked",
+     "pose": "arms_up",
+     "bubble": "sweat"
+    }
+   ],
+   "duration": 3.128,
+   "word_times": [
+    [
+     0.0,
+     0.223
+    ],
+    [
+     0.223,
+     0.503
+    ],
+    [
+     0.503,
+     0.782
+    ],
+    [
+     0.782,
+     1.117
+    ],
+    [
+     1.117,
+     1.564
+    ],
+    [
+     1.564,
+     1.899
+    ],
+    [
+     1.899,
+     2.067
+    ],
+    [
+     2.067,
+     2.402
+    ],
+    [
+     2.402,
+     2.569
+    ],
+    [
+     2.569,
+     3.128
+    ]
+   ]
+  },
+  {
+   "text": "Et le pire, c'est quand le téléphone sonne en plein milieu.",
+   "bg": {
+    "type": "room",
+    "wall": "#cdd3f0"
+   },
+   "chars": [
+    {
+     "id": "mere",
+     "x": 44,
+     "expr": "angry"
+    },
+    {
+     "id": "moi",
+     "x": 100,
+     "expr": "sad",
+     "flip": true
+    }
+   ],
+   "props": [
+    {
+     "type": "phone",
+     "x": 67,
+     "y": 100,
+     "anim": "blink",
+     "scale": 3,
+     "at_word": 6
+    }
+   ],
+   "duration": 4.459,
+   "word_times": [
+    [
+     0.0,
+     0.171
+    ],
+    [
+     0.171,
+     0.342
+    ],
+    [
+     0.342,
+     0.684
+    ],
+    [
+     1.017,
+     1.359
+    ],
+    [
+     1.359,
+     1.7
+    ],
+    [
+     1.985,
+     2.156
+    ],
+    [
+     2.156,
+     2.726
+    ],
+    [
+     2.726,
+     3.068
+    ],
+    [
+     3.068,
+     3.239
+    ],
+    [
+     3.521,
+     3.863
+    ],
+    [
+     3.863,
+     4.319
+    ]
+   ]
+  },
+  {
+   "text": "Ouiii bonjour madame ! Non non vous ne dérangez pas du tout !",
+   "bg": {
+    "type": "burst",
+    "color": "#ffe9a8",
+    "color2": "#ffd86b"
+   },
+   "chars": [
+    {
+     "id": "mere",
+     "x": 67,
+     "expr": "laugh",
+     "hold": "phone",
+     "pose": "wave",
+     "anim": "bounce"
+    }
+   ],
+   "props": [
+    {
+     "type": "star",
+     "x": 26,
+     "y": 80,
+     "anim": "float"
+    },
+    {
+     "type": "star",
+     "x": 110,
+     "y": 70,
+     "anim": "float"
+    }
+   ],
+   "fx": [
+    "flash"
+   ],
+   "duration": 4.486,
+   "word_times": [
+    [
+     0.0,
+     0.434
+    ],
+    [
+     0.434,
+     1.013
+    ],
+    [
+     1.013,
+     1.664
+    ],
+    [
+     1.664,
+     1.954
+    ],
+    [
+     1.954,
+     2.243
+    ],
+    [
+     2.243,
+     2.605
+    ],
+    [
+     2.605,
+     2.822
+    ],
+    [
+     2.822,
+     3.473
+    ],
+    [
+     3.473,
+     3.763
+    ],
+    [
+     3.763,
+     3.98
+    ],
+    [
+     3.98,
+     4.486
+    ]
+   ]
+  },
+  {
+   "text": "Trois secondes. Elle a changé de personnalité en trois secondes.",
+   "bg": {
+    "type": "classroom",
+    "wall": "#e8e2cf"
+   },
+   "chars": [
+    {
+     "id": "moi",
+     "x": 44,
+     "expr": "shocked"
+    },
+    {
+     "id": "soeur",
+     "x": 96,
+     "expr": "shocked",
+     "flip": true
+    }
+   ],
+   "props": [
+    {
+     "type": "clock",
+     "x": 67,
+     "y": 64,
+     "scale": 3,
+     "at_word": 0
+    }
+   ],
+   "duration": 4.155,
+   "word_times": [
+    [
+     0.0,
+     0.318
+    ],
+    [
+     0.318,
+     0.848
+    ],
+    [
+     0.848,
+     1.113
+    ],
+    [
+     1.454,
+     1.56
+    ],
+    [
+     1.56,
+     1.931
+    ],
+    [
+     1.931,
+     2.09
+    ],
+    [
+     2.09,
+     2.778
+    ],
+    [
+     2.973,
+     3.132
+    ],
+    [
+     3.132,
+     3.45
+    ],
+    [
+     3.45,
+     3.98
+    ]
+   ]
+  },
+  {
+   "text": "Mon père, lui, il a compris depuis longtemps.",
+   "bg": {
+    "type": "room",
+    "wall": "#f2c9a0"
+   },
+   "chars": [
+    {
+     "id": "pere",
+     "x": 67,
+     "expr": "smirk"
+    }
+   ],
+   "props": [
+    {
+     "type": "tv",
+     "x": 106,
+     "y": 150
+    }
+   ],
+   "duration": 2.993,
+   "word_times": [
+    [
+     0.0,
+     0.231
+    ],
+    [
+     0.231,
+     0.577
+    ],
+    [
+     0.577,
+     0.865
+    ],
+    [
+     0.865,
+     1.039
+    ],
+    [
+     1.039,
+     1.154
+    ],
+    [
+     1.154,
+     1.616
+    ],
+    [
+     1.616,
+     2.019
+    ],
+    [
+     2.019,
+     2.654
+    ]
+   ]
+  },
+  {
+   "text": "Quand elle est au téléphone, c'est le moment de demander.",
+   "bg": {
+    "type": "room",
+    "wall": "#f2c9a0"
+   },
+   "chars": [
+    {
+     "id": "pere",
+     "x": 40,
+     "expr": "smirk"
+    },
+    {
+     "id": "moi",
+     "x": 96,
+     "expr": "happy",
+     "flip": true,
+     "bubble": "bulb"
+    }
+   ],
+   "duration": 3.069,
+   "word_times": [
+    [
+     0.0,
+     0.267
+    ],
+    [
+     0.267,
+     0.49
+    ],
+    [
+     0.49,
+     0.668
+    ],
+    [
+     0.668,
+     0.801
+    ],
+    [
+     0.801,
+     1.291
+    ],
+    [
+     1.767,
+     2.034
+    ],
+    [
+     2.034,
+     2.167
+    ],
+    [
+     2.167,
+     2.479
+    ],
+    [
+     2.479,
+     2.612
+    ],
+    [
+     2.612,
+     3.057
+    ]
+   ]
+  },
+  {
+   "text": "Maman, je peux sortir ce soir ?",
+   "bg": {
+    "type": "room",
+    "wall": "#a6dccd"
+   },
+   "chars": [
+    {
+     "id": "moi",
+     "x": 40,
+     "expr": "happy",
+     "anim": "bounce"
+    },
+    {
+     "id": "mere",
+     "x": 98,
+     "expr": "laugh",
+     "hold": "phone",
+     "flip": true
+    }
+   ],
+   "duration": 2.264,
+   "word_times": [
+    [
+     0.0,
+     0.409
+    ],
+    [
+     0.409,
+     0.584
+    ],
+    [
+     0.584,
+     0.877
+    ],
+    [
+     1.046,
+     1.455
+    ],
+    [
+     1.455,
+     1.631
+    ],
+    [
+     1.631,
+     2.04
+    ]
+   ]
+  },
+  {
+   "text": "Ouiii bien sûr mon cœur !",
+   "bg": {
+    "type": "burst",
+    "color": "#c9f0c0",
+    "color2": "#a8e59a"
+   },
+   "chars": [
+    {
+     "id": "moi",
+     "x": 67,
+     "expr": "laugh",
+     "pose": "arms_up",
+     "anim": "jump"
+    }
+   ],
+   "props": [
+    {
+     "type": "check",
+     "x": 67,
+     "y": 70,
+     "scale": 3
+    }
+   ],
+   "fx": [
+    "flash"
+   ],
+   "duration": 2.245,
+   "word_times": [
+    [
+     0.0,
+     0.518
+    ],
+    [
+     0.518,
+     0.95
+    ],
+    [
+     0.95,
+     1.295
+    ],
+    [
+     1.295,
+     1.641
+    ],
+    [
+     1.641,
+     2.245
+    ]
+   ]
+  },
+  {
+   "text": "Elle a raccroché. Elle a tout oublié.",
+   "bg": {
+    "type": "night"
+   },
+   "chars": [
+    {
+     "id": "moi",
+     "x": 67,
+     "expr": "sad",
+     "anim": "none"
+    }
+   ],
+   "props": [
+    {
+     "type": "lock",
+     "x": 67,
+     "y": 80,
+     "scale": 3,
+     "at_word": 3
+    }
+   ],
+   "duration": 3.839,
+   "word_times": [
+    [
+     0.0,
+     0.305
+    ],
+    [
+     0.305,
+     0.427
+    ],
+    [
+     0.427,
+     1.098
+    ],
+    [
+     1.098,
+     1.403
+    ],
+    [
+     1.403,
+     1.525
+    ],
+    [
+     1.525,
+     1.83
+    ],
+    [
+     2.701,
+     3.189
+    ]
+   ]
+  },
+  {
+   "text": "Abonne-toi si ta mère aussi a deux voix.",
+   "bg": {
+    "type": "split",
+    "left": "#ffe08a",
+    "right": "#bfc4d6"
+   },
+   "chars": [
+    {
+     "id": "mere",
+     "x": 34,
+     "expr": "happy",
+     "hold": "phone"
+    },
+    {
+     "id": "moi",
+     "x": 100,
+     "expr": "happy",
+     "pose": "wave",
+     "flip": true
+    }
+   ],
+   "props": [
+    {
+     "type": "heart",
+     "x": 67,
+     "y": 70,
+     "scale": 3,
+     "anim": "float"
+    }
+   ],
+   "duration": 3.369,
+   "word_times": [
+    [
+     0.0,
+     0.689
+    ],
+    [
+     0.689,
+     0.877
+    ],
+    [
+     0.877,
+     1.065
+    ],
+    [
+     1.065,
+     1.379
+    ],
+    [
+     1.379,
+     1.755
+    ],
+    [
+     1.755,
+     1.88
+    ],
+    [
+     1.88,
+     2.193
+    ],
+    [
+     2.193,
+     2.569
+    ]
+   ]
+  }
+ ],
+ "voiceover": "voix/maman_telephone.mp3"
+}

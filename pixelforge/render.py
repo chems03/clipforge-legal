@@ -110,7 +110,9 @@ def plan_timeline(story, tts, tmp):
             dur = sc.get("duration") or audio_duration(audio) + 0.25
         else:
             dur = sc.get("duration") or max(1.2, len(words) / wps + 0.4)
-        if marks and len(marks) == len(words):
+        if sc.get("word_times") and len(sc["word_times"]) == len(words):
+            wt = [tuple(x) for x in sc["word_times"]]
+        elif marks and len(marks) == len(words):
             wt = [(s + 0.05, e + 0.05) for _, s, e in marks]
         else:
             wt = even_word_times(words, dur, lead=0.05 if audio else 0.15)
@@ -283,7 +285,7 @@ class Captioner:
 # Main
 # --------------------------------------------------------------------------
 
-def build_audio(plan, total, music, out_wav, tmp):
+def build_audio(plan, total, music, out_wav, tmp, voiceover=None):
     inputs, filters, labels = [], [], []
     for item in plan:
         if item["audio"]:
@@ -292,6 +294,11 @@ def build_audio(plan, total, music, out_wav, tmp):
             ms = int(item["start"] * 1000)
             filters.append(f"[{idx}:a]adelay={ms}|{ms},aformat=channel_layouts=stereo[a{idx}]")
             labels.append(f"[a{idx}]")
+    if voiceover:
+        idx = len(inputs)
+        inputs += ["-i", voiceover]
+        filters.append(f"[{idx}:a]aformat=channel_layouts=stereo[a{idx}]")
+        labels.append(f"[a{idx}]")
     if music:
         idx = len(inputs)
         inputs += ["-stream_loop", "-1", "-i", music]
@@ -300,7 +307,7 @@ def build_audio(plan, total, music, out_wav, tmp):
         labels.append(f"[a{idx}]")
     if not labels:
         return None
-    filters.append("".join(labels) + f"amix=inputs={len(labels)}:normalize=0,"
+    filters.append("".join(labels) + f"amix=inputs={len(labels)}:normalize=0,apad,"
                    f"atrim=0:{total:.3f}[out]")
     subprocess.run(["ffmpeg", "-y", "-v", "error", *inputs, "-filter_complex",
                     ";".join(filters), "-map", "[out]", out_wav], check=True)
@@ -342,7 +349,8 @@ def render(story, out, tts=False, music=None, preview=None):
         proc.stdin.close()
         proc.wait()
 
-        wav = build_audio(plan, total, music or story.get("music"), os.path.join(tmp, "a.wav"), tmp)
+        wav = build_audio(plan, total, music or story.get("music"), os.path.join(tmp, "a.wav"), tmp,
+                          story.get("voiceover"))
         os.makedirs(os.path.dirname(os.path.abspath(out)), exist_ok=True)
         if wav:
             subprocess.run(["ffmpeg", "-y", "-v", "error", "-i", silent, "-i", wav,
