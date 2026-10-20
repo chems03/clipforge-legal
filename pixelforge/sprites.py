@@ -339,7 +339,7 @@ def draw_character(spec, expr="neutral", pose="stand", blink=False, flip=False,
 
     if "beard" in acc:
         rows = ROWS
-        beard = head & (rows > ymid + 8)
+        beard = head & (rows > ymid + 12) & ~S().ellipse([cx - 9, y_hbot - 16, cx + 15, y_hbot - 5]).m
         paint(arr, beard, hair, outline=0, shade_px=3)
     _face(arr, S, g, expr, blink, skin, hexc(s["eyes"]))
     _hair_front(arr, S, s["hair"], hair, g)
@@ -576,7 +576,7 @@ def _accessories(arr, S, acc, hair, g, t):
 # Props
 # --------------------------------------------------------------------------
 
-PROPS = ["paper", "phone", "gift", "tv", "lock", "heart", "x", "check", "question",
+PROPS = ["cake", "paper", "phone", "gift", "tv", "lock", "heart", "x", "check", "question",
          "exclam", "controller", "money", "book", "pizza", "clock", "star",
          "zzz", "bulb", "trophy", "sweat", "anger"]
 
@@ -660,6 +660,16 @@ def prop_image(kind, size, t=0.0):
                               ((.35, -.12), (60, 120, 230)), ((.55, .06), (250, 210, 60))):
             paint(arr, S().ellipse([c + dx * s - 3, c + dy * s - 3, c + dx * s + 3, c + dy * s + 3]).m,
                   col, shade_px=1)
+    elif kind == "cake":
+        paint(arr, S().ellipse([c - 1.0 * s, c + .35 * s, c + 1.0 * s, c + .85 * s]).m, (235, 238, 250), shade_px=2)
+        for (dx, dy), col in (((-.5, .2), (240, 170, 200)), ((.05, .25), (250, 210, 120)),
+                              ((.55, .2), (200, 140, 90)), ((-.22, -.2), (250, 220, 140)),
+                              ((.3, -.18), (240, 170, 200))):
+            x0, y0 = c + dx * s, c + dy * s
+            paint(arr, S().rrect([x0 - .26 * s, y0 - .2 * s, x0 + .26 * s, y0 + .22 * s], .1 * s).m, col,
+                  shade_px=2)
+            put(arr, S().rect([x0 - .14 * s, y0 - .12 * s, x0 + .1 * s, y0 - .06 * s]).m, WHITE)
+        paint(arr, S().ellipse([c - .1 * s, c - .62 * s, c + .1 * s, c - .42 * s]).m, (220, 40, 60), shade_px=1)
     elif kind == "money":
         for off, col in ((-.15, (90, 175, 100)), (.1, (115, 205, 125))):
             note = S().rrect([c - .95 * s, c - .5 * s + off * s, c + .85 * s, c + .45 * s + off * s], 3).m
