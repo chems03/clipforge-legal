@@ -183,6 +183,8 @@ def render_scene_frame(item, lt, cast):
                                      blink, c.get("flip", False), c.get("hold"), lt)
         if cs > 1:
             sprite = sprite.resize((CHAR_W * cs, CHAR_H * cs), Image.NEAREST)
+        if c.get("ghost"):  # half-transparent: the forgotten one
+            sprite.putalpha(sprite.getchannel("A").point(lambda v: v * 45 // 100))
         img.paste(sprite, (x - CHAR_W // 2 * cs, feet - (CHAR_H - 1) * cs), sprite)
         if c.get("bubble"):
             bob = int(math.sin(lt * 5) * 1.5)

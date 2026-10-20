@@ -1,0 +1,108 @@
+{
+  "title": "L'aîné, celui du milieu et le petit dernier",
+  "header": "L'aîné vs le milieu vs le petit dernier",
+  "fps": 30,
+  "words_per_second": 2.6,
+  "captions": { "size": 28, "y": 0.8, "max_words": 2, "highlight": "#ffd93b" },
+
+  "cast": {
+    "aine":   { "skin": "medium", "hair": "short", "hair_color": "#2a1a14", "shirt": "#4f6378", "pants": "#232742", "acc": ["glasses"] },
+    "milieu": { "skin": "medium", "hair": "short", "hair_color": "#3b2a20", "shirt": "#b9b2a3", "pants": "#6d6a63" },
+    "petit":  { "skin": "medium", "hair": "spiky", "hair_color": "#2a1a14", "shirt": "#e2483f", "pants": "#2b2f45", "size": 0.8, "acc": ["crown"] },
+    "mere":   { "skin": "medium", "hair": "bun", "hair_color": "#2a1a14", "shirt": "#38b49a", "pants": "#38b49a", "shoes": "#f39ab4", "acc": ["dress", "earrings"] },
+    "pere":   { "skin": "medium", "hair": "short", "hair_color": "#2a1a14", "shirt": "#f0f0f0", "pants": "#3d3d55", "acc": ["mustache"] }
+  },
+
+  "scenes": [
+    { "text": "Dans une fratrie, il y a trois rôles.",
+      "bg": { "type": "room", "wall": "#f3d9a4" },
+      "chars": [ { "id": "aine", "x": 24, "expr": "worried", "bubble": "paper" },
+                 { "id": "milieu", "x": 67, "expr": "neutral" },
+                 { "id": "petit", "x": 110, "expr": "laugh", "anim": "bounce" } ],
+      "fx": ["flash"] },
+
+    { "text": "Le petit dernier, c'est le roi de la maison.",
+      "bg": { "type": "burst", "color": "#ffe08a", "color2": "#ffd04a" },
+      "chars": [ { "id": "petit", "x": 67, "expr": "laugh", "pose": "arms_up", "anim": "jump" } ],
+      "props": [ { "type": "star", "x": 28, "y": 70, "anim": "float" },
+                 { "type": "star", "x": 106, "y": 60, "anim": "float" } ],
+      "fx": ["zoom"] },
+
+    { "text": "Il casse la télé ? Oh c'est pas grave mon bébé !",
+      "bg": { "type": "room", "wall": "#a6dccd" },
+      "chars": [ { "id": "petit", "x": 40, "expr": "smirk" },
+                 { "id": "mere", "x": 98, "expr": "love", "flip": true, "bubble": "heart" } ],
+      "props": [ { "type": "tv", "x": 67, "y": 70, "scale": 3, "at_word": 0 },
+                 { "type": "x", "x": 67, "y": 70, "scale": 3, "at_word": 2 } ] },
+
+    { "text": "Il a dix ans et son téléphone est plus récent que celui de papa.",
+      "bg": { "type": "split", "left": "#c9f0c0", "right": "#bfc4d6" },
+      "chars": [ { "id": "petit", "x": 34, "expr": "happy", "hold": "phone", "anim": "bounce" },
+                 { "id": "pere", "x": 100, "expr": "shocked", "flip": true, "bubble": "sweat" } ] },
+
+    { "text": "Ensuite, il y a celui du milieu.",
+      "bg": { "type": "plain", "color": "#d8d4cc" },
+      "chars": [ { "id": "milieu", "x": 67, "expr": "neutral", "pose": "wave", "anim": "none" } ] },
+
+    { "text": "Personne ne sait vraiment ce qu'il fait, ni où il est.",
+      "bg": { "type": "room", "wall": "#cdd3f0" },
+      "chars": [ { "id": "milieu", "x": 67, "expr": "worried", "ghost": true, "bubble": "question" } ] },
+
+    { "text": "Même sur les photos de famille, on le voit à moitié.",
+      "bg": { "type": "room", "wall": "#f2c9a0" },
+      "chars": [ { "id": "mere", "x": 24, "expr": "happy" },
+                 { "id": "petit", "x": 58, "expr": "laugh" },
+                 { "id": "aine", "x": 92, "expr": "happy" },
+                 { "id": "milieu", "x": 131, "expr": "sad" } ],
+      "fx": ["flash"] },
+
+    { "text": "Et puis il y a l'aîné.",
+      "bg": { "type": "plain", "color": "#2c2f4a" },
+      "chars": [ { "id": "aine", "x": 67, "expr": "neutral", "anim": "none" } ],
+      "fx": ["zoom"] },
+
+    { "text": "L'aîné, ce n'est pas un enfant. C'est un assistant administratif.",
+      "bg": { "type": "classroom", "wall": "#e8e2cf" },
+      "chars": [ { "id": "aine", "x": 67, "expr": "worried", "hold": "paper" } ],
+      "props": [ { "type": "paper", "x": 28, "y": 120, "scale": 2, "at_word": 7 },
+                 { "type": "paper", "x": 106, "y": 112, "scale": 2, "at_word": 8 } ] },
+
+    { "text": "Il remplit les papiers de la CAF, il appelle les impôts, il traduit les lettres de la banque.",
+      "bg": { "type": "burst", "color": "#cdd3f0", "color2": "#b6bde6" },
+      "chars": [ { "id": "aine", "x": 67, "expr": "worried", "anim": "shake", "bubble": "sweat" } ],
+      "props": [ { "type": "paper", "x": 26, "y": 60, "scale": 3, "at_word": 2 },
+                 { "type": "phone", "x": 108, "y": 60, "scale": 3, "at_word": 7 },
+                 { "type": "money", "x": 67, "y": 40, "scale": 3, "at_word": 12 } ] },
+
+    { "text": "À douze ans, il négociait déjà avec l'opérateur téléphonique.",
+      "bg": { "type": "room", "wall": "#a6dccd" },
+      "chars": [ { "id": "aine", "x": 67, "expr": "angry", "hold": "phone", "spec": { "size": 0.8 } } ] },
+
+    { "text": "Et quand il demande une petite pause ?",
+      "bg": { "type": "room", "wall": "#cdd3f0" },
+      "chars": [ { "id": "aine", "x": 40, "expr": "worried" },
+                 { "id": "mere", "x": 98, "expr": "neutral", "flip": true } ] },
+
+    { "text": "Tu es le grand, tu dois montrer l'exemple !",
+      "bg": { "type": "burst", "color": "#f38c8c", "color2": "#f6a9a9" },
+      "chars": [ { "id": "mere", "x": 67, "expr": "angry", "anim": "shake", "bubble": "anger" } ],
+      "fx": ["shake", "flash"] },
+
+    { "text": "Pendant ce temps, le petit a eu une console pour ses bonnes notes. Il a eu douze sur vingt.",
+      "bg": { "type": "burst", "color": "#c9f0c0", "color2": "#a8e59a" },
+      "chars": [ { "id": "petit", "x": 67, "expr": "laugh", "pose": "arms_up", "anim": "jump" } ],
+      "props": [ { "type": "controller", "x": 67, "y": 60, "scale": 3, "at_word": 6 },
+                 { "type": "trophy", "x": 28, "y": 100, "scale": 2, "at_word": 13 } ] },
+
+    { "text": "Et celui du milieu ? Toujours pas rentré des vacances.",
+      "bg": { "type": "night" },
+      "chars": [ { "id": "milieu", "x": 67, "expr": "sad", "ghost": true, "anim": "none", "bubble": "zzz" } ] },
+
+    { "text": "Abonne-toi si toi aussi tu es l'assistant de ta famille.",
+      "bg": { "type": "room", "wall": "#f3d9a4" },
+      "chars": [ { "id": "aine", "x": 24, "expr": "happy", "pose": "wave", "bubble": "paper" },
+                 { "id": "milieu", "x": 67, "expr": "happy", "ghost": true },
+                 { "id": "petit", "x": 110, "expr": "laugh", "anim": "bounce" } ],
+      "props": [ { "type": "heart", "x": 67, "y": 60, "scale": 3, "anim": "float" } ] }
+  ]
+}

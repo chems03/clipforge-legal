@@ -275,7 +275,7 @@ def _draw_acc(d, acc, hx, hy, hs, hair):
 # Props
 # --------------------------------------------------------------------------
 
-PROPS = ["phone", "gift", "tv", "lock", "heart", "x", "check", "question",
+PROPS = ["paper", "phone", "gift", "tv", "lock", "heart", "x", "check", "question",
          "exclam", "controller", "money", "book", "pizza", "clock", "star",
          "zzz", "bulb", "trophy", "sweat", "anger"]
 
@@ -341,6 +341,11 @@ def _prop(d, kind, cx, cy, t):
         ORect(d, cx - 8, cy - 3, 17, 8, (60, 60, 75))
         R(d, cx - 6, cy, 3, 1, WHITE); R(d, cx - 5, cy - 1, 1, 3, WHITE)
         P(d, cx + 4, cy - 1, (230, 60, 60)); P(d, cx + 6, cy + 1, (60, 200, 90))
+    elif kind == "paper":
+        ORect(d, cx - 6, cy - 8, 12, 16, WHITE)
+        for i in range(4):
+            R(d, cx - 4, cy - 5 + i * 3, 8 - (i % 2) * 3, 1, (150, 150, 165))
+        ORect(d, cx + 1, cy + 3, 5, 5, (220, 60, 70))
     elif kind == "money":
         ORect(d, cx - 8, cy - 4, 17, 9, (110, 200, 110))
         ORect(d, cx - 2, cy - 2, 5, 5, (70, 160, 80))
