@@ -1,0 +1,1201 @@
+{
+ "title": "L'aîné, celui du milieu et le petit dernier",
+ "header": "L'aîné vs le milieu vs le petit dernier",
+ "fps": 30,
+ "words_per_second": 2.6,
+ "captions": {
+  "size": 28,
+  "y": 0.8,
+  "max_words": 2,
+  "highlight": "#ffd93b"
+ },
+ "cast": {
+  "aine": {
+   "skin": "medium",
+   "hair": "short",
+   "hair_color": "#2a1a14",
+   "shirt": "#4f6378",
+   "pants": "#232742",
+   "acc": [
+    "glasses"
+   ]
+  },
+  "milieu": {
+   "skin": "medium",
+   "hair": "short",
+   "hair_color": "#3b2a20",
+   "shirt": "#b9b2a3",
+   "pants": "#6d6a63"
+  },
+  "petit": {
+   "skin": "medium",
+   "hair": "spiky",
+   "hair_color": "#2a1a14",
+   "shirt": "#e2483f",
+   "pants": "#2b2f45",
+   "size": 0.8,
+   "acc": [
+    "crown"
+   ]
+  },
+  "mere": {
+   "skin": "medium",
+   "hair": "bun",
+   "hair_color": "#2a1a14",
+   "shirt": "#38b49a",
+   "pants": "#38b49a",
+   "shoes": "#f39ab4",
+   "acc": [
+    "dress",
+    "earrings"
+   ]
+  },
+  "pere": {
+   "skin": "medium",
+   "hair": "short",
+   "hair_color": "#2a1a14",
+   "shirt": "#f0f0f0",
+   "pants": "#3d3d55",
+   "acc": [
+    "mustache"
+   ]
+  }
+ },
+ "scenes": [
+  {
+   "text": "Dans une fratrie, il y a trois rôles.",
+   "bg": {
+    "type": "room",
+    "wall": "#f3d9a4"
+   },
+   "chars": [
+    {
+     "id": "aine",
+     "x": 24,
+     "expr": "worried",
+     "bubble": "paper"
+    },
+    {
+     "id": "milieu",
+     "x": 67,
+     "expr": "neutral"
+    },
+    {
+     "id": "petit",
+     "x": 110,
+     "expr": "laugh",
+     "anim": "bounce"
+    }
+   ],
+   "fx": [
+    "flash"
+   ],
+   "duration": 2.539,
+   "word_times": [
+    [
+     0.0,
+     0.334
+    ],
+    [
+     0.334,
+     0.601
+    ],
+    [
+     0.601,
+     1.202
+    ],
+    [
+     1.202,
+     1.403
+    ],
+    [
+     1.403,
+     1.536
+    ],
+    [
+     1.536,
+     1.67
+    ],
+    [
+     1.67,
+     2.071
+    ],
+    [
+     2.071,
+     2.539
+    ]
+   ]
+  },
+  {
+   "text": "Le petit dernier, c'est le roi de la maison.",
+   "bg": {
+    "type": "burst",
+    "color": "#ffe08a",
+    "color2": "#ffd04a"
+   },
+   "chars": [
+    {
+     "id": "petit",
+     "x": 67,
+     "expr": "laugh",
+     "pose": "arms_up",
+     "anim": "jump"
+    }
+   ],
+   "props": [
+    {
+     "type": "star",
+     "x": 28,
+     "y": 70,
+     "anim": "float"
+    },
+    {
+     "type": "star",
+     "x": 106,
+     "y": 60,
+     "anim": "float"
+    }
+   ],
+   "fx": [
+    "zoom"
+   ],
+   "duration": 2.352,
+   "word_times": [
+    [
+     0.0,
+     0.157
+    ],
+    [
+     0.157,
+     0.47
+    ],
+    [
+     0.47,
+     0.941
+    ],
+    [
+     0.941,
+     1.254
+    ],
+    [
+     1.254,
+     1.411
+    ],
+    [
+     1.411,
+     1.62
+    ],
+    [
+     1.62,
+     1.777
+    ],
+    [
+     1.777,
+     1.934
+    ],
+    [
+     1.934,
+     2.352
+    ]
+   ]
+  },
+  {
+   "text": "Il casse la télé ? Oh c'est pas grave mon bébé !",
+   "bg": {
+    "type": "room",
+    "wall": "#a6dccd"
+   },
+   "chars": [
+    {
+     "id": "petit",
+     "x": 40,
+     "expr": "smirk"
+    },
+    {
+     "id": "mere",
+     "x": 98,
+     "expr": "love",
+     "flip": true,
+     "bubble": "heart"
+    }
+   ],
+   "props": [
+    {
+     "type": "tv",
+     "x": 67,
+     "y": 70,
+     "scale": 3,
+     "at_word": 0
+    },
+    {
+     "type": "x",
+     "x": 67,
+     "y": 70,
+     "scale": 3,
+     "at_word": 2
+    }
+   ],
+   "duration": 3.184,
+   "word_times": [
+    [
+     0.0,
+     0.179
+    ],
+    [
+     0.179,
+     0.537
+    ],
+    [
+     0.537,
+     0.717
+    ],
+    [
+     0.717,
+     1.135
+    ],
+    [
+     1.281,
+     1.46
+    ],
+    [
+     1.46,
+     1.818
+    ],
+    [
+     1.818,
+     2.057
+    ],
+    [
+     2.057,
+     2.415
+    ],
+    [
+     2.415,
+     2.654
+    ],
+    [
+     2.654,
+     3.072
+    ]
+   ]
+  },
+  {
+   "text": "Il a dix ans et son téléphone est plus récent que celui de papa.",
+   "bg": {
+    "type": "split",
+    "left": "#c9f0c0",
+    "right": "#bfc4d6"
+   },
+   "chars": [
+    {
+     "id": "petit",
+     "x": 34,
+     "expr": "happy",
+     "hold": "phone",
+     "anim": "bounce"
+    },
+    {
+     "id": "pere",
+     "x": 100,
+     "expr": "shocked",
+     "flip": true,
+     "bubble": "sweat"
+    }
+   ],
+   "duration": 3.102,
+   "word_times": [
+    [
+     0.0,
+     0.143
+    ],
+    [
+     0.143,
+     0.239
+    ],
+    [
+     0.239,
+     0.43
+    ],
+    [
+     0.43,
+     0.62
+    ],
+    [
+     0.62,
+     0.764
+    ],
+    [
+     0.764,
+     0.955
+    ],
+    [
+     0.955,
+     1.432
+    ],
+    [
+     1.432,
+     1.623
+    ],
+    [
+     1.623,
+     1.861
+    ],
+    [
+     1.861,
+     2.196
+    ],
+    [
+     2.196,
+     2.386
+    ],
+    [
+     2.386,
+     2.673
+    ],
+    [
+     2.673,
+     2.816
+    ],
+    [
+     2.816,
+     3.102
+    ]
+   ]
+  },
+  {
+   "text": "Ensuite, il y a celui du milieu.",
+   "bg": {
+    "type": "plain",
+    "color": "#d8d4cc"
+   },
+   "chars": [
+    {
+     "id": "milieu",
+     "x": 67,
+     "expr": "neutral",
+     "pose": "wave",
+     "anim": "none"
+    }
+   ],
+   "duration": 2.242,
+   "word_times": [
+    [
+     0.0,
+     0.612
+    ],
+    [
+     0.612,
+     0.815
+    ],
+    [
+     0.815,
+     0.951
+    ],
+    [
+     0.951,
+     1.087
+    ],
+    [
+     1.087,
+     1.495
+    ],
+    [
+     1.495,
+     1.699
+    ],
+    [
+     1.699,
+     2.243
+    ]
+   ]
+  },
+  {
+   "text": "Personne ne sait vraiment ce qu'il fait, ni où il est.",
+   "bg": {
+    "type": "room",
+    "wall": "#cdd3f0"
+   },
+   "chars": [
+    {
+     "id": "milieu",
+     "x": 67,
+     "expr": "worried",
+     "ghost": true,
+     "bubble": "question"
+    }
+   ],
+   "duration": 2.733,
+   "word_times": [
+    [
+     0.0,
+     0.447
+    ],
+    [
+     0.447,
+     0.596
+    ],
+    [
+     0.596,
+     0.845
+    ],
+    [
+     0.845,
+     1.292
+    ],
+    [
+     1.292,
+     1.441
+    ],
+    [
+     1.441,
+     1.739
+    ],
+    [
+     1.739,
+     2.037
+    ],
+    [
+     2.037,
+     2.186
+    ],
+    [
+     2.186,
+     2.335
+    ],
+    [
+     2.335,
+     2.484
+    ],
+    [
+     2.484,
+     2.733
+    ]
+   ]
+  },
+  {
+   "text": "Même sur les photos de famille, on le voit à moitié.",
+   "bg": {
+    "type": "room",
+    "wall": "#f2c9a0"
+   },
+   "chars": [
+    {
+     "id": "mere",
+     "x": 24,
+     "expr": "happy"
+    },
+    {
+     "id": "petit",
+     "x": 58,
+     "expr": "laugh"
+    },
+    {
+     "id": "aine",
+     "x": 92,
+     "expr": "happy"
+    },
+    {
+     "id": "milieu",
+     "x": 131,
+     "expr": "sad"
+    }
+   ],
+   "fx": [
+    "flash"
+   ],
+   "duration": 2.499,
+   "word_times": [
+    [
+     0.0,
+     0.236
+    ],
+    [
+     0.236,
+     0.424
+    ],
+    [
+     0.424,
+     0.613
+    ],
+    [
+     0.613,
+     0.943
+    ],
+    [
+     0.943,
+     1.084
+    ],
+    [
+     1.084,
+     1.509
+    ],
+    [
+     1.509,
+     1.65
+    ],
+    [
+     1.65,
+     1.792
+    ],
+    [
+     1.792,
+     2.028
+    ],
+    [
+     2.028,
+     2.122
+    ],
+    [
+     2.122,
+     2.499
+    ]
+   ]
+  },
+  {
+   "text": "Et puis il y a l'aîné.",
+   "bg": {
+    "type": "plain",
+    "color": "#2c2f4a"
+   },
+   "chars": [
+    {
+     "id": "aine",
+     "x": 67,
+     "expr": "neutral",
+     "anim": "none"
+    }
+   ],
+   "fx": [
+    "zoom"
+   ],
+   "duration": 1.595,
+   "word_times": [
+    [
+     0.0,
+     0.208
+    ],
+    [
+     0.208,
+     0.555
+    ],
+    [
+     0.555,
+     0.763
+    ],
+    [
+     0.763,
+     0.902
+    ],
+    [
+     0.902,
+     1.041
+    ],
+    [
+     1.041,
+     1.595
+    ]
+   ]
+  },
+  {
+   "text": "L'aîné, ce n'est pas un enfant. C'est un assistant administratif.",
+   "bg": {
+    "type": "classroom",
+    "wall": "#e8e2cf"
+   },
+   "chars": [
+    {
+     "id": "aine",
+     "x": 67,
+     "expr": "worried",
+     "hold": "paper"
+    }
+   ],
+   "props": [
+    {
+     "type": "paper",
+     "x": 28,
+     "y": 120,
+     "scale": 2,
+     "at_word": 7
+    },
+    {
+     "type": "paper",
+     "x": 106,
+     "y": 112,
+     "scale": 2,
+     "at_word": 8
+    }
+   ],
+   "duration": 3.633,
+   "word_times": [
+    [
+     0.0,
+     0.386
+    ],
+    [
+     0.386,
+     0.531
+    ],
+    [
+     0.531,
+     0.821
+    ],
+    [
+     0.821,
+     1.014
+    ],
+    [
+     1.014,
+     1.159
+    ],
+    [
+     1.159,
+     1.546
+    ],
+    [
+     1.546,
+     1.835
+    ],
+    [
+     2.019,
+     2.164
+    ],
+    [
+     2.164,
+     2.647
+    ],
+    [
+     2.647,
+     3.371
+    ]
+   ]
+  },
+  {
+   "text": "Il remplit les papiers de la CAF, il appelle les impôts, il traduit les lettres de la banque.",
+   "bg": {
+    "type": "burst",
+    "color": "#cdd3f0",
+    "color2": "#b6bde6"
+   },
+   "chars": [
+    {
+     "id": "aine",
+     "x": 67,
+     "expr": "worried",
+     "anim": "shake",
+     "bubble": "sweat"
+    }
+   ],
+   "props": [
+    {
+     "type": "paper",
+     "x": 26,
+     "y": 60,
+     "scale": 3,
+     "at_word": 2
+    },
+    {
+     "type": "phone",
+     "x": 108,
+     "y": 60,
+     "scale": 3,
+     "at_word": 7
+    },
+    {
+     "type": "money",
+     "x": 67,
+     "y": 40,
+     "scale": 3,
+     "at_word": 12
+    }
+   ],
+   "duration": 4.123,
+   "word_times": [
+    [
+     0.0,
+     0.132
+    ],
+    [
+     0.132,
+     0.482
+    ],
+    [
+     0.482,
+     0.658
+    ],
+    [
+     0.658,
+     1.009
+    ],
+    [
+     1.009,
+     1.14
+    ],
+    [
+     1.14,
+     1.272
+    ],
+    [
+     1.272,
+     1.491
+    ],
+    [
+     1.491,
+     1.623
+    ],
+    [
+     1.623,
+     1.974
+    ],
+    [
+     1.974,
+     2.149
+    ],
+    [
+     2.149,
+     2.5
+    ],
+    [
+     2.5,
+     2.632
+    ],
+    [
+     2.632,
+     2.983
+    ],
+    [
+     2.983,
+     3.158
+    ],
+    [
+     3.158,
+     3.509
+    ],
+    [
+     3.509,
+     3.641
+    ],
+    [
+     3.641,
+     3.772
+    ],
+    [
+     3.772,
+     4.123
+    ]
+   ]
+  },
+  {
+   "text": "À douze ans, il négociait déjà avec l'opérateur téléphonique.",
+   "bg": {
+    "type": "room",
+    "wall": "#a6dccd"
+   },
+   "chars": [
+    {
+     "id": "aine",
+     "x": 67,
+     "expr": "angry",
+     "hold": "phone",
+     "spec": {
+      "size": 0.8
+     }
+    }
+   ],
+   "duration": 3.232,
+   "word_times": [
+    [
+     0.0,
+     0.104
+    ],
+    [
+     0.104,
+     0.417
+    ],
+    [
+     0.417,
+     0.678
+    ],
+    [
+     0.678,
+     0.834
+    ],
+    [
+     0.834,
+     1.355
+    ],
+    [
+     1.355,
+     1.616
+    ],
+    [
+     1.616,
+     1.876
+    ],
+    [
+     1.876,
+     2.502
+    ],
+    [
+     2.502,
+     3.232
+    ]
+   ]
+  },
+  {
+   "text": "Et quand il demande une petite pause ?",
+   "bg": {
+    "type": "room",
+    "wall": "#cdd3f0"
+   },
+   "chars": [
+    {
+     "id": "aine",
+     "x": 40,
+     "expr": "worried"
+    },
+    {
+     "id": "mere",
+     "x": 98,
+     "expr": "neutral",
+     "flip": true
+    }
+   ],
+   "duration": 1.701,
+   "word_times": [
+    [
+     0.0,
+     0.131
+    ],
+    [
+     0.131,
+     0.393
+    ],
+    [
+     0.393,
+     0.523
+    ],
+    [
+     0.523,
+     0.872
+    ],
+    [
+     0.872,
+     1.047
+    ],
+    [
+     1.047,
+     1.352
+    ],
+    [
+     1.352,
+     1.701
+    ]
+   ]
+  },
+  {
+   "text": "Tu es le grand, tu dois montrer l'exemple !",
+   "bg": {
+    "type": "burst",
+    "color": "#f38c8c",
+    "color2": "#f6a9a9"
+   },
+   "chars": [
+    {
+     "id": "mere",
+     "x": 67,
+     "expr": "angry",
+     "anim": "shake",
+     "bubble": "anger"
+    }
+   ],
+   "fx": [
+    "shake",
+    "flash"
+   ],
+   "duration": 2.345,
+   "word_times": [
+    [
+     0.0,
+     0.16
+    ],
+    [
+     0.16,
+     0.32
+    ],
+    [
+     0.32,
+     0.48
+    ],
+    [
+     0.48,
+     0.853
+    ],
+    [
+     0.853,
+     1.012
+    ],
+    [
+     1.012,
+     1.279
+    ],
+    [
+     1.279,
+     1.705
+    ],
+    [
+     1.705,
+     2.345
+    ]
+   ]
+  },
+  {
+   "text": "Pendant ce temps, le petit a eu une console pour ses bonnes notes. Il a eu douze sur vingt.",
+   "bg": {
+    "type": "burst",
+    "color": "#c9f0c0",
+    "color2": "#a8e59a"
+   },
+   "chars": [
+    {
+     "id": "petit",
+     "x": 67,
+     "expr": "laugh",
+     "pose": "arms_up",
+     "anim": "jump"
+    }
+   ],
+   "props": [
+    {
+     "type": "controller",
+     "x": 67,
+     "y": 60,
+     "scale": 3,
+     "at_word": 6
+    },
+    {
+     "type": "trophy",
+     "x": 28,
+     "y": 100,
+     "scale": 2,
+     "at_word": 13
+    }
+   ],
+   "duration": 4.788,
+   "word_times": [
+    [
+     0.0,
+     0.384
+    ],
+    [
+     0.384,
+     0.528
+    ],
+    [
+     0.528,
+     0.863
+    ],
+    [
+     0.863,
+     1.007
+    ],
+    [
+     1.007,
+     1.295
+    ],
+    [
+     1.295,
+     1.391
+    ],
+    [
+     1.391,
+     1.535
+    ],
+    [
+     1.535,
+     1.727
+    ],
+    [
+     1.727,
+     2.11
+    ],
+    [
+     2.11,
+     2.35
+    ],
+    [
+     2.35,
+     2.542
+    ],
+    [
+     2.542,
+     2.878
+    ],
+    [
+     2.878,
+     3.213
+    ],
+    [
+     3.3,
+     3.444
+    ],
+    [
+     3.444,
+     3.54
+    ],
+    [
+     3.54,
+     3.683
+    ],
+    [
+     3.683,
+     3.971
+    ],
+    [
+     3.971,
+     4.163
+    ],
+    [
+     4.163,
+     4.499
+    ]
+   ]
+  },
+  {
+   "text": "Et celui du milieu ? Toujours pas rentré des vacances.",
+   "bg": {
+    "type": "night"
+   },
+   "chars": [
+    {
+     "id": "milieu",
+     "x": 67,
+     "expr": "sad",
+     "ghost": true,
+     "anim": "none",
+     "bubble": "zzz"
+    }
+   ],
+   "duration": 3.48,
+   "word_times": [
+    [
+     0.0,
+     0.168
+    ],
+    [
+     0.168,
+     0.505
+    ],
+    [
+     0.505,
+     0.673
+    ],
+    [
+     0.673,
+     1.178
+    ],
+    [
+     1.523,
+     2.028
+    ],
+    [
+     2.028,
+     2.252
+    ],
+    [
+     2.252,
+     2.645
+    ],
+    [
+     2.645,
+     2.869
+    ],
+    [
+     2.869,
+     3.43
+    ]
+   ]
+  },
+  {
+   "text": "Abonne-toi si toi aussi tu es l'assistant de ta famille.",
+   "bg": {
+    "type": "room",
+    "wall": "#f3d9a4"
+   },
+   "chars": [
+    {
+     "id": "aine",
+     "x": 24,
+     "expr": "happy",
+     "pose": "wave",
+     "bubble": "paper"
+    },
+    {
+     "id": "milieu",
+     "x": 67,
+     "expr": "happy",
+     "ghost": true
+    },
+    {
+     "id": "petit",
+     "x": 110,
+     "expr": "laugh",
+     "anim": "bounce"
+    }
+   ],
+   "props": [
+    {
+     "type": "heart",
+     "x": 67,
+     "y": 60,
+     "scale": 3,
+     "anim": "float"
+    }
+   ],
+   "duration": 3.619,
+   "word_times": [
+    [
+     0.0,
+     0.544
+    ],
+    [
+     0.544,
+     0.692
+    ],
+    [
+     0.692,
+     0.89
+    ],
+    [
+     0.89,
+     1.187
+    ],
+    [
+     1.187,
+     1.335
+    ],
+    [
+     1.335,
+     1.484
+    ],
+    [
+     1.484,
+     2.077
+    ],
+    [
+     2.077,
+     2.226
+    ],
+    [
+     2.226,
+     2.374
+    ],
+    [
+     2.374,
+     2.819
+    ]
+   ]
+  }
+ ],
+ "voiceover": "voix/fratrie.mp3"
+}
