@@ -1,0 +1,1258 @@
+{
+ "title": "Quand des invités viennent à la maison",
+ "header": "Quand des invités viennent à la maison",
+ "fps": 30,
+ "words_per_second": 2.6,
+ "captions": {
+  "size": 28,
+  "y": 0.8,
+  "max_words": 2,
+  "highlight": "#ffd93b"
+ },
+ "cast": {
+  "moi": {
+   "skin": "medium",
+   "hair": "short",
+   "hair_color": "#2a1a14",
+   "shirt": "#3550a8",
+   "pants": "#232742",
+   "acc": [
+    "hoodie"
+   ]
+  },
+  "mere": {
+   "skin": "medium",
+   "hair": "bun",
+   "hair_color": "#2a1a14",
+   "shirt": "#38b49a",
+   "pants": "#38b49a",
+   "shoes": "#f39ab4",
+   "acc": [
+    "dress",
+    "earrings"
+   ]
+  },
+  "pere": {
+   "skin": "medium",
+   "hair": "short",
+   "hair_color": "#2a1a14",
+   "shirt": "#f0f0f0",
+   "pants": "#3d3d55",
+   "acc": [
+    "mustache"
+   ]
+  },
+  "petit": {
+   "skin": "medium",
+   "hair": "spiky",
+   "hair_color": "#2a1a14",
+   "shirt": "#e2483f",
+   "pants": "#2b2f45",
+   "size": 0.8
+  },
+  "tante": {
+   "skin": "tan",
+   "hair": "long",
+   "hair_color": "#7a2e1c",
+   "shirt": "#b05ad6",
+   "pants": "#b05ad6",
+   "shoes": "#f6d36a",
+   "acc": [
+    "dress",
+    "earrings"
+   ]
+  },
+  "tonton": {
+   "skin": "tan",
+   "hair": "short",
+   "hair_color": "#5b4636",
+   "shirt": "#e0a33c",
+   "pants": "#4a4a5a",
+   "acc": [
+    "beard",
+    "glasses"
+   ]
+  }
+ },
+ "scenes": [
+  {
+   "text": "Quand des invités viennent à la maison, tout change.",
+   "bg": {
+    "type": "split",
+    "left": "#c9ccd8",
+    "right": "#ffe08a"
+   },
+   "chars": [
+    {
+     "id": "moi",
+     "x": 34,
+     "expr": "neutral",
+     "hold": "controller"
+    },
+    {
+     "id": "mere",
+     "x": 100,
+     "expr": "angry",
+     "flip": true,
+     "anim": "shake"
+    }
+   ],
+   "fx": [
+    "flash"
+   ],
+   "duration": 2.968,
+   "word_times": [
+    [
+     0.0,
+     0.279
+    ],
+    [
+     0.279,
+     0.465
+    ],
+    [
+     0.465,
+     0.837
+    ],
+    [
+     0.837,
+     1.255
+    ],
+    [
+     1.255,
+     1.348
+    ],
+    [
+     1.348,
+     1.488
+    ],
+    [
+     1.488,
+     1.86
+    ],
+    [
+     2.121,
+     2.354
+    ],
+    [
+     2.354,
+     2.726
+    ]
+   ]
+  },
+  {
+   "text": "La veille, ta mère transforme la maison en hôtel cinq étoiles.",
+   "bg": {
+    "type": "burst",
+    "color": "#ffe08a",
+    "color2": "#ffd04a"
+   },
+   "chars": [
+    {
+     "id": "mere",
+     "x": 67,
+     "expr": "angry",
+     "pose": "arms_up",
+     "anim": "bounce"
+    }
+   ],
+   "props": [
+    {
+     "type": "star",
+     "x": 20,
+     "y": 70,
+     "anim": "float",
+     "at_word": 6
+    },
+    {
+     "type": "star",
+     "x": 50,
+     "y": 50,
+     "anim": "float",
+     "at_word": 7
+    },
+    {
+     "type": "star",
+     "x": 84,
+     "y": 50,
+     "anim": "float",
+     "at_word": 8
+    },
+    {
+     "type": "star",
+     "x": 114,
+     "y": 70,
+     "anim": "float",
+     "at_word": 9
+    }
+   ],
+   "duration": 3.411,
+   "word_times": [
+    [
+     0.0,
+     0.162
+    ],
+    [
+     0.162,
+     0.596
+    ],
+    [
+     0.596,
+     0.758
+    ],
+    [
+     0.758,
+     1.029
+    ],
+    [
+     1.029,
+     1.624
+    ],
+    [
+     1.624,
+     1.787
+    ],
+    [
+     1.787,
+     2.166
+    ],
+    [
+     2.166,
+     2.328
+    ],
+    [
+     2.328,
+     2.653
+    ],
+    [
+     2.653,
+     2.924
+    ],
+    [
+     2.924,
+     3.411
+    ]
+   ]
+  },
+  {
+   "text": "Le salon ? Interdit toute l'année. Personne n'y a jamais mis les pieds.",
+   "bg": {
+    "type": "room",
+    "wall": "#f2c9a0"
+   },
+   "chars": [
+    {
+     "id": "moi",
+     "x": 40,
+     "expr": "worried",
+     "bubble": "question"
+    }
+   ],
+   "props": [
+    {
+     "type": "lock",
+     "x": 96,
+     "y": 120,
+     "scale": 3,
+     "at_word": 2
+    }
+   ],
+   "duration": 3.85,
+   "word_times": [
+    [
+     0.0,
+     0.127
+    ],
+    [
+     0.127,
+     0.465
+    ],
+    [
+     0.465,
+     0.846
+    ],
+    [
+     1.019,
+     1.273
+    ],
+    [
+     1.273,
+     1.654
+    ],
+    [
+     1.654,
+     2.035
+    ],
+    [
+     2.366,
+     2.535
+    ],
+    [
+     2.535,
+     2.619
+    ],
+    [
+     2.619,
+     2.915
+    ],
+    [
+     2.915,
+     3.085
+    ],
+    [
+     3.085,
+     3.254
+    ],
+    [
+     3.254,
+     3.55
+    ]
+   ]
+  },
+  {
+   "text": "Les beaux verres sortent du placard. Ceux qu'on n'a jamais le droit de toucher.",
+   "bg": {
+    "type": "plain",
+    "color": "#2c2f4a"
+   },
+   "chars": [
+    {
+     "id": "moi",
+     "x": 67,
+     "expr": "shocked",
+     "anim": "none"
+    }
+   ],
+   "props": [
+    {
+     "type": "star",
+     "x": 40,
+     "y": 70,
+     "scale": 2,
+     "anim": "blink"
+    },
+    {
+     "type": "star",
+     "x": 96,
+     "y": 60,
+     "scale": 2,
+     "anim": "blink"
+    }
+   ],
+   "fx": [
+    "zoom"
+   ],
+   "duration": 4.063,
+   "word_times": [
+    [
+     0.0,
+     0.188
+    ],
+    [
+     0.188,
+     0.471
+    ],
+    [
+     0.471,
+     0.801
+    ],
+    [
+     0.801,
+     1.178
+    ],
+    [
+     1.178,
+     1.319
+    ],
+    [
+     1.319,
+     1.743
+    ],
+    [
+     1.743,
+     1.979
+    ],
+    [
+     1.979,
+     2.261
+    ],
+    [
+     2.301,
+     2.489
+    ],
+    [
+     2.489,
+     2.819
+    ],
+    [
+     2.819,
+     2.961
+    ],
+    [
+     2.961,
+     3.243
+    ],
+    [
+     3.243,
+     3.385
+    ],
+    [
+     3.385,
+     3.809
+    ]
+   ]
+  },
+  {
+   "text": "Et toi, tu passes l'aspirateur à sept heures du matin.",
+   "bg": {
+    "type": "room",
+    "wall": "#cdd3f0"
+   },
+   "chars": [
+    {
+     "id": "moi",
+     "x": 67,
+     "expr": "sad",
+     "bubble": "zzz"
+    }
+   ],
+   "props": [
+    {
+     "type": "clock",
+     "x": 67,
+     "y": 64,
+     "scale": 3,
+     "at_word": 6
+    }
+   ],
+   "duration": 3.516,
+   "word_times": [
+    [
+     0.0,
+     0.192
+    ],
+    [
+     0.192,
+     0.511
+    ],
+    [
+     0.511,
+     0.703
+    ],
+    [
+     0.703,
+     1.151
+    ],
+    [
+     1.151,
+     1.982
+    ],
+    [
+     1.982,
+     2.11
+    ],
+    [
+     2.11,
+     2.429
+    ],
+    [
+     2.429,
+     2.877
+    ],
+    [
+     2.877,
+     3.069
+    ],
+    [
+     3.069,
+     3.516
+    ]
+   ]
+  },
+  {
+   "text": "Ding dong.",
+   "bg": {
+    "type": "burst",
+    "color": "#f38c8c",
+    "color2": "#f6a9a9"
+   },
+   "chars": [
+    {
+     "id": "mere",
+     "x": 40,
+     "expr": "shocked"
+    },
+    {
+     "id": "moi",
+     "x": 98,
+     "expr": "shocked",
+     "flip": true
+    }
+   ],
+   "props": [
+    {
+     "type": "exclam",
+     "x": 67,
+     "y": 60,
+     "scale": 3
+    }
+   ],
+   "fx": [
+    "shake",
+    "flash"
+   ],
+   "duration": 1.061,
+   "word_times": [
+    [
+     0.0,
+     0.482
+    ],
+    [
+     0.482,
+     1.061
+    ]
+   ]
+  },
+  {
+   "text": "Tu dois faire la bise à tout le monde. Même au cousin que t'as jamais vu de ta vie.",
+   "bg": {
+    "type": "room",
+    "wall": "#a6dccd"
+   },
+   "chars": [
+    {
+     "id": "moi",
+     "x": 24,
+     "expr": "worried",
+     "bubble": "sweat"
+    },
+    {
+     "id": "tante",
+     "x": 67,
+     "expr": "happy",
+     "flip": true
+    },
+    {
+     "id": "tonton",
+     "x": 110,
+     "expr": "happy",
+     "flip": true
+    }
+   ],
+   "props": [
+    {
+     "type": "question",
+     "x": 110,
+     "y": 70,
+     "scale": 2,
+     "at_word": 10
+    }
+   ],
+   "duration": 3.791,
+   "word_times": [
+    [
+     0.0,
+     0.126
+    ],
+    [
+     0.126,
+     0.336
+    ],
+    [
+     0.336,
+     0.589
+    ],
+    [
+     0.589,
+     0.715
+    ],
+    [
+     0.715,
+     0.925
+    ],
+    [
+     0.925,
+     1.009
+    ],
+    [
+     1.009,
+     1.219
+    ],
+    [
+     1.219,
+     1.346
+    ],
+    [
+     1.346,
+     1.64
+    ],
+    [
+     1.829,
+     2.04
+    ],
+    [
+     2.04,
+     2.166
+    ],
+    [
+     2.166,
+     2.46
+    ],
+    [
+     2.46,
+     2.628
+    ],
+    [
+     2.628,
+     2.839
+    ],
+    [
+     2.839,
+     3.133
+    ],
+    [
+     3.133,
+     3.259
+    ],
+    [
+     3.259,
+     3.385
+    ],
+    [
+     3.385,
+     3.511
+    ],
+    [
+     3.511,
+     3.722
+    ]
+   ]
+  },
+  {
+   "text": "Mach'Allah, comme t'as grandi !",
+   "bg": {
+    "type": "burst",
+    "color": "#ffd6e0",
+    "color2": "#ffc2d1"
+   },
+   "chars": [
+    {
+     "id": "tante",
+     "x": 67,
+     "expr": "love",
+     "pose": "arms_up",
+     "anim": "bounce"
+    }
+   ],
+   "props": [
+    {
+     "type": "heart",
+     "x": 26,
+     "y": 80,
+     "anim": "float"
+    },
+    {
+     "type": "heart",
+     "x": 108,
+     "y": 70,
+     "anim": "float"
+    }
+   ],
+   "fx": [
+    "zoom"
+   ],
+   "duration": 2.069,
+   "word_times": [
+    [
+     0.0,
+     0.776
+    ],
+    [
+     0.776,
+     1.164
+    ],
+    [
+     1.164,
+     1.487
+    ],
+    [
+     1.487,
+     2.069
+    ]
+   ]
+  },
+  {
+   "text": "Et le bac, ça se passe comment ? Et t'as une copine ?",
+   "bg": {
+    "type": "room",
+    "wall": "#f3d9a4"
+   },
+   "chars": [
+    {
+     "id": "tonton",
+     "x": 40,
+     "expr": "smirk"
+    },
+    {
+     "id": "moi",
+     "x": 98,
+     "expr": "shocked",
+     "flip": true,
+     "bubble": "sweat"
+    }
+   ],
+   "props": [
+    {
+     "type": "book",
+     "x": 40,
+     "y": 70,
+     "scale": 2,
+     "at_word": 2
+    },
+    {
+     "type": "heart",
+     "x": 98,
+     "y": 64,
+     "scale": 2,
+     "at_word": 9
+    }
+   ],
+   "duration": 2.594,
+   "word_times": [
+    [
+     0.0,
+     0.127
+    ],
+    [
+     0.127,
+     0.253
+    ],
+    [
+     0.253,
+     0.464
+    ],
+    [
+     0.464,
+     0.591
+    ],
+    [
+     0.591,
+     0.717
+    ],
+    [
+     0.717,
+     0.97
+    ],
+    [
+     0.97,
+     1.392
+    ],
+    [
+     1.647,
+     1.773
+    ],
+    [
+     1.773,
+     1.984
+    ],
+    [
+     1.984,
+     2.153
+    ],
+    [
+     2.153,
+     2.533
+    ]
+   ]
+  },
+  {
+   "text": "Et ta mère répond à ta place : il travaille très bien !",
+   "bg": {
+    "type": "room",
+    "wall": "#f3d9a4"
+   },
+   "chars": [
+    {
+     "id": "mere",
+     "x": 40,
+     "expr": "laugh",
+     "anim": "bounce"
+    },
+    {
+     "id": "moi",
+     "x": 98,
+     "expr": "smirk",
+     "flip": true
+    }
+   ],
+   "props": [
+    {
+     "type": "x",
+     "x": 98,
+     "y": 64,
+     "scale": 2,
+     "at_word": 8
+    }
+   ],
+   "duration": 2.902,
+   "word_times": [
+    [
+     0.0,
+     0.143
+    ],
+    [
+     0.143,
+     0.285
+    ],
+    [
+     0.285,
+     0.523
+    ],
+    [
+     0.523,
+     0.856
+    ],
+    [
+     0.856,
+     0.951
+    ],
+    [
+     0.951,
+     1.094
+    ],
+    [
+     1.094,
+     1.474
+    ],
+    [
+     1.668,
+     1.811
+    ],
+    [
+     1.811,
+     2.287
+    ],
+    [
+     2.287,
+     2.524
+    ],
+    [
+     2.524,
+     2.857
+    ]
+   ]
+  },
+  {
+   "text": "Pendant ce temps, le petit mange tous les gâteaux.",
+   "bg": {
+    "type": "burst",
+    "color": "#c9f0c0",
+    "color2": "#a8e59a"
+   },
+   "chars": [
+    {
+     "id": "petit",
+     "x": 67,
+     "expr": "laugh",
+     "hold": "cake",
+     "anim": "jump"
+    }
+   ],
+   "props": [
+    {
+     "type": "cake",
+     "x": 30,
+     "y": 90,
+     "scale": 2,
+     "at_word": 4
+    },
+    {
+     "type": "cake",
+     "x": 104,
+     "y": 80,
+     "scale": 2,
+     "at_word": 6
+    }
+   ],
+   "duration": 2.374,
+   "word_times": [
+    [
+     0.0,
+     0.372
+    ],
+    [
+     0.372,
+     0.512
+    ],
+    [
+     0.512,
+     0.838
+    ],
+    [
+     0.838,
+     0.977
+    ],
+    [
+     0.977,
+     1.257
+    ],
+    [
+     1.257,
+     1.536
+    ],
+    [
+     1.536,
+     1.768
+    ],
+    [
+     1.768,
+     1.955
+    ],
+    [
+     1.955,
+     2.374
+    ]
+   ]
+  },
+  {
+   "text": "Toi, si tu touches un seul gâteau, ta mère te regarde comme ça.",
+   "bg": {
+    "type": "plain",
+    "color": "#2c2f4a"
+   },
+   "chars": [
+    {
+     "id": "mere",
+     "x": 67,
+     "expr": "angry",
+     "anim": "none",
+     "bubble": "anger"
+    }
+   ],
+   "fx": [
+    "zoom",
+    "shake"
+   ],
+   "duration": 3.761,
+   "word_times": [
+    [
+     0.0,
+     0.267
+    ],
+    [
+     0.267,
+     0.427
+    ],
+    [
+     0.427,
+     0.587
+    ],
+    [
+     0.587,
+     1.014
+    ],
+    [
+     1.014,
+     1.175
+    ],
+    [
+     1.175,
+     1.442
+    ],
+    [
+     1.442,
+     1.869
+    ],
+    [
+     1.869,
+     2.029
+    ],
+    [
+     2.029,
+     2.296
+    ],
+    [
+     2.418,
+     2.578
+    ],
+    [
+     2.578,
+     3.005
+    ],
+    [
+     3.005,
+     3.325
+    ],
+    [
+     3.325,
+     3.539
+    ]
+   ]
+  },
+  {
+   "text": "Les invités partent à minuit. Tu crois que c'est fini ?",
+   "bg": {
+    "type": "night"
+   },
+   "chars": [
+    {
+     "id": "moi",
+     "x": 67,
+     "expr": "happy",
+     "anim": "bounce"
+    }
+   ],
+   "props": [
+    {
+     "type": "clock",
+     "x": 100,
+     "y": 64,
+     "scale": 2,
+     "at_word": 3
+    }
+   ],
+   "duration": 2.475,
+   "word_times": [
+    [
+     0.0,
+     0.154
+    ],
+    [
+     0.154,
+     0.461
+    ],
+    [
+     0.461,
+     0.768
+    ],
+    [
+     0.768,
+     0.845
+    ],
+    [
+     0.845,
+     1.152
+    ],
+    [
+     1.152,
+     1.267
+    ],
+    [
+     1.267,
+     1.497
+    ],
+    [
+     1.629,
+     1.783
+    ],
+    [
+     1.783,
+     2.013
+    ],
+    [
+     2.013,
+     2.282
+    ]
+   ]
+  },
+  {
+   "text": "Non. Maintenant il faut tout ranger.",
+   "bg": {
+    "type": "room",
+    "wall": "#cdd3f0"
+   },
+   "chars": [
+    {
+     "id": "moi",
+     "x": 67,
+     "expr": "sad",
+     "anim": "none",
+     "bubble": "sweat"
+    }
+   ],
+   "props": [
+    {
+     "type": "cake",
+     "x": 26,
+     "y": 160,
+     "scale": 2
+    },
+    {
+     "type": "paper",
+     "x": 108,
+     "y": 150,
+     "scale": 2
+    }
+   ],
+   "fx": [
+    "flash"
+   ],
+   "duration": 1.961,
+   "word_times": [
+    [
+     0.0,
+     0.23
+    ],
+    [
+     0.23,
+     0.736
+    ],
+    [
+     0.736,
+     0.874
+    ],
+    [
+     0.874,
+     1.104
+    ],
+    [
+     1.104,
+     1.334
+    ],
+    [
+     1.334,
+     1.703
+    ]
+   ]
+  },
+  {
+   "text": "Et ta mère commente tout : t'as vu comment elle était habillée ?",
+   "bg": {
+    "type": "room",
+    "wall": "#a6dccd"
+   },
+   "chars": [
+    {
+     "id": "mere",
+     "x": 40,
+     "expr": "smirk"
+    },
+    {
+     "id": "pere",
+     "x": 98,
+     "expr": "worried",
+     "flip": true,
+     "bubble": "question"
+    }
+   ],
+   "duration": 2.902,
+   "word_times": [
+    [
+     0.0,
+     0.121
+    ],
+    [
+     0.121,
+     0.242
+    ],
+    [
+     0.242,
+     0.443
+    ],
+    [
+     0.443,
+     0.806
+    ],
+    [
+     0.806,
+     1.088
+    ],
+    [
+     1.088,
+     1.29
+    ],
+    [
+     1.467,
+     1.588
+    ],
+    [
+     1.588,
+     1.91
+    ],
+    [
+     1.91,
+     2.112
+    ],
+    [
+     2.112,
+     2.354
+    ],
+    [
+     2.354,
+     2.797
+    ]
+   ]
+  },
+  {
+   "text": "Abonne-toi si chez toi aussi le salon est interdit.",
+   "bg": {
+    "type": "split",
+    "left": "#c9ccd8",
+    "right": "#ffe08a"
+   },
+   "chars": [
+    {
+     "id": "moi",
+     "x": 34,
+     "expr": "happy",
+     "pose": "wave"
+    },
+    {
+     "id": "mere",
+     "x": 100,
+     "expr": "happy",
+     "flip": true
+    }
+   ],
+   "props": [
+    {
+     "type": "lock",
+     "x": 67,
+     "y": 70,
+     "scale": 3,
+     "anim": "float"
+    }
+   ],
+   "duration": 3.314,
+   "word_times": [
+    [
+     0.0,
+     0.532
+    ],
+    [
+     0.532,
+     0.677
+    ],
+    [
+     0.677,
+     0.919
+    ],
+    [
+     0.919,
+     1.112
+    ],
+    [
+     1.112,
+     1.402
+    ],
+    [
+     1.402,
+     1.547
+    ],
+    [
+     1.547,
+     1.837
+    ],
+    [
+     1.837,
+     2.03
+    ],
+    [
+     2.03,
+     2.514
+    ]
+   ]
+  }
+ ],
+ "voiceover": "voix/invites.mp3"
+}
