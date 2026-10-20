@@ -16,12 +16,11 @@ import tempfile
 from PIL import Image, ImageDraw, ImageFont
 
 from . import sprites
-from .sprites import W, H, FLOOR_Y
+from .sprites import W, H, U
 
-SCALE = 8                       # 135x240 -> 1080x1920
-CHAR_W, CHAR_H = 64, 72         # character sprite box before its own upscale
-OUT_W, OUT_H = W * SCALE, H * SCALE
-CAP_SCALE = 4                   # captions are drawn at 270x480 then upscaled
+# Frames (scene + captions) are composed at 270x480 and upscaled by ffmpeg
+# with nearest-neighbour: x8 = 2160x3840 (4K), x4 = 1080x1920.
+SCALE = 8
 FONT_CANDIDATES = [
     "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
     "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf",
@@ -131,20 +130,20 @@ def char_offset(anim, lt, seed):
     bob = 1 if int((lt + seed * 0.37) * 2.5) % 2 else 0
     if anim == "jump":
         ph = (lt * 2.2 + seed * 0.3) % 1.0
-        return 0, -int(10 * math.sin(ph * math.pi))
+        return 0, -int(10 * U * math.sin(ph * math.pi))
     if anim == "bounce":
-        return 0, -abs(int(3 * math.sin(lt * 9 + seed)))
+        return 0, -abs(int(3 * U * math.sin(lt * 9 + seed)))
     if anim == "shake":
-        return int(2 * math.sin(lt * 50 + seed)), 0
+        return int(2 * U * math.sin(lt * 50 + seed)), 0
     if anim == "walk_in":
         p = min(1.0, lt / 0.6)
-        return int((1 - p) * -90), -(int(lt * 8) % 2)
+        return int((1 - p) * -90 * U), -(int(lt * 8) % 2) * U
     if anim == "walk_in_right":
         p = min(1.0, lt / 0.6)
-        return int((1 - p) * 90), -(int(lt * 8) % 2)
+        return int((1 - p) * 90 * U), -(int(lt * 8) % 2) * U
     if anim == "none":
         return 0, 0
-    return 0, -bob
+    return 0, -bob * U
 
 
 def prop_visible(p, lt, word_times):
@@ -160,42 +159,43 @@ def prop_visible(p, lt, word_times):
 
 
 def render_scene_frame(item, lt, cast):
+    """Scene image (RGB, 270x480). Story coordinates are in 135x240 units."""
     sc = item["scene"]
-    img = Image.new("RGB", (W, H))
-    sprites.draw_background(img, sc.get("bg", {}), lt)
-
-    for p in sc.get("props", []):
-        if p.get("layer") != "back":
-            continue
-        _draw_prop_inst(img, p, lt, item["word_times"])
-
-    for n, c in enumerate(sc.get("chars", [])):
-        spec = dict(cast.get(c.get("id"), {}))
-        spec.update(c.get("spec", {}))
-        dx, dy = char_offset(c.get("anim", "idle"), lt, n + 1)
-        blink = ((lt + n * 1.3) % 3.2) < 0.12
-        x = int(c.get("x", W // 2)) + dx
-        feet = int(c.get("y", FLOOR_Y + 24 + c.get("row", 0) * 10)) + dy
-        cs = int(c.get("scale", 2))
-        sprite = Image.new("RGBA", (CHAR_W, CHAR_H), (0, 0, 0, 0))
-        top = sprites.draw_character(sprite, CHAR_W // 2, CHAR_H - 1, spec,
-                                     c.get("expr", "neutral"), c.get("pose", "stand"),
-                                     blink, c.get("flip", False), c.get("hold"), lt)
-        if cs > 1:
-            sprite = sprite.resize((CHAR_W * cs, CHAR_H * cs), Image.NEAREST)
-        if c.get("ghost"):  # half-transparent: the forgotten one
-            sprite.putalpha(sprite.getchannel("A").point(lambda v: v * 45 // 100))
-        img.paste(sprite, (x - CHAR_W // 2 * cs, feet - (CHAR_H - 1) * cs), sprite)
-        if c.get("bubble"):
-            bob = int(math.sin(lt * 5) * 1.5)
-            by = feet - (CHAR_H - 1 - top) * cs
-            sprites.draw_prop(img, c["bubble"], x + 7 * cs, by - 6 * cs + bob, scale=cs)
+    img = sprites.background(sc.get("bg", {}), lt)
 
     for p in sc.get("props", []):
         if p.get("layer") == "back":
-            continue
-        _draw_prop_inst(img, p, lt, item["word_times"])
+            _draw_prop_inst(img, p, lt, item["word_times"])
 
+    chars = []
+    for n, c in enumerate(sc.get("chars", [])):
+        dx, dy = char_offset(c.get("anim", "idle"), lt, n + 1)
+        x = int(c.get("x", 67) * U) + dx
+        feet = int((c.get("y", 196) + c.get("row", 0) * 10) * U)
+        chars.append((n, c, x, feet, dy))
+    for n, c, x, feet, dy in chars:
+        if not c.get("ghost"):
+            img = sprites.ground_shadow(img, x, feet, 72)
+    for n, c, x, feet, dy in chars:
+        spec = dict(cast.get(c.get("id"), {}))
+        spec.update(c.get("spec", {}))
+        blink = ((lt + n * 1.3) % 3.2) < 0.12
+        sprite, top = sprites.draw_character(spec, c.get("expr", "neutral"), c.get("pose", "stand"),
+                                             blink, c.get("flip", False), c.get("hold"), lt)
+        if c.get("ghost"):  # half-transparent: the forgotten one
+            sprite.putalpha(sprite.getchannel("A").point(lambda v: v * 45 // 100))
+        ox, oy = x - sprites.SCX, feet + dy - sprites.SFEET
+        img.paste(sprite, (ox, oy), sprite)
+        if c.get("bubble"):
+            bob = int(math.sin(lt * 5) * 3)
+            side = -1 if c.get("flip") else 1
+            sprites.draw_prop(img, c["bubble"], x + side * 30, oy + top - 30 + bob, size=40, t=lt)
+
+    for p in sc.get("props", []):
+        if p.get("layer") != "back":
+            _draw_prop_inst(img, p, lt, item["word_times"])
+
+    img = img.convert("RGB")
     fx = sc.get("fx", [])
     if "zoom" in fx:
         z = 1 + min(0.18, lt * 0.12)
@@ -203,7 +203,7 @@ def render_scene_frame(item, lt, cast):
         x0, y0 = (W - cw) // 2, int((H - ch) * 0.55)
         img = img.crop((x0, y0, x0 + cw, y0 + ch)).resize((W, H), Image.NEAREST)
     if "shake" in fx and lt < 0.5:
-        off = int(3 * math.sin(lt * 70))
+        off = int(3 * U * math.sin(lt * 70))
         shifted = Image.new("RGB", (W, H))
         shifted.paste(img, (off, 0))
         img = shifted
@@ -216,20 +216,20 @@ def _draw_prop_inst(img, p, lt, word_times):
     vis, k = prop_visible(p, lt, word_times)
     if not vis:
         return
-    x, y = p.get("x", W // 2), p.get("y", 80)
+    x, y = p.get("x", 67) * U, p.get("y", 80) * U
     if p.get("anim") == "float":
-        y += int(2 * math.sin(lt * 4 + x))
+        y += int(2 * U * math.sin(lt * 4 + x))
     if p.get("anim") == "blink" and int(lt * 3) % 2:
         return
-    scale = p.get("scale", 2)
-    if k < 1 and scale > 1:
-        scale -= 1  # smaller "pop" frame right before it lands
-    sprites.draw_prop(img, p["type"], x, y, scale=scale, t=lt)
+    size = 16 * U * p.get("scale", 2)
+    if k < 1:
+        size *= 0.7  # smaller "pop" frame right before it lands
+    sprites.draw_prop(img, p["type"], x, y, size=size, t=lt)
 
 
 class Captioner:
     def __init__(self, style):
-        self.cw, self.ch = OUT_W // CAP_SCALE, OUT_H // CAP_SCALE
+        self.cw, self.ch = W, H
         self.size = style.get("size", 28)
         self.font_path = style.get("font")
         self.fonts = {}
@@ -247,23 +247,26 @@ class Captioner:
         n = self.max_words
         return [list(range(i, min(i + n, len(words)))) for i in range(0, len(words), n)]
 
-    def layer(self, words, word_times, lt, header=None):
-        lay = Image.new("RGBA", (self.cw, self.ch), (0, 0, 0, 0))
-        d = ImageDraw.Draw(lay)
-        d.fontmode = "1"  # no antialiasing -> pixel font look
-        if header:
-            self._line(d, header.upper(), [], -1, 34, self.size - 6, (255, 255, 255))
+    @staticmethod
+    def state(words, word_times, lt):
+        """Index of the word being said, or None when no caption is shown."""
         cur = None
         for i, (s, e) in enumerate(word_times):
             if s <= lt:
                 cur = i
-        if cur is not None and words:
-            if lt > word_times[-1][1] + 0.6:
-                return lay
+        if cur is None or not words or lt > word_times[-1][1] + 0.6:
+            return None
+        return cur
+
+    def draw(self, img, words, cur, header=None):
+        d = ImageDraw.Draw(img)
+        d.fontmode = "1"  # no antialiasing -> pixel font look
+        if header:
+            self._line(d, header.upper(), [], -1, 34, self.size - 6, (255, 255, 255))
+        if cur is not None:
             chunk = next(c for c in self.chunks(words) if cur in c)
             self._line(d, " ".join(words[j] for j in chunk), chunk, cur,
                        int(self.ch * self.y), self.size, self.color, words)
-        return lay
 
     def _line(self, d, text, chunk, cur, y, size, color, words=None):
         f = self.font(size)
@@ -316,7 +319,7 @@ def build_audio(plan, total, music, out_wav, tmp, voiceover=None):
     return out_wav
 
 
-def render(story, out, tts=False, music=None, preview=None):
+def render(story, out, tts=False, music=None, preview=None, scale=SCALE):
     fps = story.get("fps", 30)
     cast = story.get("cast", {})
     cap = Captioner(story.get("captions", {}))
@@ -328,14 +331,15 @@ def render(story, out, tts=False, music=None, preview=None):
             item = plan[preview]
             lt = (item["end"] - item["start"]) * 0.6
             frame = compose(item, lt, cast, cap, story.get("header"))
-            frame.save(out)
+            frame.resize((W * 4, H * 4), Image.NEAREST).save(out)
             return
 
         silent = os.path.join(tmp, "video.mp4")
         proc = subprocess.Popen([
             "ffmpeg", "-y", "-v", "error", "-f", "rawvideo", "-pix_fmt", "rgb24",
-            "-s", f"{OUT_W}x{OUT_H}", "-r", str(fps), "-i", "-",
-            "-c:v", "libx264", "-preset", "medium", "-crf", "18",
+            "-s", f"{W}x{H}", "-r", str(fps), "-i", "-",
+            "-vf", f"scale={W * scale}:{H * scale}:flags=neighbor",
+            "-c:v", "libx264", "-preset", "fast", "-crf", "16", "-tune", "animation",
             "-pix_fmt", "yuv420p", silent], stdin=subprocess.PIPE)
         nframes = int(math.ceil(total * fps))
         k = 0
@@ -345,7 +349,7 @@ def render(story, out, tts=False, music=None, preview=None):
                 k += 1
             item = plan[k]
             frame = compose(item, t - item["start"], cast, cap, story.get("header"))
-            proc.stdin.write(frame.tobytes())
+            proc.stdin.write(frame.tobytes() if not isinstance(frame, bytes) else frame)
             if f % (fps * 5) == 0:
                 print(f"  {t:5.1f}s / {total:.1f}s", file=sys.stderr)
         proc.stdin.close()
@@ -369,17 +373,17 @@ _last = {}
 
 
 def compose(item, lt, cast, cap, header):
-    # pixel layer animates at 12 fps for a retro feel; cache identical frames
+    """Final 270x480 frame. The pixel layer animates at 12 fps; frames are cached."""
     q = int(lt * 12) / 12
     key = (id(item), q)
     if _last.get("key") != key:
-        base = render_scene_frame(item, q, cast).resize((OUT_W, OUT_H), Image.NEAREST)
-        _last.update(key=key, base=base)
-    frame = _last["base"].copy()
-    lay = cap.layer(item["words"], item["word_times"], lt, header)
-    lay = lay.resize((OUT_W, OUT_H), Image.NEAREST)
-    frame.paste(lay, (0, 0), lay)
-    return frame
+        _last.update(key=key, base=render_scene_frame(item, q, cast), cap=None)
+    cur = cap.state(item["words"], item["word_times"], lt)
+    if _last.get("cap") != (cur,) or "frame" not in _last:
+        frame = _last["base"].copy()
+        cap.draw(frame, item["words"], cur, header)
+        _last.update(cap=(cur,), frame=frame)
+    return _last["frame"]
 
 
 def main():
@@ -389,10 +393,12 @@ def main():
     ap.add_argument("--tts", action="store_true", help="voix off auto avec edge-tts (internet requis)")
     ap.add_argument("--music", help="musique de fond (mp3/wav), en boucle, volume bas")
     ap.add_argument("--preview", type=int, help="n° de scène: sort juste une image PNG")
+    ap.add_argument("--res", choices=["4k", "1080"], default="4k", help="résolution de sortie")
     a = ap.parse_args()
     with open(a.story, encoding="utf-8") as f:
         story = json.load(f)
-    render(story, a.out, tts=a.tts, music=a.music, preview=a.preview)
+    render(story, a.out, tts=a.tts, music=a.music, preview=a.preview,
+           scale=8 if a.res == "4k" else 4)
 
 
 if __name__ == "__main__":
