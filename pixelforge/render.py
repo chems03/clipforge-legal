@@ -258,11 +258,13 @@ class Captioner:
             return None
         return cur
 
-    def draw(self, img, words, cur, header=None):
+    def draw(self, img, words, cur, header=None, title=None):
         d = ImageDraw.Draw(img)
         d.fontmode = "1"  # no antialiasing -> pixel font look
         if header:
             self._line(d, header.upper(), [], -1, 34, self.size - 6, (255, 255, 255))
+        if title:  # big title card text, e.g. "PREUVE N°1"
+            self._line(d, title.upper(), [], -1, int(self.ch * 0.3), self.size + 16, self.hl)
         if cur is not None:
             chunk = next(c for c in self.chunks(words) if cur in c)
             self._line(d, " ".join(words[j] for j in chunk), chunk, cur,
@@ -381,7 +383,7 @@ def compose(item, lt, cast, cap, header):
     cur = cap.state(item["words"], item["word_times"], lt)
     if _last.get("cap") != (cur,) or "frame" not in _last:
         frame = _last["base"].copy()
-        cap.draw(frame, item["words"], cur, header)
+        cap.draw(frame, item["words"], cur, header, item["scene"].get("title"))
         _last.update(cap=(cur,), frame=frame)
     return _last["frame"]
 

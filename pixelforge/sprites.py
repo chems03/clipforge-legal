@@ -576,7 +576,7 @@ def _accessories(arr, S, acc, hair, g, t):
 # Props
 # --------------------------------------------------------------------------
 
-PROPS = ["cake", "paper", "phone", "gift", "tv", "lock", "heart", "x", "check", "question",
+PROPS = ["photo", "cake", "paper", "phone", "gift", "tv", "lock", "heart", "x", "check", "question",
          "exclam", "controller", "money", "book", "pizza", "clock", "star",
          "zzz", "bulb", "trophy", "sweat", "anger"]
 
@@ -660,6 +660,13 @@ def prop_image(kind, size, t=0.0):
                               ((.35, -.12), (60, 120, 230)), ((.55, .06), (250, 210, 60))):
             paint(arr, S().ellipse([c + dx * s - 3, c + dy * s - 3, c + dx * s + 3, c + dy * s + 3]).m,
                   col, shade_px=1)
+    elif kind == "photo":
+        paint(arr, S().rect([c - .75 * s, c - .9 * s, c + .75 * s, c + .9 * s]).m, WHITE, shade_px=3)
+        pic = S().rect([c - .6 * s, c - .75 * s, c + .6 * s, c + .45 * s]).m
+        grad(arr, (0, c - .75 * s, B, c + .45 * s), (140, 200, 245), (220, 240, 255), mask=pic)
+        put(arr, S().ellipse([c - .9 * s, c + .1 * s, c + .3 * s, c + .9 * s]).m & pic, (110, 190, 110))
+        paint(arr, S().ellipse([c - .1 * s, c - .45 * s, c + .3 * s, c - .05 * s]).m & pic, (247, 212, 181),
+              outline=0, shade_px=1)
     elif kind == "cake":
         paint(arr, S().ellipse([c - 1.0 * s, c + .35 * s, c + 1.0 * s, c + .85 * s]).m, (235, 238, 250), shade_px=2)
         for (dx, dy), col in (((-.5, .2), (240, 170, 200)), ((.05, .25), (250, 210, 120)),
