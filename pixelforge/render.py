@@ -314,7 +314,8 @@ def build_audio(plan, total, music, out_wav, tmp, voiceover=None):
         labels.append(f"[a{idx}]")
     if not labels:
         return None
-    filters.append("".join(labels) + f"amix=inputs={len(labels)}:normalize=0,apad,"
+    filters.append("".join(labels) + f"amix=inputs={len(labels)}:normalize=0,"
+                   f"loudnorm=I=-14:TP=-1.5:LRA=11,aresample=44100,apad,"
                    f"atrim=0:{total:.3f}[out]")
     subprocess.run(["ffmpeg", "-y", "-v", "error", *inputs, "-filter_complex",
                     ";".join(filters), "-map", "[out]", out_wav], check=True)
@@ -362,7 +363,8 @@ def render(story, out, tts=False, music=None, preview=None, scale=SCALE):
         os.makedirs(os.path.dirname(os.path.abspath(out)), exist_ok=True)
         if wav:
             subprocess.run(["ffmpeg", "-y", "-v", "error", "-i", silent, "-i", wav,
-                            "-c:v", "copy", "-c:a", "aac", "-b:a", "192k", "-shortest", out],
+                            "-c:v", "copy", "-c:a", "aac", "-b:a", "192k", "-shortest",
+                            "-movflags", "+faststart", out],
                            check=True)
         else:
             shutil.copy(silent, out)
