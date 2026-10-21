@@ -1,0 +1,1126 @@
+{
+ "title": "Ils nous aiment tous pareil (c'est faux)",
+ "header": "Ils nous aiment tous pareil...",
+ "fps": 30,
+ "words_per_second": 2.6,
+ "captions": {
+  "size": 28,
+  "y": 0.8,
+  "max_words": 2,
+  "highlight": "#ffd93b"
+ },
+ "cast": {
+  "moi": {
+   "skin": "medium",
+   "hair": "short",
+   "hair_color": "#2a1a14",
+   "shirt": "#3550a8",
+   "pants": "#232742",
+   "acc": [
+    "hoodie"
+   ]
+  },
+  "soeur": {
+   "skin": "medium",
+   "hair": "ponytail",
+   "hair_color": "#2a1a14",
+   "shirt": "#f07aa0",
+   "pants": "#2b2f45",
+   "shoes": "#ffffff",
+   "size": 0.8
+  },
+  "mere": {
+   "skin": "medium",
+   "hair": "bun",
+   "hair_color": "#2a1a14",
+   "shirt": "#38b49a",
+   "pants": "#38b49a",
+   "shoes": "#f39ab4",
+   "acc": [
+    "dress",
+    "earrings"
+   ]
+  },
+  "pere": {
+   "skin": "medium",
+   "hair": "short",
+   "hair_color": "#2a1a14",
+   "shirt": "#f0f0f0",
+   "pants": "#3d3d55",
+   "acc": [
+    "mustache"
+   ]
+  }
+ },
+ "scenes": [
+  {
+   "text": "Mes parents disent qu'ils nous aiment tous pareil.",
+   "bg": {
+    "type": "room",
+    "wall": "#f3d9a4"
+   },
+   "chars": [
+    {
+     "id": "pere",
+     "x": 40,
+     "expr": "happy"
+    },
+    {
+     "id": "mere",
+     "x": 96,
+     "expr": "love",
+     "flip": true
+    }
+   ],
+   "props": [
+    {
+     "type": "heart",
+     "x": 67,
+     "y": 70,
+     "scale": 3,
+     "anim": "float"
+    }
+   ],
+   "fx": [
+    "flash"
+   ],
+   "duration": 2.361,
+   "word_times": [
+    [
+     0.0,
+     0.185
+    ],
+    [
+     0.185,
+     0.555
+    ],
+    [
+     0.555,
+     0.88
+    ],
+    [
+     0.88,
+     1.204
+    ],
+    [
+     1.204,
+     1.435
+    ],
+    [
+     1.435,
+     1.759
+    ],
+    [
+     1.759,
+     1.99
+    ],
+    [
+     1.99,
+     2.361
+    ]
+   ]
+  },
+  {
+   "text": "Voici les preuves que c'est faux.",
+   "bg": {
+    "type": "burst",
+    "color": "#f38c8c",
+    "color2": "#f6a9a9"
+   },
+   "chars": [
+    {
+     "id": "moi",
+     "x": 67,
+     "expr": "smirk",
+     "hold": "paper",
+     "anim": "bounce"
+    }
+   ],
+   "fx": [
+    "zoom"
+   ],
+   "duration": 1.811,
+   "word_times": [
+    [
+     0.0,
+     0.32
+    ],
+    [
+     0.32,
+     0.533
+    ],
+    [
+     0.533,
+     0.959
+    ],
+    [
+     0.959,
+     1.172
+    ],
+    [
+     1.172,
+     1.491
+    ],
+    [
+     1.491,
+     1.811
+    ]
+   ]
+  },
+  {
+   "title": "Preuve n°1",
+   "text": "Preuve numéro un : les photos.",
+   "bg": {
+    "type": "plain",
+    "color": "#2c2f4a"
+   },
+   "props": [
+    {
+     "type": "photo",
+     "x": 67,
+     "y": 150,
+     "scale": 4,
+     "anim": "float"
+    }
+   ],
+   "fx": [
+    "flash"
+   ],
+   "duration": 2.34,
+   "word_times": [
+    [
+     0.0,
+     0.445
+    ],
+    [
+     0.445,
+     0.89
+    ],
+    [
+     0.89,
+     1.208
+    ],
+    [
+     1.532,
+     1.787
+    ],
+    [
+     1.787,
+     2.295
+    ]
+   ]
+  },
+  {
+   "text": "Ma sœur a trois albums de bébé. Moi j'ai une seule photo. Et je suis flou.",
+   "bg": {
+    "type": "room",
+    "wall": "#a6dccd"
+   },
+   "chars": [
+    {
+     "id": "soeur",
+     "x": 36,
+     "expr": "laugh",
+     "anim": "bounce"
+    },
+    {
+     "id": "moi",
+     "x": 100,
+     "expr": "sad",
+     "flip": true
+    }
+   ],
+   "props": [
+    {
+     "type": "photo",
+     "x": 18,
+     "y": 70,
+     "scale": 2,
+     "at_word": 3
+    },
+    {
+     "type": "photo",
+     "x": 40,
+     "y": 60,
+     "scale": 2,
+     "at_word": 4
+    },
+    {
+     "type": "photo",
+     "x": 62,
+     "y": 70,
+     "scale": 2,
+     "at_word": 5
+    },
+    {
+     "type": "photo",
+     "x": 108,
+     "y": 66,
+     "scale": 2,
+     "at_word": 9
+    }
+   ],
+   "duration": 4.742,
+   "word_times": [
+    [
+     0.0,
+     0.16
+    ],
+    [
+     0.16,
+     0.428
+    ],
+    [
+     0.428,
+     0.535
+    ],
+    [
+     0.535,
+     0.856
+    ],
+    [
+     0.856,
+     1.23
+    ],
+    [
+     1.23,
+     1.39
+    ],
+    [
+     1.39,
+     1.711
+    ],
+    [
+     1.711,
+     1.925
+    ],
+    [
+     2.041,
+     2.308
+    ],
+    [
+     2.308,
+     2.522
+    ],
+    [
+     2.522,
+     2.843
+    ],
+    [
+     2.843,
+     3.217
+    ],
+    [
+     3.217,
+     3.378
+    ],
+    [
+     3.836,
+     3.996
+    ],
+    [
+     3.996,
+     4.264
+    ],
+    [
+     4.264,
+     4.584
+    ]
+   ]
+  },
+  {
+   "title": "Preuve n°2",
+   "text": "Preuve numéro deux : les cadeaux.",
+   "bg": {
+    "type": "plain",
+    "color": "#2c2f4a"
+   },
+   "props": [
+    {
+     "type": "gift",
+     "x": 67,
+     "y": 150,
+     "scale": 4,
+     "anim": "float"
+    }
+   ],
+   "fx": [
+    "flash"
+   ],
+   "duration": 2.256,
+   "word_times": [
+    [
+     0.0,
+     0.382
+    ],
+    [
+     0.382,
+     0.764
+    ],
+    [
+     0.764,
+     1.145
+    ],
+    [
+     1.504,
+     1.723
+    ],
+    [
+     1.723,
+     2.214
+    ]
+   ]
+  },
+  {
+   "text": "Pour son anniversaire, ma sœur a eu un téléphone. Moi j'ai eu une carte avec cinq euros dedans.",
+   "bg": {
+    "type": "split",
+    "left": "#ffe08a",
+    "right": "#bfc4d6"
+   },
+   "chars": [
+    {
+     "id": "soeur",
+     "x": 34,
+     "expr": "laugh",
+     "hold": "phone",
+     "anim": "jump"
+    },
+    {
+     "id": "moi",
+     "x": 100,
+     "expr": "worried",
+     "hold": "money"
+    }
+   ],
+   "duration": 4.952,
+   "word_times": [
+    [
+     0.0,
+     0.244
+    ],
+    [
+     0.244,
+     0.439
+    ],
+    [
+     0.439,
+     1.121
+    ],
+    [
+     1.121,
+     1.267
+    ],
+    [
+     1.267,
+     1.511
+    ],
+    [
+     1.511,
+     1.609
+    ],
+    [
+     1.609,
+     1.755
+    ],
+    [
+     1.755,
+     1.901
+    ],
+    [
+     1.901,
+     2.437
+    ],
+    [
+     2.437,
+     2.632
+    ],
+    [
+     2.799,
+     3.043
+    ],
+    [
+     3.043,
+     3.189
+    ],
+    [
+     3.189,
+     3.384
+    ],
+    [
+     3.384,
+     3.677
+    ],
+    [
+     3.677,
+     3.92
+    ],
+    [
+     3.92,
+     4.164
+    ],
+    [
+     4.164,
+     4.457
+    ],
+    [
+     4.457,
+     4.847
+    ]
+   ]
+  },
+  {
+   "title": "Preuve n°3",
+   "text": "Preuve numéro trois : les bêtises.",
+   "bg": {
+    "type": "plain",
+    "color": "#2c2f4a"
+   },
+   "props": [
+    {
+     "type": "x",
+     "x": 67,
+     "y": 150,
+     "scale": 4
+    }
+   ],
+   "fx": [
+    "flash"
+   ],
+   "duration": 2.533,
+   "word_times": [
+    [
+     0.0,
+     0.43
+    ],
+    [
+     0.43,
+     0.861
+    ],
+    [
+     0.861,
+     1.352
+    ],
+    [
+     1.518,
+     1.764
+    ],
+    [
+     1.764,
+     2.317
+    ]
+   ]
+  },
+  {
+   "text": "Ma sœur casse un verre : c'est rien ma chérie !",
+   "bg": {
+    "type": "burst",
+    "color": "#ffd6e0",
+    "color2": "#ffc2d1"
+   },
+   "chars": [
+    {
+     "id": "soeur",
+     "x": 40,
+     "expr": "worried"
+    },
+    {
+     "id": "mere",
+     "x": 98,
+     "expr": "love",
+     "flip": true,
+     "bubble": "heart"
+    }
+   ],
+   "duration": 2.709,
+   "word_times": [
+    [
+     0.0,
+     0.153
+    ],
+    [
+     0.153,
+     0.409
+    ],
+    [
+     0.409,
+     0.716
+    ],
+    [
+     0.716,
+     0.87
+    ],
+    [
+     0.87,
+     1.279
+    ],
+    [
+     1.484,
+     1.79
+    ],
+    [
+     1.79,
+     2.046
+    ],
+    [
+     2.046,
+     2.2
+    ],
+    [
+     2.2,
+     2.66
+    ]
+   ]
+  },
+  {
+   "text": "Moi je casse un verre : tu sais combien ça coûte ?!",
+   "bg": {
+    "type": "burst",
+    "color": "#e86a6a",
+    "color2": "#f08c8c"
+   },
+   "chars": [
+    {
+     "id": "moi",
+     "x": 40,
+     "expr": "shocked",
+     "bubble": "sweat"
+    },
+    {
+     "id": "mere",
+     "x": 98,
+     "expr": "angry",
+     "flip": true,
+     "anim": "shake",
+     "bubble": "anger"
+    }
+   ],
+   "fx": [
+    "shake",
+    "flash"
+   ],
+   "duration": 2.538,
+   "word_times": [
+    [
+     0.0,
+     0.195
+    ],
+    [
+     0.195,
+     0.342
+    ],
+    [
+     0.342,
+     0.635
+    ],
+    [
+     0.635,
+     0.781
+    ],
+    [
+     0.781,
+     1.171
+    ],
+    [
+     1.171,
+     1.318
+    ],
+    [
+     1.318,
+     1.562
+    ],
+    [
+     1.562,
+     1.952
+    ],
+    [
+     1.952,
+     2.099
+    ],
+    [
+     2.099,
+     2.538
+    ]
+   ]
+  },
+  {
+   "title": "Preuve n°4",
+   "text": "Preuve numéro quatre : le fond d'écran.",
+   "bg": {
+    "type": "plain",
+    "color": "#2c2f4a"
+   },
+   "props": [
+    {
+     "type": "phone",
+     "x": 67,
+     "y": 150,
+     "scale": 4,
+     "anim": "float"
+    }
+   ],
+   "fx": [
+    "flash"
+   ],
+   "duration": 2.448,
+   "word_times": [
+    [
+     0.0,
+     0.373
+    ],
+    [
+     0.373,
+     0.746
+    ],
+    [
+     0.746,
+     1.226
+    ],
+    [
+     1.506,
+     1.666
+    ],
+    [
+     1.666,
+     1.932
+    ],
+    [
+     1.932,
+     2.412
+    ]
+   ]
+  },
+  {
+   "text": "Sur le téléphone de ma mère, c'est ma sœur en fond d'écran. Moi je suis dans le dossier divers.",
+   "bg": {
+    "type": "room",
+    "wall": "#cdd3f0"
+   },
+   "chars": [
+    {
+     "id": "mere",
+     "x": 40,
+     "expr": "love",
+     "hold": "phone"
+    },
+    {
+     "id": "moi",
+     "x": 100,
+     "expr": "sad",
+     "flip": true,
+     "ghost": true
+    }
+   ],
+   "props": [
+    {
+     "type": "photo",
+     "x": 40,
+     "y": 70,
+     "scale": 2,
+     "at_word": 8
+    },
+    {
+     "type": "question",
+     "x": 100,
+     "y": 66,
+     "scale": 2,
+     "at_word": 15
+    }
+   ],
+   "duration": 4.988,
+   "word_times": [
+    [
+     0.0,
+     0.191
+    ],
+    [
+     0.191,
+     0.333
+    ],
+    [
+     0.333,
+     0.81
+    ],
+    [
+     0.81,
+     0.953
+    ],
+    [
+     0.953,
+     1.096
+    ],
+    [
+     1.096,
+     1.381
+    ],
+    [
+     1.381,
+     1.667
+    ],
+    [
+     1.667,
+     1.81
+    ],
+    [
+     1.81,
+     2.048
+    ],
+    [
+     2.048,
+     2.191
+    ],
+    [
+     2.191,
+     2.429
+    ],
+    [
+     2.429,
+     2.858
+    ],
+    [
+     3.238,
+     3.428
+    ],
+    [
+     3.428,
+     3.571
+    ],
+    [
+     3.571,
+     3.809
+    ],
+    [
+     3.809,
+     4.047
+    ],
+    [
+     4.047,
+     4.19
+    ],
+    [
+     4.19,
+     4.571
+    ],
+    [
+     4.571,
+     4.952
+    ]
+   ]
+  },
+  {
+   "title": "Preuve n°5",
+   "text": "Preuve numéro cinq : les notes.",
+   "bg": {
+    "type": "plain",
+    "color": "#2c2f4a"
+   },
+   "props": [
+    {
+     "type": "book",
+     "x": 67,
+     "y": 150,
+     "scale": 4,
+     "anim": "float"
+    }
+   ],
+   "fx": [
+    "flash"
+   ],
+   "duration": 2.323,
+   "word_times": [
+    [
+     0.0,
+     0.436
+    ],
+    [
+     0.436,
+     0.872
+    ],
+    [
+     0.872,
+     1.309
+    ],
+    [
+     1.561,
+     1.81
+    ],
+    [
+     1.81,
+     2.246
+    ]
+   ]
+  },
+  {
+   "text": "Ma sœur a eu quatorze : on fête ça au restaurant !",
+   "bg": {
+    "type": "burst",
+    "color": "#c9f0c0",
+    "color2": "#a8e59a"
+   },
+   "chars": [
+    {
+     "id": "soeur",
+     "x": 67,
+     "expr": "laugh",
+     "pose": "arms_up",
+     "anim": "jump"
+    }
+   ],
+   "props": [
+    {
+     "type": "trophy",
+     "x": 28,
+     "y": 80,
+     "scale": 2,
+     "at_word": 4
+    },
+    {
+     "type": "pizza",
+     "x": 106,
+     "y": 70,
+     "scale": 2,
+     "at_word": 7
+    }
+   ],
+   "duration": 2.658,
+   "word_times": [
+    [
+     0.0,
+     0.156
+    ],
+    [
+     0.156,
+     0.417
+    ],
+    [
+     0.417,
+     0.521
+    ],
+    [
+     0.521,
+     0.678
+    ],
+    [
+     0.678,
+     1.251
+    ],
+    [
+     1.251,
+     1.407
+    ],
+    [
+     1.407,
+     1.668
+    ],
+    [
+     1.668,
+     1.824
+    ],
+    [
+     1.824,
+     1.98
+    ],
+    [
+     1.98,
+     2.658
+    ]
+   ]
+  },
+  {
+   "text": "Moi j'ai eu dix-sept : et pourquoi pas vingt ?",
+   "bg": {
+    "type": "classroom",
+    "wall": "#e8e2cf"
+   },
+   "chars": [
+    {
+     "id": "moi",
+     "x": 40,
+     "expr": "shocked",
+     "hold": "paper"
+    },
+    {
+     "id": "pere",
+     "x": 98,
+     "expr": "angry",
+     "flip": true
+    }
+   ],
+   "fx": [
+    "zoom"
+   ],
+   "duration": 2.53,
+   "word_times": [
+    [
+     0.0,
+     0.197
+    ],
+    [
+     0.197,
+     0.442
+    ],
+    [
+     0.442,
+     0.59
+    ],
+    [
+     0.59,
+     1.13
+    ],
+    [
+     1.13,
+     1.277
+    ],
+    [
+     1.46,
+     1.902
+    ],
+    [
+     1.902,
+     2.099
+    ],
+    [
+     2.099,
+     2.492
+    ]
+   ]
+  },
+  {
+   "text": "Mais bon, ils nous aiment tous pareil. C'est ce qu'ils disent.",
+   "bg": {
+    "type": "night"
+   },
+   "chars": [
+    {
+     "id": "moi",
+     "x": 67,
+     "expr": "smirk",
+     "anim": "none"
+    }
+   ],
+   "duration": 3.631,
+   "word_times": [
+    [
+     0.0,
+     0.246
+    ],
+    [
+     0.246,
+     0.491
+    ],
+    [
+     0.491,
+     0.688
+    ],
+    [
+     0.688,
+     0.934
+    ],
+    [
+     0.934,
+     1.278
+    ],
+    [
+     1.278,
+     1.523
+    ],
+    [
+     1.523,
+     1.916
+    ],
+    [
+     1.916,
+     2.211
+    ],
+    [
+     2.211,
+     2.359
+    ],
+    [
+     2.359,
+     2.702
+    ],
+    [
+     2.719,
+     3.112
+    ]
+   ]
+  },
+  {
+   "text": "Abonne-toi si toi non plus t'es pas le préféré.",
+   "bg": {
+    "type": "split",
+    "left": "#ffe08a",
+    "right": "#bfc4d6"
+   },
+   "chars": [
+    {
+     "id": "soeur",
+     "x": 34,
+     "expr": "laugh",
+     "spec": {
+      "acc": [
+       "crown"
+      ]
+     }
+    },
+    {
+     "id": "moi",
+     "x": 100,
+     "expr": "happy",
+     "pose": "wave",
+     "flip": true
+    }
+   ],
+   "props": [
+    {
+     "type": "heart",
+     "x": 34,
+     "y": 70,
+     "scale": 2,
+     "anim": "float"
+    }
+   ],
+   "duration": 3.288,
+   "word_times": [
+    [
+     0.0,
+     0.516
+    ],
+    [
+     0.516,
+     0.657
+    ],
+    [
+     0.657,
+     0.845
+    ],
+    [
+     0.845,
+     1.033
+    ],
+    [
+     1.033,
+     1.268
+    ],
+    [
+     1.268,
+     1.502
+    ],
+    [
+     1.502,
+     1.69
+    ],
+    [
+     1.69,
+     1.831
+    ],
+    [
+     1.831,
+     2.254
+    ]
+   ]
+  }
+ ],
+ "voiceover": "voix/prefere.mp3"
+}
