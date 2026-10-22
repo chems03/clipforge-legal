@@ -576,7 +576,7 @@ def _accessories(arr, S, acc, hair, g, t):
 # Props
 # --------------------------------------------------------------------------
 
-PROPS = ["photo", "cake", "paper", "phone", "gift", "tv", "lock", "heart", "x", "check", "question",
+PROPS = ["eye_blue", "eye_brown", "eye_honey", "photo", "cake", "paper", "phone", "gift", "tv", "lock", "heart", "x", "check", "question",
          "exclam", "controller", "money", "book", "pizza", "clock", "star",
          "zzz", "bulb", "trophy", "sweat", "anger"]
 
@@ -660,6 +660,19 @@ def prop_image(kind, size, t=0.0):
                               ((.35, -.12), (60, 120, 230)), ((.55, .06), (250, 210, 60))):
             paint(arr, S().ellipse([c + dx * s - 3, c + dy * s - 3, c + dx * s + 3, c + dy * s + 3]).m,
                   col, shade_px=1)
+    elif kind.startswith("eye_"):
+        iris_c = {"eye_blue": (60, 140, 230), "eye_brown": (110, 66, 36), "eye_honey": (205, 145, 45)}[kind]
+        white = S().ellipse([c - 1.0 * s, c - .6 * s, c + 1.0 * s, c + .6 * s]).m
+        paint(arr, white, WHITE, shade_px=3)
+        iris = S().ellipse([c - .48 * s, c - .48 * s, c + .48 * s, c + .48 * s]).m & white
+        grad(arr, (0, c - .48 * s, B, c + .5 * s), mix(iris_c, DARK, 0.25), mix(iris_c, WHITE, 0.25), mask=iris)
+        put(arr, iris & ~erode(iris, 2), mix(iris_c, DARK, 0.5))
+        put(arr, S().ellipse([c - .2 * s, c - .2 * s, c + .2 * s, c + .2 * s]).m, (20, 14, 26))
+        put(arr, S().ellipse([c - .32 * s, c - .34 * s, c - .12 * s, c - .14 * s]).m, WHITE)
+        put(arr, S().arc([c - 1.0 * s, c - .62 * s, c + 1.0 * s, c + .62 * s], 190, 350, .14 * s).m, OL)
+        for i in range(5):
+            x = c - .7 * s + i * .35 * s
+            put(arr, S().line([(x, c - .55 * s), (x - .05 * s, c - .8 * s)], .08 * s).m, OL)
     elif kind == "photo":
         paint(arr, S().rect([c - .75 * s, c - .9 * s, c + .75 * s, c + .9 * s]).m, WHITE, shade_px=3)
         pic = S().rect([c - .6 * s, c - .75 * s, c + .6 * s, c + .45 * s]).m

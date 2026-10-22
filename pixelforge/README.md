@@ -67,7 +67,7 @@ Les coordonnées sont sur une grille de 135 x 240 (centre = 67). Le sol est à y
 | `pose` | `stand`, `wave`, `arms_up` |
 | `anim` (perso) | `idle`, `bounce`, `jump`, `shake`, `walk_in`, `walk_in_right`, `none` |
 | `hold` / `bubble` | n'importe quel accessoire ci-dessous (dans la main / au-dessus de la tête) |
-| `props.type` | `photo`, `cake`, `paper`, `phone`, `gift`, `tv`, `lock`, `heart`, `x`, `check`, `question`, `exclam`, `controller`, `money`, `book`, `pizza`, `clock`, `star`, `zzz`, `bulb`, `trophy`, `sweat`, `anger` |
+| `props.type` | `eye_blue`, `eye_brown`, `eye_honey`, `photo`, `cake`, `paper`, `phone`, `gift`, `tv`, `lock`, `heart`, `x`, `check`, `question`, `exclam`, `controller`, `money`, `book`, `pizza`, `clock`, `star`, `zzz`, `bulb`, `trophy`, `sweat`, `anger` |
 | `props.anim` | `float`, `blink` ; `at_word: n` le fait apparaître sur le n-ième mot |
 | `fx` | `flash`, `zoom` (zoom lent), `shake` (secousse) |
 | `ghost` (perso) | `true` = perso à moitié transparent |
