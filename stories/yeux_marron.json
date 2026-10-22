@@ -91,7 +91,7 @@
       "chars": [ { "id": "moi", "x": 67, "expr": "smirk", "anim": "none", "bubble": "bulb" } ],
       "fx": ["zoom"] },
 
-    { "text": "Sept personnes sur dix ont les yeux marron. Les yeux bleus c'est nous les NPC ? Non, c'est eux.",
+    { "text": "Sept personnes sur dix ont les yeux marron. Les NPC c'est nous ? Non, c'est eux.",
       "bg": { "type": "room", "wall": "#e8cfae" },
       "chars": [ { "id": "moi", "x": 24, "expr": "happy" },
                  { "id": "fille", "x": 67, "expr": "happy" },
