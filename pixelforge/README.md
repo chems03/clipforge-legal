@@ -72,6 +72,7 @@ Les coordonnées sont sur une grille de 135 x 240 (centre = 67). Le sol est à y
 | `fx` | `flash`, `zoom` (zoom lent), `shake` (secousse) |
 | `ghost` (perso) | `true` = perso à moitié transparent |
 | `props` avec texte | `{"type": "label", "text": "12/20", "color": "#e8414f"}` (étiquette), `report` (bulletin + note), `door` (porte + panneau), `brain`, `brain_alarm` — style cartoon |
+| `cuts` (scène) | changements de plan sur un mot : `[{"at_word": 4, "bg": {...}, "chars": [...], "props": [...], "fx": [...]}]` |
 | `title` (scène) | grand texte en haut de l'écran, ex. `"PREUVE N°1"` ; `title_color` pour sa couleur |
 
 ## Style « bonhommes ronds » et série

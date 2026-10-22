@@ -170,14 +170,32 @@ def prop_visible(p, lt, word_times):
     return True, min(1.0, (lt - t0) / 0.12)
 
 
+def active_scene(item, lt):
+    """Scene dict at local time lt, applying "cuts" (visual changes on a given word).
+
+    A cut overrides bg/chars/props/title of the scene from its `at_word` on, and
+    gets its own fx. Returns (scene, start time of the active cut)."""
+    sc, ts = item["scene"], 0.0
+    wt = item["word_times"]
+    for cut in sc.get("cuts", []):
+        at = cut.get("at_word", 0)
+        if at < len(wt) and lt >= wt[at][0]:
+            merged = {k: v for k, v in item["scene"].items() if k not in ("cuts", "fx")}
+            merged.update(cut)
+            sc, ts = merged, wt[at][0]
+    return sc, ts
+
+
 def render_scene_frame(item, lt, cast):
-    """Scene image (RGB, 270x480). Story coordinates are in 135x240 units."""
-    sc = item["scene"]
+    """Scene image at canvas size. Story coordinates are in 135x240 units."""
+    sc, ts = active_scene(item, lt)
+    at = lt          # props appear on words: absolute scene time
+    lt = lt - ts     # animations and fx restart on each cut
     img = sprites.background(sc.get("bg", {}), lt)
 
     for p in sc.get("props", []):
         if p.get("layer") == "back":
-            _draw_prop_inst(img, p, lt, item["word_times"])
+            _draw_prop_inst(img, p, lt, item["word_times"], at)
 
     chars = []
     for n, c in enumerate(sc.get("chars", [])):
@@ -205,7 +223,7 @@ def render_scene_frame(item, lt, cast):
 
     for p in sc.get("props", []):
         if p.get("layer") != "back":
-            _draw_prop_inst(img, p, lt, item["word_times"])
+            _draw_prop_inst(img, p, lt, item["word_times"], at)
 
     img = img.convert("RGB")
     fx = sc.get("fx", [])
@@ -224,8 +242,8 @@ def render_scene_frame(item, lt, cast):
     return img
 
 
-def _draw_prop_inst(img, p, lt, word_times):
-    vis, k = prop_visible(p, lt, word_times)
+def _draw_prop_inst(img, p, lt, word_times, at=None):
+    vis, k = prop_visible(p, lt if at is None else at, word_times)
     if not vis:
         return
     x, y = p.get("x", 67) * U, p.get("y", 80) * U
@@ -405,10 +423,10 @@ def compose(item, lt, cast, cap, header):
     cur = cap.state(item["words"], item["word_times"], lt)
     if _last.get("cap") != (cur,) or "frame" not in _last:
         frame = _last["base"].copy()
-        if item["scene"].get("bg", {}).get("type") == "intro":
+        sc, _ = active_scene(item, lt)
+        if sc.get("bg", {}).get("type") == "intro":
             header = None  # the intro card is the header
-        cap.draw(frame, item["words"], cur, header, item["scene"].get("title"),
-                 item["scene"].get("title_color"))
+        cap.draw(frame, item["words"], cur, header, sc.get("title"), sc.get("title_color"))
         _last.update(cap=(cur,), frame=frame)
     return _last["frame"]
 

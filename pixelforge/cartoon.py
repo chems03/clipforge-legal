@@ -398,7 +398,7 @@ PROPS = sprites.PROPS
 _prop_cache = {}
 
 
-CUSTOM_PROPS = ("brain", "brain_alarm", "label", "report", "door")
+CUSTOM_PROPS = ("brain", "brain_alarm", "label", "report", "door", "chips")
 
 
 def _text(p, xy, txt, size, fill, stroke=0.0):
@@ -416,6 +416,9 @@ def _custom_prop(kind, size, t):
     s = size / 2
     if base == "label":
         tw = _font(s * .9).getlength(text)
+        if tw + s * 1.4 > W * 0.9:  # keep labels inside the frame
+            s *= W * 0.9 / (tw + s * 1.4)
+            tw = _font(s * .9).getlength(text)
         Wd, Hd = tw + s * 1.4, s * 2
         p = Painter(Wd, Hd, SS)
         p.ow = 0.06 * s * SS
@@ -458,6 +461,12 @@ def _custom_prop(kind, size, t):
                        (140, 190, 245), shade=False)
         else:
             p.arc([c - .25 * s, c + .2 * s, c + .25 * s, c + .55 * s], 20, 160, .06 * s)
+    elif base == "chips":
+        top = [(c - .7 * s + i * .14 * s, c - .95 * s + (i % 2) * .1 * s) for i in range(11)]
+        bag = top + [(c + .78 * s, c + .9 * s), (c - .78 * s, c + .9 * s)]
+        p.part([("poly", (bag,))], (235, 60, 60), gloss=True)
+        p.part([("ellipse", ([c - .45 * s, c - .35 * s, c + .45 * s, c + .45 * s],))], (255, 210, 70), shade=False)
+        _text(p, (c, c + .05 * s), "CHIPS", .26 * s, (200, 40, 40))
     elif base == "report":
         p.part([("rrect", ([c - .75 * s, c - s, c + .75 * s, c + s], .08 * s))], WHITE)
         p.part([("rrect", ([c - .75 * s, c - s, c + .75 * s, c - .62 * s], .08 * s))], (70, 120, 220), shade=False)
@@ -508,6 +517,8 @@ def prop_image(kind, size, t=0.0):
 
 def draw_prop(img, kind, cx, cy, size=128, t=0.0):
     pimg = prop_image(kind, size, t)
+    if kind.startswith("label"):  # never let a label leave the screen
+        cx = min(max(cx, pimg.width / 2 + 10), W - pimg.width / 2 - 10)
     img.alpha_composite(pimg, (int(cx - pimg.width / 2), int(cy - pimg.height / 2)))
 
 
