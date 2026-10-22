@@ -178,6 +178,13 @@ def draw_character(spec, expr="neutral", pose="stand", blink=False, flip=False, 
         p.part([("poly", ([(cx - 24, F - 60), (cx + 24, F - 60), (cx + 38, F - 20), (cx - 38, F - 20)],))],
                shirt)
     p.part([("rrect", ([cx - 32, F - 86, cx + 32, F - 38], 24))], shirt)
+    sleeve = shirt
+    if "labcoat" in acc:  # long white coat with a V showing the shirt
+        sleeve = (246, 248, 252)
+        p.part([("rrect", ([cx - 34, F - 88, cx + 34, F - 24], 18))], sleeve)
+        p.part([("poly", ([(cx - 11, F - 88), (cx + 11, F - 88), (cx, F - 62)],))], shirt, shade=False)
+        p.part([("rrect", ([cx + 10, F - 62, cx + 24, F - 50], 3))], sleeve, shade=False)
+        p.line([(cx + 14, F - 66), (cx + 14, F - 56)], 2.2, (60, 110, 230))
     if "hoodie" in acc:
         p.line([(cx - 6, F - 82), (cx - 6, F - 68)], 2.2, WHITE)
         p.line([(cx + 6, F - 82), (cx + 6, F - 68)], 2.2, WHITE)
@@ -194,7 +201,7 @@ def draw_character(spec, expr="neutral", pose="stand", blink=False, flip=False, 
             hx, hy = cx + side * (44 + (6 if wave else 0)), F - 112 - (4 if wave else 0)
         else:
             hx, hy = cx + side * 40, F - 46
-        p.part([("cap", ([(sx, sy), (hx, hy)], 15))], shirt, shade=False)
+        p.part([("cap", ([(sx, sy), (hx, hy)], 15))], sleeve, shade=False)
         p.part([("ellipse", ([hx - 9, hy - 9, hx + 9, hy + 9],))], skin, shade=False)
         hands[side] = (hx, hy)
 
@@ -391,10 +398,100 @@ PROPS = sprites.PROPS
 _prop_cache = {}
 
 
+CUSTOM_PROPS = ("brain", "brain_alarm", "label", "report", "door")
+
+
+def _text(p, xy, txt, size, fill, stroke=0.0):
+    f = _font(size * p.s)
+    x0, y0, x1, y1 = p.d.textbbox((0, 0), txt, font=f, stroke_width=int(stroke * p.s))
+    p.d.text((xy[0] * p.s - (x0 + x1) / 2, xy[1] * p.s - (y0 + y1) / 2), txt, font=f, fill=fill,
+             stroke_width=int(stroke * p.s), stroke_fill=OLC)
+
+
+def _custom_prop(kind, size, t):
+    """Vector props drawn natively in the cartoon style. kind may carry "|text|colour"."""
+    base, *extra = kind.split("|")
+    text = extra[0] if extra else ""
+    col = hexc(extra[1]) if len(extra) > 1 else (94, 224, 122)
+    s = size / 2
+    if base == "label":
+        tw = _font(s * .9).getlength(text)
+        Wd, Hd = tw + s * 1.4, s * 2
+        p = Painter(Wd, Hd, SS)
+        p.ow = 0.06 * s * SS
+        p.part([("rrect", ([s * .2, s * .3, Wd - s * .2, Hd - s * .3], s * .7))], col)
+        _text(p, (Wd / 2, Hd / 2), text, s * .9, WHITE, stroke=s * .09)
+        return p.img
+    B = size * 1.9
+    c = B / 2
+    p = Painter(B, B * (1.5 if base == "door" else 1), SS)
+    p.ow = max(3, 0.07 * s) * SS
+    if base in ("brain", "brain_alarm"):
+        pink = (247, 150, 172)
+        body = [("ellipse", ([c - s, c - .7 * s, c + s, c + .8 * s],))]
+        for dx, dy, r in ((-.55, -.55, .42), (0, -.72, .42), (.55, -.55, .42), (-.85, -.05, .35), (.85, -.05, .35)):
+            body.append(("ellipse", ([c + (dx - r) * s, c + (dy - r) * s, c + (dx + r) * s, c + (dy + r) * s],)))
+        p.part(body, pink, gloss=True)
+        fold = mix(pink, DARK, 0.25)
+        p.line([(c, c - 1.05 * s), (c, c + .7 * s)], .05 * s, fold)
+        for dx in (-1, 1):
+            p.arc([c + dx * .35 * s - .25 * s, c - .75 * s, c + dx * .35 * s + .25 * s, c - .25 * s], 200, 340,
+                  .05 * s, fold)
+        ey = c + .05 * s
+        for dx in (-.35, .35):
+            p.part([("ellipse", ([c + (dx - .2) * s, ey - .22 * s, c + (dx + .2) * s, ey + .22 * s],))], WHITE,
+                   shade=False)
+            p.fill("ellipse", ([c + (dx - .08) * s, ey - .08 * s, c + (dx + .08) * s, ey + .12 * s],), OLC)
+        if base == "brain_alarm":
+            p.part([("rrect", ([c - .32 * s, c + .38 * s, c + .32 * s, c + .58 * s], .06 * s))], WHITE, shade=False)
+            for dx in (-.16, 0, .16):
+                p.line([(c + dx * s, c + .4 * s), (c + dx * s, c + .56 * s)], .03 * s)
+            p.part([("rrect", ([c - .35 * s, c - 1.2 * s, c + .35 * s, c - 1.08 * s], .04 * s))], (60, 60, 75),
+                   shade=False)
+            on = int(t * 6) % 2 == 0
+            p.part([("chord", ([c - .28 * s, c - 1.5 * s, c + .28 * s, c - .95 * s], 180, 360))],
+                   (240, 60, 60) if on else (190, 40, 50), gloss=True)
+            for dx in (-1, 1):
+                x = c + dx * 1.05 * s
+                p.part([("ellipse", ([x - .14 * s, c - .3 * s, x + .14 * s, c - .02 * s],)),
+                        ("poly", ([(x - .13 * s, c - .2 * s), (x + .13 * s, c - .2 * s), (x, c - .55 * s)],))],
+                       (140, 190, 245), shade=False)
+        else:
+            p.arc([c - .25 * s, c + .2 * s, c + .25 * s, c + .55 * s], 20, 160, .06 * s)
+    elif base == "report":
+        p.part([("rrect", ([c - .75 * s, c - s, c + .75 * s, c + s], .08 * s))], WHITE)
+        p.part([("rrect", ([c - .75 * s, c - s, c + .75 * s, c - .62 * s], .08 * s))], (70, 120, 220), shade=False)
+        _text(p, (c, c - .81 * s), "BULLETIN", .2 * s, WHITE)
+        for i in range(3):
+            y = c - .4 * s + i * .18 * s
+            p.line([(c - .55 * s, y), (c + .55 * s, y)], .04 * s, (180, 185, 200))
+        _text(p, (c, c + .5 * s), text or "12/20", .48 * s, hexc(extra[1]) if len(extra) > 1 else (225, 50, 60),
+              stroke=.04 * s)
+    elif base == "door":
+        h0, h1 = c - .2 * s, c + 2.6 * s
+        p.part([("rrect", ([c - .85 * s, h0 - .15 * s, c + .85 * s, h1], .05 * s))], (150, 95, 60), shade=False)
+        p.part([("rrect", ([c - .72 * s, h0, c + .72 * s, h1], .04 * s))], (248, 244, 236))
+        for y0, y1 in ((h0 + .15 * s, h0 + 1.2 * s), (h0 + 1.4 * s, h1 - .15 * s)):
+            p.d.rounded_rectangle(p.box([c - .55 * s, y0, c + .55 * s, y1]), radius=.05 * s * p.s, outline=OLC,
+                                  width=int(.04 * s * p.s))
+        p.part([("ellipse", ([c + .45 * s, h0 + 1.25 * s, c + .62 * s, h0 + 1.42 * s],))], (240, 190, 60),
+               shade=False)
+        if text:
+            p.part([("rrect", ([c - .4 * s, h0 + .45 * s, c + .4 * s, h0 + .8 * s], .06 * s))], (60, 110, 230),
+                   shade=False)
+            _text(p, (c, h0 + .63 * s), text, .24 * s, WHITE)
+    return p.img
+
+
 def prop_image(kind, size, t=0.0):
-    key = (kind, int(size), int(t * 8) if kind == "clock" else 0)
+    key = (kind, int(size), int(t * 8) if kind.startswith(("clock", "brain_alarm")) else 0)
     if key in _prop_cache:
         return _prop_cache[key]
+    if kind.split("|")[0] in CUSTOM_PROPS:
+        img = _custom_prop(kind, size, t)
+        img = img.resize((max(1, img.width // SS), max(1, img.height // SS)), Image.LANCZOS)
+        _prop_cache[key] = img
+        return img
     big = int(size * SS)
     old = sprites.OUTLINE_PX, sprites.DITHER
     sprites.OUTLINE_PX, sprites.DITHER = max(2, round(big / 26)), False

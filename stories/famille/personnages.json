@@ -8,16 +8,123 @@
     "maman": "Maman Fatiha. La cheffe. Deux voix (une pour le téléphone, une pour ses enfants). Pour elle, tout est la faute du téléphone.",
     "nora": "Tata Nora. « Mach'Allah, comme t'as grandi ! » à chaque visite.",
     "kader": "Tonton Kader. « Et les études, ça avance ? »",
-    "zohra": "Mamie Zohra. Trouve toujours que t'as maigri."
+    "zohra": "Mamie Zohra. Trouve toujours que t'as maigri.",
+    "chercheur": "Le chercheur (invité des épisodes « science ») : blouse blanche, lunettes, il explique les études."
   },
   "cast": {
-    "wassim": { "skin": "medium", "hair": "short", "hair_color": "#2a1a14", "shirt": "#3d63d6", "pants": "#2b3150", "shoes": "#ffffff", "eyes": "#6a4126", "acc": ["hoodie"] },
-    "lina":   { "skin": "medium", "hair": "ponytail", "hair_color": "#2a1a14", "shirt": "#ff7eb6", "pants": "#7a5cc8", "shoes": "#ffffff", "eyes": "#6a4126", "size": 0.8, "acc": ["crown"] },
-    "yacine": { "skin": "medium", "hair": "curly", "hair_color": "#1f1410", "shirt": "#5d7488", "pants": "#2b2f45", "shoes": "#3a3a48", "eyes": "#6a4126", "acc": ["glasses"] },
-    "papa":   { "skin": "medium", "hair": "short", "hair_color": "#3a2a22", "shirt": "#f2f2f2", "pants": "#3d3d55", "shoes": "#4a3a30", "eyes": "#6a4126", "acc": ["mustache"] },
-    "maman":  { "skin": "medium", "hair": "bun", "hair_color": "#2a1a14", "shirt": "#2fb59a", "pants": "#2fb59a", "shoes": "#f39ab4", "eyes": "#6a4126", "acc": ["dress", "earrings"] },
-    "nora":   { "skin": "tan", "hair": "long", "hair_color": "#7a2e1c", "shirt": "#b05ad6", "pants": "#b05ad6", "shoes": "#f6d36a", "eyes": "#6a4126", "acc": ["dress", "earrings"] },
-    "kader":  { "skin": "tan", "hair": "short", "hair_color": "#5b4636", "shirt": "#e8a23c", "pants": "#4a4a5a", "shoes": "#3a3a48", "eyes": "#6a4126", "acc": ["beard", "glasses"] },
-    "zohra":  { "skin": "medium", "hair": "bun", "hair_color": "#c9c4c0", "shirt": "#8a5a9a", "pants": "#8a5a9a", "shoes": "#6a4a3a", "eyes": "#6a4126", "acc": ["dress", "glasses"] }
+    "wassim": {
+      "skin": "medium",
+      "hair": "short",
+      "hair_color": "#2a1a14",
+      "shirt": "#3d63d6",
+      "pants": "#2b3150",
+      "shoes": "#ffffff",
+      "eyes": "#6a4126",
+      "acc": [
+        "hoodie"
+      ]
+    },
+    "lina": {
+      "skin": "medium",
+      "hair": "ponytail",
+      "hair_color": "#2a1a14",
+      "shirt": "#ff7eb6",
+      "pants": "#7a5cc8",
+      "shoes": "#ffffff",
+      "eyes": "#6a4126",
+      "size": 0.8,
+      "acc": [
+        "crown"
+      ]
+    },
+    "yacine": {
+      "skin": "medium",
+      "hair": "curly",
+      "hair_color": "#1f1410",
+      "shirt": "#5d7488",
+      "pants": "#2b2f45",
+      "shoes": "#3a3a48",
+      "eyes": "#6a4126",
+      "acc": [
+        "glasses"
+      ]
+    },
+    "papa": {
+      "skin": "medium",
+      "hair": "short",
+      "hair_color": "#3a2a22",
+      "shirt": "#f2f2f2",
+      "pants": "#3d3d55",
+      "shoes": "#4a3a30",
+      "eyes": "#6a4126",
+      "acc": [
+        "mustache"
+      ]
+    },
+    "maman": {
+      "skin": "medium",
+      "hair": "bun",
+      "hair_color": "#2a1a14",
+      "shirt": "#2fb59a",
+      "pants": "#2fb59a",
+      "shoes": "#f39ab4",
+      "eyes": "#6a4126",
+      "acc": [
+        "dress",
+        "earrings"
+      ]
+    },
+    "nora": {
+      "skin": "tan",
+      "hair": "long",
+      "hair_color": "#7a2e1c",
+      "shirt": "#b05ad6",
+      "pants": "#b05ad6",
+      "shoes": "#f6d36a",
+      "eyes": "#6a4126",
+      "acc": [
+        "dress",
+        "earrings"
+      ]
+    },
+    "kader": {
+      "skin": "tan",
+      "hair": "short",
+      "hair_color": "#5b4636",
+      "shirt": "#e8a23c",
+      "pants": "#4a4a5a",
+      "shoes": "#3a3a48",
+      "eyes": "#6a4126",
+      "acc": [
+        "beard",
+        "glasses"
+      ]
+    },
+    "zohra": {
+      "skin": "medium",
+      "hair": "bun",
+      "hair_color": "#c9c4c0",
+      "shirt": "#8a5a9a",
+      "pants": "#8a5a9a",
+      "shoes": "#6a4a3a",
+      "eyes": "#6a4126",
+      "acc": [
+        "dress",
+        "glasses"
+      ]
+    },
+    "chercheur": {
+      "skin": "dark",
+      "hair": "short",
+      "hair_color": "#1a1210",
+      "shirt": "#ffcf4a",
+      "pants": "#3a3f5a",
+      "shoes": "#ffffff",
+      "eyes": "#4a2a18",
+      "acc": [
+        "labcoat",
+        "glasses"
+      ]
+    }
   }
 }

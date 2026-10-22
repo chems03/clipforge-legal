@@ -61,7 +61,7 @@ Les coordonnées sont sur une grille de 135 x 240 (centre = 67). Le sol est à y
 | `bg.type` | `intro` (carte titre : `"text": "LIGNE 1|LIGNE 2"`), `room`, `split` (gauche/droite pour les « X vs Y »), `burst` (rayons qui tournent), `plain`, `street`, `classroom`, `night` |
 | `skin` | `light`, `medium`, `tan`, `dark` ou une couleur `#hex` |
 | `hair` | `short`, `spiky`, `curly`, `afro`, `bun`, `long`, `ponytail`, `mohawk`, `bald` |
-| `acc` | `hoodie`, `dress`, `glasses`, `mustache`, `beard`, `earrings`, `crown`, `cap`, `beanie`, `headphones`, `police` |
+| `acc` | `hoodie`, `labcoat` (blouse, cartoon), `dress`, `glasses`, `mustache`, `beard`, `earrings`, `crown`, `cap`, `beanie`, `headphones`, `police` |
 | `size` | `1` adulte/ado, `0.8` enfant |
 | `expr` | `neutral`, `happy`, `laugh`, `sad`, `angry`, `shocked`, `worried`, `smirk`, `love` |
 | `pose` | `stand`, `wave`, `arms_up` |
@@ -71,6 +71,7 @@ Les coordonnées sont sur une grille de 135 x 240 (centre = 67). Le sol est à y
 | `props.anim` | `float`, `blink` ; `at_word: n` le fait apparaître sur le n-ième mot |
 | `fx` | `flash`, `zoom` (zoom lent), `shake` (secousse) |
 | `ghost` (perso) | `true` = perso à moitié transparent |
+| `props` avec texte | `{"type": "label", "text": "12/20", "color": "#e8414f"}` (étiquette), `report` (bulletin + note), `door` (porte + panneau), `brain`, `brain_alarm` — style cartoon |
 | `title` (scène) | grand texte en haut de l'écran, ex. `"PREUVE N°1"` ; `title_color` pour sa couleur |
 
 ## Style « bonhommes ronds » et série

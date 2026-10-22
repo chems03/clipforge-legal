@@ -1,0 +1,125 @@
+{
+  "title": "Épisode 2 : le petit dernier",
+  "style": "cartoon",
+  "cast_file": "personnages.json",
+  "header": "Épisode 2 : le petit dernier",
+  "fps": 30,
+  "words_per_second": 2.6,
+  "captions": { "size": 28, "y": 0.82, "max_words": 2, "highlight": "#ffd93b" },
+
+  "scenes": [
+    { "text": "C'est que chez moi ou le petit dernier a le droit de tout faire ?",
+      "bg": { "type": "intro", "text": "C'est que|chez moi ?" },
+      "fx": ["flash", "shake"] },
+
+    { "text": "Chez nous, tout commence par un bulletin.",
+      "bg": { "type": "salon", "wall": "#f2c9a0" },
+      "chars": [ { "id": "lina", "x": 67, "expr": "smirk", "hold": "paper" } ] },
+
+    { "text": "Lina a eu douze sur vingt en maths.",
+      "bg": { "type": "plain", "color": "#fde3b0" },
+      "props": [ { "type": "report", "text": "12/20", "x": 67, "y": 112, "scale": 6 } ],
+      "fx": ["zoom"] },
+
+    { "text": "Résultat : une console neuve et un resto.",
+      "bg": { "type": "burst", "color": "#c9f0c0", "color2": "#a8e59a" },
+      "chars": [ { "id": "lina", "x": 67, "expr": "laugh", "pose": "arms_up", "anim": "jump" } ],
+      "props": [ { "type": "controller", "x": 26, "y": 100, "scale": 2, "at_word": 2, "anim": "float" },
+                 { "type": "pizza", "x": 108, "y": 96, "scale": 2, "at_word": 6, "anim": "float" } ],
+      "fx": ["flash"] },
+
+    { "text": "Yacine, au même âge, avait eu seize.",
+      "bg": { "type": "classroom", "wall": "#e8e2cf" },
+      "chars": [ { "id": "yacine", "x": 40, "expr": "happy", "spec": { "size": 0.8 } } ],
+      "props": [ { "type": "report", "text": "16/20", "color": "#2aa860", "x": 102, "y": 150, "scale": 3, "at_word": 5 } ] },
+
+    { "text": "Résultat : et pourquoi pas vingt ?",
+      "bg": { "type": "burst", "color": "#e86a6a", "color2": "#f08c8c" },
+      "chars": [ { "id": "papa", "x": 40, "expr": "angry", "anim": "shake", "bubble": "anger" },
+                 { "id": "yacine", "x": 100, "expr": "sad", "flip": true, "spec": { "size": 0.8 } } ],
+      "fx": ["shake"] },
+
+    { "text": "Et moi ? Moi on m'a juste demandé si j'avais mangé.",
+      "bg": { "type": "kitchen", "wall": "#f3d9a4" },
+      "chars": [ { "id": "maman", "x": 40, "expr": "happy", "pose": "wave" },
+                 { "id": "wassim", "x": 100, "expr": "neutral", "flip": true, "hold": "phone" } ],
+      "props": [ { "type": "question", "x": 100, "y": 92, "scale": 2, "at_word": 1 } ] },
+
+    { "text": "Et non, c'est pas que chez nous.",
+      "bg": { "type": "plain", "color": "#3a4a7a" },
+      "props": [ { "type": "brain", "x": 67, "y": 120, "scale": 5, "anim": "float" } ],
+      "fx": ["flash"] },
+
+    { "title": "La science", "title_color": "#ffffff",
+      "text": "Des économistes américains ont étudié des milliers de familles.",
+      "bg": { "type": "classroom", "wall": "#dfe8f2" },
+      "chars": [ { "id": "chercheur", "x": 40, "expr": "smirk", "hold": "paper" } ],
+      "props": [ { "type": "paper", "x": 96, "y": 110, "scale": 2, "at_word": 5 },
+                 { "type": "paper", "x": 112, "y": 124, "scale": 2, "at_word": 6 },
+                 { "type": "label", "text": "1000+ familles", "color": "#3d63d6", "x": 98, "y": 76, "scale": 2, "at_word": 6 } ] },
+
+    { "text": "Résultat : les parents sont beaucoup plus stricts avec le premier enfant.",
+      "bg": { "type": "room", "wall": "#a6dccd" },
+      "chars": [ { "id": "papa", "x": 40, "expr": "angry" },
+                 { "id": "yacine", "x": 100, "expr": "worried", "flip": true, "spec": { "size": 0.8 } } ],
+      "props": [ { "type": "label", "text": "STRICT 100%", "color": "#e8414f", "x": 67, "y": 70, "scale": 2, "at_word": 6 } ] },
+
+    { "text": "Pourquoi ? Pour se construire une réputation.",
+      "bg": { "type": "plain", "color": "#3a4a7a" },
+      "props": [ { "type": "brain", "x": 67, "y": 124, "scale": 4 },
+                 { "type": "bulb", "x": 110, "y": 100, "scale": 2, "at_word": 1 },
+                 { "type": "label", "text": "RÉPUTATION", "color": "#f2a33a", "x": 67, "y": 64, "scale": 2, "at_word": 3 } ] },
+
+    { "text": "Comme un prof qui crie le premier jour pour que toute la classe se tienne à carreau.",
+      "bg": { "type": "classroom", "wall": "#e8e2cf" },
+      "chars": [ { "id": "papa", "x": 30, "expr": "angry", "anim": "shake", "spec": { "acc": ["mustache", "glasses"] } },
+                 { "id": "wassim", "x": 80, "expr": "shocked", "flip": true, "spec": { "size": 0.8 } },
+                 { "id": "lina", "x": 114, "expr": "shocked", "flip": true } ],
+      "props": [ { "type": "exclam", "x": 30, "y": 90, "scale": 2, "at_word": 4 } ] },
+
+    { "text": "Le message, c'est : regardez bien ce qui arrive à votre grand frère.",
+      "bg": { "type": "night" },
+      "chars": [ { "id": "yacine", "x": 67, "expr": "sad", "anim": "none", "spec": { "size": 0.8 } } ],
+      "props": [ { "type": "x", "x": 67, "y": 76, "scale": 2, "at_word": 9 } ],
+      "fx": ["zoom"] },
+
+    { "title": "Batterie : 2%", "title_color": "#ff5a5a",
+      "text": "Sauf qu'au troisième enfant, la batterie des parents est à deux pour cent.",
+      "bg": { "type": "salon", "wall": "#f2c9a0" },
+      "chars": [ { "id": "papa", "x": 40, "expr": "neutral", "bubble": "zzz" },
+                 { "id": "maman", "x": 100, "expr": "worried", "flip": true, "bubble": "sweat" } ],
+      "props": [ { "type": "battery_low", "x": 70, "y": 76, "scale": 2, "anim": "blink" } ] },
+
+    { "text": "Alors ils lâchent l'affaire.",
+      "bg": { "type": "salon", "wall": "#f2c9a0" },
+      "chars": [ { "id": "lina", "x": 40, "expr": "laugh", "hold": "controller", "anim": "bounce" },
+                 { "id": "papa", "x": 100, "expr": "happy", "flip": true, "bubble": "zzz" } ] },
+
+    { "text": "Les chercheurs ont aussi vu qu'en moyenne, les aînés ont de meilleures notes.",
+      "bg": { "type": "burst", "color": "#cfe0ff", "color2": "#b6ccf5" },
+      "chars": [ { "id": "yacine", "x": 67, "expr": "smirk", "pose": "arms_up" } ],
+      "props": [ { "type": "trophy", "x": 24, "y": 100, "scale": 2, "at_word": 10 },
+                 { "type": "report", "text": "16/20", "color": "#2aa860", "x": 110, "y": 100, "scale": 2, "at_word": 11 } ] },
+
+    { "title": "Prototype", "title_color": "#9fd0ff",
+      "text": "Donc si t'es l'aîné, t'étais le prototype.",
+      "bg": { "type": "plain", "color": "#dfe8f2" },
+      "chars": [ { "id": "yacine", "x": 67, "expr": "worried", "bubble": "sweat" } ],
+      "props": [ { "type": "label", "text": "V1", "color": "#7a8aa6", "x": 24, "y": 104, "scale": 2, "at_word": 5 } ] },
+
+    { "title": "Version finale", "title_color": "#ff9ccc",
+      "text": "Et le petit dernier, c'est la version finale. Avec tous les bugs corrigés.",
+      "bg": { "type": "burst", "color": "#ffd6e8", "color2": "#ffc0dc" },
+      "chars": [ { "id": "lina", "x": 67, "expr": "laugh", "anim": "jump" } ],
+      "props": [ { "type": "label", "text": "V3", "color": "#e85aa0", "x": 24, "y": 104, "scale": 2, "at_word": 6 },
+                 { "type": "check", "x": 110, "y": 100, "scale": 2, "at_word": 9 } ],
+      "fx": ["flash"] },
+
+    { "text": "T'es le prototype ou la version finale ? Dis-le en commentaire.",
+      "bg": { "type": "split", "left": "#dfe8f2", "right": "#ffd6e8" },
+      "chars": [ { "id": "yacine", "x": 34, "expr": "worried" },
+                 { "id": "lina", "x": 100, "expr": "laugh", "flip": true } ],
+      "props": [ { "type": "label", "text": "V1", "color": "#7a8aa6", "x": 34, "y": 80, "scale": 2 },
+                 { "type": "label", "text": "V3", "color": "#e85aa0", "x": 100, "y": 80, "scale": 2 } ] }
+  ]
+}

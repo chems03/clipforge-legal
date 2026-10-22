@@ -236,7 +236,10 @@ def _draw_prop_inst(img, p, lt, word_times):
     size = 16 * U * p.get("scale", 2)
     if k < 1:
         size *= 0.7  # smaller "pop" frame right before it lands
-    sprites.draw_prop(img, p["type"], x, y, size=size, t=lt)
+    kind = p["type"]
+    if "text" in p:  # e.g. {"type": "label", "text": "12/20", "color": "#ff5a5a"}
+        kind += "|" + p["text"] + ("|" + p["color"] if "color" in p else "")
+    sprites.draw_prop(img, kind, x, y, size=size, t=lt)
 
 
 class Captioner:
