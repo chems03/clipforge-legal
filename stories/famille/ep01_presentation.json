@@ -1,0 +1,118 @@
+{
+  "title": "Épisode 1 : la famille",
+  "style": "cartoon",
+  "cast_file": "personnages.json",
+  "header": "Épisode 1 : la famille",
+  "fps": 30,
+  "words_per_second": 2.6,
+  "captions": { "size": 28, "y": 0.82, "max_words": 2, "highlight": "#ffd93b" },
+
+  "scenes": [
+    { "text": "C'est que chez moi ou chaque famille a exactement les mêmes personnages ?",
+      "bg": { "type": "intro", "text": "C'est que|chez moi ?" },
+      "fx": ["flash", "shake"] },
+
+    { "title": "Wassim « Wifi »", "title_color": "#ffffff",
+      "text": "Moi, c'est Wassim. Tout le monde m'appelle Wifi.",
+      "bg": { "type": "bedroom", "wall": "#b9c6f0" },
+      "chars": [ { "id": "wassim", "x": 50, "expr": "happy", "pose": "wave", "hold": "phone" } ] },
+
+    { "text": "Pourquoi Wifi ? Parce que je capte que quand on parle de manger.",
+      "bg": { "type": "kitchen", "wall": "#f3d9a4" },
+      "chars": [ { "id": "wassim", "x": 67, "expr": "neutral", "hold": "phone" } ],
+      "props": [ { "type": "question", "x": 100, "y": 96, "scale": 2, "at_word": 2 },
+                 { "type": "pizza", "x": 30, "y": 100, "scale": 2, "at_word": 10, "anim": "float" },
+                 { "type": "cake", "x": 104, "y": 100, "scale": 2, "at_word": 11, "anim": "float" } ] },
+
+    { "title": "Batterie sociale : 2%", "title_color": "#ff5a5a",
+      "text": "Ma batterie sociale à la maison ? Deux pour cent.",
+      "bg": { "type": "salon", "wall": "#f2c9a0" },
+      "chars": [ { "id": "wassim", "x": 67, "expr": "neutral", "anim": "none", "hold": "phone" } ],
+      "props": [ { "type": "battery_low", "x": 67, "y": 92, "scale": 2, "anim": "blink" } ] },
+
+    { "title": "Lina « Princesse »", "title_color": "#ff9ccc",
+      "text": "Elle, c'est Lina. Dix ans. La princesse de la maison.",
+      "bg": { "type": "burst", "color": "#ffd6e8", "color2": "#ffc0dc" },
+      "chars": [ { "id": "lina", "x": 67, "expr": "laugh", "pose": "arms_up", "anim": "jump" } ],
+      "props": [ { "type": "star", "x": 24, "y": 104, "scale": 2, "anim": "float" },
+                 { "type": "heart", "x": 110, "y": 96, "scale": 2, "anim": "float" } ],
+      "fx": ["flash"] },
+
+    { "text": "Elle a jamais été grondée de sa vie. Même le jour où elle a cassé la télé.",
+      "bg": { "type": "salon", "wall": "#f2c9a0" },
+      "chars": [ { "id": "lina", "x": 40, "expr": "smirk" },
+                 { "id": "maman", "x": 100, "expr": "love", "flip": true, "bubble": "heart" } ],
+      "props": [ { "type": "x", "x": 108, "y": 56, "scale": 2, "at_word": 11 } ] },
+
+    { "title": "Yacine « le Ministre »", "title_color": "#9fd0ff",
+      "text": "Lui, c'est Yacine, l'aîné. On l'appelle le Ministre.",
+      "bg": { "type": "classroom", "wall": "#e8e2cf" },
+      "chars": [ { "id": "yacine", "x": 67, "expr": "neutral", "hold": "paper" } ] },
+
+    { "text": "Dix-neuf ans, et il gère la CAF, les impôts et la box internet de toute la famille.",
+      "bg": { "type": "burst", "color": "#cfe0ff", "color2": "#b6ccf5" },
+      "chars": [ { "id": "yacine", "x": 67, "expr": "worried", "anim": "shake", "bubble": "sweat" } ],
+      "props": [ { "type": "paper", "x": 22, "y": 96, "scale": 2, "at_word": 6 },
+                 { "type": "money", "x": 112, "y": 96, "scale": 2, "at_word": 8 },
+                 { "type": "tv", "x": 67, "y": 66, "scale": 2, "at_word": 12 } ] },
+
+    { "title": "Papa Hamid", "title_color": "#ffffff",
+      "text": "Ça, c'est Papa Hamid.",
+      "bg": { "type": "room", "wall": "#a6dccd" },
+      "chars": [ { "id": "papa", "x": 67, "expr": "smirk", "pose": "wave" } ] },
+
+    { "text": "Il écrit tous ses messages en majuscules. On sait jamais s'il est content ou fâché.",
+      "bg": { "type": "room", "wall": "#a6dccd" },
+      "chars": [ { "id": "papa", "x": 40, "expr": "neutral", "hold": "phone" },
+                 { "id": "wassim", "x": 100, "expr": "worried", "flip": true, "hold": "phone" } ],
+      "props": [ { "type": "exclam", "x": 40, "y": 92, "scale": 2, "at_word": 5 },
+                 { "type": "question", "x": 100, "y": 92, "scale": 2, "at_word": 10 } ] },
+
+    { "text": "Et sa phrase préférée : demande à ta mère.",
+      "bg": { "type": "salon", "wall": "#f2c9a0" },
+      "chars": [ { "id": "wassim", "x": 40, "expr": "happy" },
+                 { "id": "papa", "x": 100, "expr": "smirk", "flip": true } ],
+      "props": [ { "type": "x", "x": 40, "y": 92, "scale": 2, "at_word": 4 } ] },
+
+    { "title": "Maman Fatiha", "title_color": "#ffd93b",
+      "text": "Et voilà la cheffe. Maman Fatiha.",
+      "bg": { "type": "burst", "color": "#ffe08a", "color2": "#ffd04a" },
+      "chars": [ { "id": "maman", "x": 67, "expr": "smirk", "spec": { "acc": ["dress", "earrings", "crown"] } } ],
+      "props": [ { "type": "star", "x": 24, "y": 100, "scale": 2, "anim": "float" },
+                 { "type": "star", "x": 110, "y": 96, "scale": 2, "anim": "float" } ],
+      "fx": ["flash"] },
+
+    { "text": "Elle a deux voix. Une pour le téléphone.",
+      "bg": { "type": "split", "left": "#ffe08a", "right": "#c9ccd8" },
+      "chars": [ { "id": "maman", "x": 34, "expr": "laugh", "hold": "phone", "anim": "bounce" } ],
+      "props": [ { "type": "heart", "x": 34, "y": 92, "scale": 2, "anim": "float" } ] },
+
+    { "text": "Et une pour nous.",
+      "bg": { "type": "split", "left": "#ffe08a", "right": "#c9ccd8" },
+      "chars": [ { "id": "maman", "x": 34, "expr": "laugh", "hold": "phone" },
+                 { "id": "maman", "x": 100, "expr": "angry", "flip": true, "anim": "shake", "bubble": "anger" } ],
+      "fx": ["shake"] },
+
+    { "text": "Et pour elle, tout est la faute du téléphone. Même la pluie.",
+      "bg": { "type": "street" },
+      "chars": [ { "id": "maman", "x": 40, "expr": "angry" },
+                 { "id": "wassim", "x": 100, "expr": "shocked", "flip": true, "hold": "phone", "bubble": "sweat" } ],
+      "props": [ { "type": "thermometer", "x": 40, "y": 92, "scale": 2, "at_word": 6 } ] },
+
+    { "title": "Bientôt", "title_color": "#5ee07a",
+      "text": "Dans les prochains épisodes : Tata Nora, Tonton Kader et Mamie Zohra.",
+      "bg": { "type": "salon", "wall": "#f2c9a0" },
+      "chars": [ { "id": "nora", "x": 26, "expr": "love", "anim": "walk_in" },
+                 { "id": "kader", "x": 67, "expr": "smirk", "anim": "walk_in" },
+                 { "id": "zohra", "x": 108, "expr": "happy", "flip": true, "anim": "walk_in_right" } ] },
+
+    { "text": "Abonne-toi pour suivre la famille. Et dis-moi en commentaire : t'es qui, toi, dans la famille ?",
+      "bg": { "type": "room", "wall": "#a6dccd" },
+      "chars": [ { "id": "papa", "x": 18, "expr": "smirk" },
+                 { "id": "maman", "x": 48, "expr": "happy" },
+                 { "id": "yacine", "x": 86, "expr": "worried", "flip": true },
+                 { "id": "wassim", "x": 116, "expr": "laugh", "flip": true, "hold": "phone" },
+                 { "id": "lina", "x": 67, "y": 214, "expr": "laugh" } ],
+      "props": [ { "type": "question", "x": 67, "y": 64, "scale": 2, "anim": "float" } ] }
+  ]
+}

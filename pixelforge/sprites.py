@@ -19,6 +19,11 @@ OL = (34, 26, 52)
 WHITE = (252, 250, 244)
 DARK = (40, 24, 70)
 
+# The cartoon style reuses the prop shapes at high resolution with thick
+# outlines and smooth gradients (see cartoon.prop_image).
+OUTLINE_PX = 1
+DITHER = True
+
 BAYER = np.array([[0, 8, 2, 10], [12, 4, 14, 6], [3, 11, 1, 9], [15, 7, 13, 5]]) / 16.0
 
 _FONT_PATHS = ["/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
@@ -166,7 +171,7 @@ def paint(arr, m, c, outline=1, shade_px=None, light=True, line=None):
     c = hexc(c)
     r = ramp(c)
     if outline:
-        put(arr, dilate(m, outline) & ~m, line or r["line"])
+        put(arr, dilate(m, outline * OUTLINE_PX) & ~m, line or r["line"])
     put(arr, m, c)
     if shade_px is None:
         ys, xs = np.nonzero(m)
@@ -178,7 +183,7 @@ def paint(arr, m, c, outline=1, shade_px=None, light=True, line=None):
             put(arr, m & ~shift(m, -(shade_px // 3), -(shade_px // 3)), r["deep"])
     if light:
         inner = erode(m, 1)
-        hl = inner & ~shift(inner, 2, 2)
+        hl = inner & ~shift(inner, 2 * OUTLINE_PX, 2 * OUTLINE_PX)
         if shade_px:
             hl &= shift(m, -shade_px, -shade_px)
         put(arr, hl, r["light"])
@@ -200,6 +205,8 @@ def grad(arr, box, c1, c2, levels=6, mask=None, radial=None):
     v = t * (levels - 1)
     lo = np.floor(v)
     idx = np.clip(lo + ((v - lo) > BAYER[yy % 4, xx % 4]), 0, levels - 1) / (levels - 1)
+    if not DITHER:
+        idx = t
     c1, c2 = np.array(c1, float), np.array(c2, float)
     col = (c1 + (c2 - c1) * idx[..., None]).astype(np.uint8)
     reg = arr[y0:y1, x0:x1]
@@ -585,7 +592,7 @@ _prop_cache = {}
 
 def prop_image(kind, size, t=0.0):
     """RGBA image of a prop whose main body is about `size` pixels wide."""
-    key = (kind, int(size), int(t * 8) if kind == "clock" else 0)
+    key = (kind, int(size), int(t * 8) if kind == "clock" else 0, OUTLINE_PX, DITHER)
     if key in _prop_cache:
         return _prop_cache[key]
     B = int(size * 1.6) + 6

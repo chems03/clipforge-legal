@@ -73,6 +73,17 @@ Les coordonnées sont sur une grille de 135 x 240 (centre = 67). Le sol est à y
 | `ghost` (perso) | `true` = perso à moitié transparent |
 | `title` (scène) | grand texte en haut de l'écran, ex. `"PREUVE N°1"` ; `title_color` pour sa couleur |
 
+## Style « bonhommes ronds » et série
+
+Ajoute `"style": "cartoon"` dans le JSON pour le style dessin animé (bonhommes
+ronds, contours épais, rendu lisse). Sans ce champ, c'est le pixel art.
+
+Les personnages récurrents de la série sont dans `stories/famille/personnages.json`
+(avec leur bio). Un épisode y fait référence avec `"cast_file": "personnages.json"`
+et utilise les ids `wassim`, `lina`, `yacine`, `papa`, `maman`, `nora`, `kader`, `zohra`.
+
+Décors en plus pour le style cartoon : `kitchen`, `bedroom`, `salon`.
+
 ## Conseils pour que ça marche
 
 - Plans courts : une phrase = une scène (2 à 4 s), on change de fond souvent.

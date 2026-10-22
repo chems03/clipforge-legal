@@ -15,12 +15,24 @@ import tempfile
 
 from PIL import Image, ImageDraw, ImageFont
 
-from . import sprites
+from . import cartoon, sprites
 from .sprites import W, H, U
 
 # Frames (scene + captions) are composed at 270x480 and upscaled by ffmpeg
 # with nearest-neighbour: x8 = 2160x3840 (4K), x4 = 1080x1920.
 SCALE = 8
+PIXEL = True
+RESAMPLE = Image.NEAREST
+
+
+def use_style(name):
+    """Switch drawing module: "pixel" (sprites) or "cartoon" (round people)."""
+    global sprites, W, H, U, PIXEL, RESAMPLE
+    from . import sprites as pixel_mod
+    sprites = cartoon if name == "cartoon" else pixel_mod
+    W, H, U = sprites.W, sprites.H, sprites.U
+    PIXEL = name != "cartoon"
+    RESAMPLE = Image.NEAREST if PIXEL else Image.BILINEAR
 FONT_CANDIDATES = [
     "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
     "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf",
@@ -175,7 +187,7 @@ def render_scene_frame(item, lt, cast):
         chars.append((n, c, x, feet, dy))
     for n, c, x, feet, dy in chars:
         if not c.get("ghost"):
-            img = sprites.ground_shadow(img, x, feet, 72)
+            img = sprites.ground_shadow(img, x, feet, 36 * U)
     for n, c, x, feet, dy in chars:
         spec = dict(cast.get(c.get("id"), {}))
         spec.update(c.get("spec", {}))
@@ -189,7 +201,7 @@ def render_scene_frame(item, lt, cast):
         if c.get("bubble"):
             bob = int(math.sin(lt * 5) * 3)
             side = -1 if c.get("flip") else 1
-            sprites.draw_prop(img, c["bubble"], x + side * 30, oy + top - 30 + bob, size=40, t=lt)
+            sprites.draw_prop(img, c["bubble"], x + side * 15 * U, oy + top - 15 * U + bob, size=20 * U, t=lt)
 
     for p in sc.get("props", []):
         if p.get("layer") != "back":
@@ -201,7 +213,7 @@ def render_scene_frame(item, lt, cast):
         z = 1 + min(0.18, lt * 0.12)
         cw, ch = int(W / z), int(H / z)
         x0, y0 = (W - cw) // 2, int((H - ch) * 0.55)
-        img = img.crop((x0, y0, x0 + cw, y0 + ch)).resize((W, H), Image.NEAREST)
+        img = img.crop((x0, y0, x0 + cw, y0 + ch)).resize((W, H), RESAMPLE)
     if "shake" in fx and lt < 0.5:
         off = int(3 * U * math.sin(lt * 70))
         shifted = Image.new("RGB", (W, H))
@@ -230,7 +242,8 @@ def _draw_prop_inst(img, p, lt, word_times):
 class Captioner:
     def __init__(self, style):
         self.cw, self.ch = W, H
-        self.size = style.get("size", 28)
+        self.k = W / 270  # story sizes are given for a 270 px wide canvas
+        self.size = int(style.get("size", 28) * self.k)
         self.font_path = style.get("font")
         self.fonts = {}
         self.y = style.get("y", 0.8)
@@ -260,12 +273,14 @@ class Captioner:
 
     def draw(self, img, words, cur, header=None, title=None, title_color=None):
         d = ImageDraw.Draw(img)
-        d.fontmode = "1"  # no antialiasing -> pixel font look
+        if PIXEL:
+            d.fontmode = "1"  # no antialiasing -> pixel font look
+        k = self.k
         if header:
-            self._line(d, header.upper(), [], -1, 34, self.size - 6, (255, 255, 255))
+            self._line(d, header.upper(), [], -1, int(34 * k), self.size - int(6 * k), (255, 255, 255))
         if title:  # big title card text, e.g. "PREUVE N°1"
             col = sprites.hexc(title_color) if title_color else self.hl
-            self._line(d, title.upper(), [], -1, int(self.ch * 0.17), self.size + 16, col)
+            self._line(d, title.upper(), [], -1, int(self.ch * 0.17), self.size + int(16 * k), col)
         if cur is not None:
             chunk = next(c for c in self.chunks(words) if cur in c)
             self._line(d, " ".join(words[j] for j in chunk), chunk, cur,
@@ -273,19 +288,19 @@ class Captioner:
 
     def _line(self, d, text, chunk, cur, y, size, color, words=None):
         f = self.font(size)
-        while d.textlength(text, font=f) > self.cw - 16 and size > 10:
+        while d.textlength(text, font=f) > self.cw - 16 * self.k and size > 10:
             size -= 2
             f = self.font(size)
         total = d.textlength(text, font=f)
         x = (self.cw - total) / 2
         if not chunk:
-            d.text((x, y), text, font=f, fill=color, stroke_width=2, stroke_fill=(0, 0, 0))
+            d.text((x, y), text, font=f, fill=color, stroke_width=int(2 * self.k), stroke_fill=(0, 0, 0))
             return
         space = d.textlength(" ", font=f)
         for j in chunk:
             w = words[j]
             col = self.hl if j == cur else color
-            d.text((x, y), w, font=f, fill=col, stroke_width=2, stroke_fill=(0, 0, 0))
+            d.text((x, y), w, font=f, fill=col, stroke_width=int(2 * self.k), stroke_fill=(0, 0, 0))
             x += d.textlength(w, font=f) + space
 
 
@@ -324,6 +339,7 @@ def build_audio(plan, total, music, out_wav, tmp, voiceover=None):
 
 
 def render(story, out, tts=False, music=None, preview=None, scale=SCALE):
+    use_style(story.get("style", "pixel"))
     fps = story.get("fps", 30)
     cast = story.get("cast", {})
     cap = Captioner(story.get("captions", {}))
@@ -335,14 +351,14 @@ def render(story, out, tts=False, music=None, preview=None, scale=SCALE):
             item = plan[preview]
             lt = (item["end"] - item["start"]) * 0.6
             frame = compose(item, lt, cast, cap, story.get("header"))
-            frame.resize((W * 4, H * 4), Image.NEAREST).save(out)
+            frame.resize((1080, 1920), RESAMPLE).save(out)
             return
 
         silent = os.path.join(tmp, "video.mp4")
         proc = subprocess.Popen([
             "ffmpeg", "-y", "-v", "error", "-f", "rawvideo", "-pix_fmt", "rgb24",
             "-s", f"{W}x{H}", "-r", str(fps), "-i", "-",
-            "-vf", f"scale={W * scale}:{H * scale}:flags=neighbor",
+            "-vf", f"scale={270 * scale}:{480 * scale}:flags={'neighbor' if PIXEL else 'lanczos'}",
             "-c:v", "libx264", "-preset", "fast", "-crf", "16", "-tune", "animation",
             "-pix_fmt", "yuv420p", silent], stdin=subprocess.PIPE)
         nframes = int(math.ceil(total * fps))
@@ -378,7 +394,7 @@ _last = {}
 
 
 def compose(item, lt, cast, cap, header):
-    """Final 270x480 frame. The pixel layer animates at 12 fps; frames are cached."""
+    """Final frame (canvas size). The scene layer animates at 12 fps; frames are cached."""
     q = int(lt * 12) / 12
     key = (id(item), q)
     if _last.get("key") != key:
@@ -405,6 +421,9 @@ def main():
     a = ap.parse_args()
     with open(a.story, encoding="utf-8") as f:
         story = json.load(f)
+    if story.get("cast_file"):  # shared recurring characters
+        with open(os.path.join(os.path.dirname(a.story), story["cast_file"]), encoding="utf-8") as f:
+            story["cast"] = {**json.load(f)["cast"], **story.get("cast", {})}
     render(story, a.out, tts=a.tts, music=a.music, preview=a.preview,
            scale=8 if a.res == "4k" else 4)
 
