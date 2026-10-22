@@ -1,0 +1,990 @@
+{
+ "title": "C'est que chez moi ou t'es gentil avec tout le monde sauf tes parents ?",
+ "header": "Gentil dehors, à 2% à la maison",
+ "fps": 30,
+ "words_per_second": 2.6,
+ "captions": {
+  "size": 28,
+  "y": 0.8,
+  "max_words": 2,
+  "highlight": "#ffd93b"
+ },
+ "cast": {
+  "moi": {
+   "skin": "medium",
+   "hair": "short",
+   "hair_color": "#2a1a14",
+   "shirt": "#3550a8",
+   "pants": "#232742",
+   "acc": [
+    "hoodie"
+   ]
+  },
+  "pote": {
+   "skin": "tan",
+   "hair": "curly",
+   "hair_color": "#1e1410",
+   "shirt": "#e2483f",
+   "pants": "#2b2f45",
+   "acc": [
+    "cap"
+   ]
+  },
+  "mere": {
+   "skin": "medium",
+   "hair": "bun",
+   "hair_color": "#2a1a14",
+   "shirt": "#38b49a",
+   "pants": "#38b49a",
+   "shoes": "#f39ab4",
+   "acc": [
+    "dress",
+    "earrings"
+   ]
+  }
+ },
+ "scenes": [
+  {
+   "text": "C'est que chez moi ou t'es gentil avec tout le monde, sauf avec tes parents ?",
+   "bg": {
+    "type": "intro",
+    "text": "C'est que|chez moi ?"
+   },
+   "fx": [
+    "flash",
+    "shake"
+   ],
+   "duration": 3.643,
+   "word_times": [
+    [
+     0.0,
+     0.28
+    ],
+    [
+     0.28,
+     0.467
+    ],
+    [
+     0.467,
+     0.701
+    ],
+    [
+     0.701,
+     0.887
+    ],
+    [
+     0.887,
+     1.027
+    ],
+    [
+     1.027,
+     1.261
+    ],
+    [
+     1.261,
+     1.588
+    ],
+    [
+     1.588,
+     1.821
+    ],
+    [
+     1.821,
+     2.055
+    ],
+    [
+     2.055,
+     2.195
+    ],
+    [
+     2.195,
+     2.522
+    ],
+    [
+     2.522,
+     2.755
+    ],
+    [
+     2.755,
+     2.989
+    ],
+    [
+     2.989,
+     3.176
+    ],
+    [
+     3.176,
+     3.643
+    ]
+   ]
+  },
+  {
+   "title": "Batterie 100%",
+   "title_color": "#5ee07a",
+   "text": "Dehors, tu dis merci au chauffeur de bus, tu fais rire tes potes.",
+   "bg": {
+    "type": "street"
+   },
+   "chars": [
+    {
+     "id": "moi",
+     "x": 40,
+     "expr": "laugh",
+     "anim": "bounce"
+    },
+    {
+     "id": "pote",
+     "x": 98,
+     "expr": "laugh",
+     "flip": true,
+     "anim": "bounce"
+    }
+   ],
+   "props": [
+    {
+     "type": "battery_full",
+     "x": 67,
+     "y": 70,
+     "scale": 2
+    }
+   ],
+   "duration": 3.641,
+   "word_times": [
+    [
+     0.0,
+     0.441
+    ],
+    [
+     0.441,
+     0.607
+    ],
+    [
+     0.607,
+     0.827
+    ],
+    [
+     0.827,
+     1.158
+    ],
+    [
+     1.158,
+     1.324
+    ],
+    [
+     1.324,
+     1.875
+    ],
+    [
+     1.875,
+     2.041
+    ],
+    [
+     2.041,
+     2.317
+    ],
+    [
+     2.317,
+     2.482
+    ],
+    [
+     2.482,
+     2.758
+    ],
+    [
+     2.758,
+     3.034
+    ],
+    [
+     3.034,
+     3.254
+    ],
+    [
+     3.254,
+     3.641
+    ]
+   ]
+  },
+  {
+   "text": "À la maison, ta mère te demande juste si t'as mangé.",
+   "bg": {
+    "type": "room",
+    "wall": "#f3d9a4"
+   },
+   "chars": [
+    {
+     "id": "mere",
+     "x": 40,
+     "expr": "happy",
+     "pose": "wave"
+    },
+    {
+     "id": "moi",
+     "x": 98,
+     "expr": "neutral",
+     "flip": true,
+     "hold": "phone"
+    }
+   ],
+   "props": [
+    {
+     "type": "heart",
+     "x": 40,
+     "y": 92,
+     "scale": 2,
+     "anim": "float"
+    }
+   ],
+   "duration": 3.067,
+   "word_times": [
+    [
+     0.0,
+     0.116
+    ],
+    [
+     0.116,
+     0.289
+    ],
+    [
+     0.289,
+     0.752
+    ],
+    [
+     0.752,
+     0.926
+    ],
+    [
+     0.926,
+     1.215
+    ],
+    [
+     1.215,
+     1.389
+    ],
+    [
+     1.389,
+     1.852
+    ],
+    [
+     1.852,
+     2.199
+    ],
+    [
+     2.199,
+     2.373
+    ],
+    [
+     2.373,
+     2.662
+    ],
+    [
+     2.662,
+     3.067
+    ]
+   ]
+  },
+  {
+   "title": "Réponse en 3 lettres",
+   "title_color": "#ff5a5a",
+   "text": "Et toi : ouais. Nan. Jsp.",
+   "bg": {
+    "type": "plain",
+    "color": "#2c2f4a"
+   },
+   "chars": [
+    {
+     "id": "moi",
+     "x": 67,
+     "expr": "neutral",
+     "anim": "none",
+     "hold": "phone"
+    }
+   ],
+   "fx": [
+    "zoom"
+   ],
+   "duration": 3.449,
+   "word_times": [
+    [
+     0.0,
+     0.279
+    ],
+    [
+     0.279,
+     0.838
+    ],
+    [
+     1.043,
+     1.694
+    ],
+    [
+     1.848,
+     2.314
+    ],
+    [
+     2.611,
+     3.076
+    ]
+   ]
+  },
+  {
+   "title": "La science",
+   "title_color": "#ffffff",
+   "text": "C'est pas toi, c'est ton cerveau.",
+   "bg": {
+    "type": "plain",
+    "color": "#3a4a7a"
+   },
+   "chars": [
+    {
+     "id": "moi",
+     "x": 67,
+     "expr": "shocked",
+     "bubble": "bulb"
+    }
+   ],
+   "fx": [
+    "flash"
+   ],
+   "duration": 1.95,
+   "word_times": [
+    [
+     0.0,
+     0.302
+    ],
+    [
+     0.302,
+     0.504
+    ],
+    [
+     0.504,
+     0.755
+    ],
+    [
+     0.755,
+     1.057
+    ],
+    [
+     1.092,
+     1.294
+    ],
+    [
+     1.294,
+     1.747
+    ]
+   ]
+  },
+  {
+   "text": "Des chercheurs de Stanford ont vu que vers treize ans, ton cerveau préfère les voix inconnues à celle de ta mère.",
+   "bg": {
+    "type": "classroom",
+    "wall": "#cdd3f0"
+   },
+   "chars": [
+    {
+     "id": "moi",
+     "x": 67,
+     "expr": "worried",
+     "spec": {
+      "acc": [
+       "hoodie",
+       "headphones"
+      ]
+     }
+    }
+   ],
+   "props": [
+    {
+     "type": "bulb",
+     "x": 24,
+     "y": 104,
+     "scale": 2,
+     "at_word": 4
+    },
+    {
+     "type": "question",
+     "x": 108,
+     "y": 100,
+     "scale": 2,
+     "at_word": 13
+    }
+   ],
+   "duration": 5.304,
+   "word_times": [
+    [
+     0.0,
+     0.186
+    ],
+    [
+     0.186,
+     0.698
+    ],
+    [
+     0.698,
+     0.837
+    ],
+    [
+     0.837,
+     1.256
+    ],
+    [
+     1.256,
+     1.442
+    ],
+    [
+     1.442,
+     1.582
+    ],
+    [
+     1.582,
+     1.768
+    ],
+    [
+     1.768,
+     2.001
+    ],
+    [
+     2.001,
+     2.326
+    ],
+    [
+     2.326,
+     2.559
+    ],
+    [
+     2.559,
+     2.745
+    ],
+    [
+     2.745,
+     3.117
+    ],
+    [
+     3.117,
+     3.489
+    ],
+    [
+     3.489,
+     3.675
+    ],
+    [
+     3.675,
+     3.908
+    ],
+    [
+     3.908,
+     4.373
+    ],
+    [
+     4.373,
+     4.466
+    ],
+    [
+     4.466,
+     4.746
+    ],
+    [
+     4.746,
+     4.885
+    ],
+    [
+     4.885,
+     5.025
+    ],
+    [
+     5.025,
+     5.304
+    ]
+   ]
+  },
+  {
+   "text": "Petit, sa voix c'était ta playlist préférée. Ado, c'est une notif que tu balaies.",
+   "bg": {
+    "type": "split",
+    "left": "#ffd6e0",
+    "right": "#cdd3f0"
+   },
+   "chars": [
+    {
+     "id": "moi",
+     "x": 34,
+     "expr": "love",
+     "spec": {
+      "size": 0.8
+     }
+    },
+    {
+     "id": "moi",
+     "x": 100,
+     "expr": "neutral",
+     "flip": true,
+     "hold": "phone"
+    }
+   ],
+   "props": [
+    {
+     "type": "heart",
+     "x": 34,
+     "y": 96,
+     "scale": 2,
+     "anim": "float"
+    },
+    {
+     "type": "x",
+     "x": 100,
+     "y": 80,
+     "scale": 2,
+     "at_word": 12
+    }
+   ],
+   "duration": 5.184,
+   "word_times": [
+    [
+     0.0,
+     0.412
+    ],
+    [
+     0.412,
+     0.588
+    ],
+    [
+     0.588,
+     0.882
+    ],
+    [
+     0.882,
+     1.352
+    ],
+    [
+     1.352,
+     1.529
+    ],
+    [
+     1.529,
+     2.058
+    ],
+    [
+     2.058,
+     2.646
+    ],
+    [
+     2.646,
+     2.94
+    ],
+    [
+     3.151,
+     3.504
+    ],
+    [
+     3.504,
+     3.739
+    ],
+    [
+     3.739,
+     4.092
+    ],
+    [
+     4.092,
+     4.327
+    ],
+    [
+     4.327,
+     4.503
+    ],
+    [
+     4.503,
+     5.033
+    ]
+   ]
+  },
+  {
+   "text": "Et ta patience, c'est une batterie.",
+   "bg": {
+    "type": "street"
+   },
+   "chars": [
+    {
+     "id": "moi",
+     "x": 67,
+     "expr": "happy",
+     "bubble": "sweat"
+    }
+   ],
+   "props": [
+    {
+     "type": "battery_full",
+     "x": 24,
+     "y": 100,
+     "scale": 2,
+     "at_word": 3
+    },
+    {
+     "type": "battery_mid",
+     "x": 110,
+     "y": 100,
+     "scale": 2,
+     "at_word": 5
+    }
+   ],
+   "duration": 2.162,
+   "word_times": [
+    [
+     0.0,
+     0.18
+    ],
+    [
+     0.18,
+     0.36
+    ],
+    [
+     0.36,
+     0.961
+    ],
+    [
+     0.961,
+     1.321
+    ],
+    [
+     1.321,
+     1.561
+    ],
+    [
+     1.561,
+     2.162
+    ]
+   ]
+  },
+  {
+   "title": "Batterie 2%",
+   "title_color": "#ff5a5a",
+   "text": "Tu la vides toute la journée dehors. Et le soir, tes parents récupèrent les deux pour cent qui restent.",
+   "bg": {
+    "type": "night"
+   },
+   "chars": [
+    {
+     "id": "moi",
+     "x": 40,
+     "expr": "angry",
+     "bubble": "zzz"
+    },
+    {
+     "id": "mere",
+     "x": 98,
+     "expr": "sad",
+     "flip": true
+    }
+   ],
+   "props": [
+    {
+     "type": "battery_low",
+     "x": 67,
+     "y": 96,
+     "scale": 2,
+     "anim": "blink"
+    }
+   ],
+   "duration": 4.88,
+   "word_times": [
+    [
+     0.0,
+     0.134
+    ],
+    [
+     0.134,
+     0.267
+    ],
+    [
+     0.267,
+     0.535
+    ],
+    [
+     0.535,
+     0.802
+    ],
+    [
+     0.802,
+     0.936
+    ],
+    [
+     0.936,
+     1.292
+    ],
+    [
+     1.292,
+     1.648
+    ],
+    [
+     1.648,
+     1.782
+    ],
+    [
+     2.005,
+     2.139
+    ],
+    [
+     2.139,
+     2.406
+    ],
+    [
+     2.406,
+     2.585
+    ],
+    [
+     2.585,
+     2.941
+    ],
+    [
+     2.941,
+     3.431
+    ],
+    [
+     3.431,
+     3.609
+    ],
+    [
+     3.609,
+     3.832
+    ],
+    [
+     3.832,
+     4.055
+    ],
+    [
+     4.055,
+     4.278
+    ],
+    [
+     4.278,
+     4.456
+    ],
+    [
+     4.456,
+     4.857
+    ]
+   ]
+  },
+  {
+   "title": "Batterie 20%",
+   "title_color": "#ffd93b",
+   "text": "Alors ce soir, garde-leur un peu de batterie.",
+   "bg": {
+    "type": "room",
+    "wall": "#f3d9a4"
+   },
+   "chars": [
+    {
+     "id": "moi",
+     "x": 40,
+     "expr": "happy"
+    },
+    {
+     "id": "mere",
+     "x": 98,
+     "expr": "love",
+     "flip": true
+    }
+   ],
+   "props": [
+    {
+     "type": "battery_mid",
+     "x": 67,
+     "y": 92,
+     "scale": 2
+    }
+   ],
+   "duration": 2.398,
+   "word_times": [
+    [
+     0.0,
+     0.313
+    ],
+    [
+     0.313,
+     0.469
+    ],
+    [
+     0.469,
+     0.782
+    ],
+    [
+     0.782,
+     1.356
+    ],
+    [
+     1.356,
+     1.512
+    ],
+    [
+     1.512,
+     1.72
+    ],
+    [
+     1.72,
+     1.877
+    ],
+    [
+     1.877,
+     2.398
+    ]
+   ]
+  },
+  {
+   "text": "Réponds avec plus de trois lettres. Bon, elle va croire que t'es malade.",
+   "bg": {
+    "type": "room",
+    "wall": "#a6dccd"
+   },
+   "chars": [
+    {
+     "id": "moi",
+     "x": 40,
+     "expr": "happy",
+     "pose": "wave"
+    },
+    {
+     "id": "mere",
+     "x": 98,
+     "expr": "shocked",
+     "flip": true
+    }
+   ],
+   "props": [
+    {
+     "type": "thermometer",
+     "x": 98,
+     "y": 92,
+     "scale": 2,
+     "at_word": 8
+    }
+   ],
+   "duration": 4.2,
+   "word_times": [
+    [
+     0.0,
+     0.428
+    ],
+    [
+     0.428,
+     0.696
+    ],
+    [
+     0.696,
+     0.964
+    ],
+    [
+     0.964,
+     1.124
+    ],
+    [
+     1.124,
+     1.446
+    ],
+    [
+     1.446,
+     1.927
+    ],
+    [
+     1.938,
+     2.205
+    ],
+    [
+     2.205,
+     2.473
+    ],
+    [
+     2.473,
+     2.634
+    ],
+    [
+     2.634,
+     3.009
+    ],
+    [
+     3.009,
+     3.223
+    ],
+    [
+     3.223,
+     3.49
+    ],
+    [
+     3.49,
+     3.919
+    ]
+   ]
+  },
+  {
+   "text": "Tague celui qui répond ouais à sa mère.",
+   "bg": {
+    "type": "split",
+    "left": "#c9f0c0",
+    "right": "#f6a9a9"
+   },
+   "chars": [
+    {
+     "id": "moi",
+     "x": 34,
+     "expr": "laugh"
+    },
+    {
+     "id": "moi",
+     "x": 100,
+     "expr": "smirk",
+     "flip": true,
+     "hold": "phone"
+    }
+   ],
+   "props": [
+    {
+     "type": "battery_full",
+     "x": 34,
+     "y": 80,
+     "scale": 2
+    },
+    {
+     "type": "battery_low",
+     "x": 100,
+     "y": 80,
+     "scale": 2,
+     "anim": "blink"
+    }
+   ],
+   "duration": 3.11,
+   "word_times": [
+    [
+     0.0,
+     0.347
+    ],
+    [
+     0.347,
+     0.693
+    ],
+    [
+     0.693,
+     0.924
+    ],
+    [
+     0.924,
+     1.328
+    ],
+    [
+     1.328,
+     1.675
+    ],
+    [
+     1.675,
+     1.79
+    ],
+    [
+     1.79,
+     1.964
+    ],
+    [
+     1.964,
+     2.31
+    ]
+   ]
+  }
+ ],
+ "voiceover": "voix/batterie_parents.mp3"
+}
