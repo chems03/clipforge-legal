@@ -576,7 +576,7 @@ def _accessories(arr, S, acc, hair, g, t):
 # Props
 # --------------------------------------------------------------------------
 
-PROPS = ["thermometer", "eye_blue", "eye_brown", "eye_honey", "photo", "cake", "paper", "phone", "gift", "tv", "lock", "heart", "x", "check", "question",
+PROPS = ["battery_full", "battery_mid", "battery_low", "thermometer", "eye_blue", "eye_brown", "eye_honey", "photo", "cake", "paper", "phone", "gift", "tv", "lock", "heart", "x", "check", "question",
          "exclam", "controller", "money", "book", "pizza", "clock", "star",
          "zzz", "bulb", "trophy", "sweat", "anger"]
 
@@ -660,6 +660,13 @@ def prop_image(kind, size, t=0.0):
                               ((.35, -.12), (60, 120, 230)), ((.55, .06), (250, 210, 60))):
             paint(arr, S().ellipse([c + dx * s - 3, c + dy * s - 3, c + dx * s + 3, c + dy * s + 3]).m,
                   col, shade_px=1)
+    elif kind.startswith("battery_"):
+        level, col = {"battery_full": (1.0, (70, 210, 100)), "battery_mid": (.5, (250, 200, 60)),
+                      "battery_low": (.12, (235, 60, 70))}[kind]
+        paint(arr, S().rrect([c - .95 * s, c - .5 * s, c + .8 * s, c + .5 * s], .14 * s).m, (60, 62, 80))
+        paint(arr, S().rrect([c + .8 * s, c - .2 * s, c + .98 * s, c + .2 * s], 2).m, (60, 62, 80), shade_px=1)
+        inner = S().rect([c - .8 * s, c - .35 * s, c - .8 * s + 1.45 * s * level, c + .35 * s]).m
+        paint(arr, inner, col, outline=0, shade_px=2)
     elif kind == "thermometer":
         tube = S().rrect([c - .16 * s, c - .95 * s, c + .16 * s, c + .55 * s], .16 * s) \
             .ellipse([c - .32 * s, c + .4 * s, c + .32 * s, c + 1.0 * s]).m
