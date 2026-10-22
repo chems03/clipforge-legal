@@ -576,7 +576,7 @@ def _accessories(arr, S, acc, hair, g, t):
 # Props
 # --------------------------------------------------------------------------
 
-PROPS = ["eye_blue", "eye_brown", "eye_honey", "photo", "cake", "paper", "phone", "gift", "tv", "lock", "heart", "x", "check", "question",
+PROPS = ["thermometer", "eye_blue", "eye_brown", "eye_honey", "photo", "cake", "paper", "phone", "gift", "tv", "lock", "heart", "x", "check", "question",
          "exclam", "controller", "money", "book", "pizza", "clock", "star",
          "zzz", "bulb", "trophy", "sweat", "anger"]
 
@@ -660,6 +660,15 @@ def prop_image(kind, size, t=0.0):
                               ((.35, -.12), (60, 120, 230)), ((.55, .06), (250, 210, 60))):
             paint(arr, S().ellipse([c + dx * s - 3, c + dy * s - 3, c + dx * s + 3, c + dy * s + 3]).m,
                   col, shade_px=1)
+    elif kind == "thermometer":
+        tube = S().rrect([c - .16 * s, c - .95 * s, c + .16 * s, c + .55 * s], .16 * s) \
+            .ellipse([c - .32 * s, c + .4 * s, c + .32 * s, c + 1.0 * s]).m
+        paint(arr, tube, WHITE, shade_px=2)
+        put(arr, S().rect([c - .06 * s, c - .5 * s, c + .06 * s, c + .6 * s])
+            .ellipse([c - .2 * s, c + .52 * s, c + .2 * s, c + .88 * s]).m, (230, 50, 60))
+        for i in range(5):
+            y = c - .8 * s + i * .25 * s
+            put(arr, S().rect([c + .06 * s, y, c + .14 * s, y]).m, (150, 150, 170))
     elif kind.startswith("eye_"):
         iris_c = {"eye_blue": (60, 140, 230), "eye_brown": (110, 66, 36), "eye_honey": (205, 145, 45)}[kind]
         white = S().ellipse([c - 1.0 * s, c - .6 * s, c + 1.0 * s, c + .6 * s]).m
@@ -790,7 +799,7 @@ _bg_cache = {}
 def background(bg, t=0.0):
     """RGBA background image; static ones are cached."""
     kind = bg.get("type", "room")
-    animated = kind in ("burst", "night", "street")
+    animated = kind in ("burst", "night", "street", "intro")
     key = (repr(sorted(bg.items())), round(t * 12) if animated else 0)
     if key not in _bg_cache:
         if len(_bg_cache) > 200:
@@ -885,6 +894,33 @@ def _draw_bg(arr, bg, kind, t):
                        (cx + 700 * math.cos(a1), cy + 700 * math.sin(a1))])
         grad(arr, (0, 0, W, H), mix(c2, WHITE, 0.2), c2, levels=4, mask=rays.m, radial=(cx, cy, H * .6))
         vignette(arr, 0.18)
+        return
+
+    if kind == "intro":
+        # signature title card: a stamp of text over a spinning burst
+        c1 = hexc(bg.get("color", "#2c2f4a"))
+        c2 = hexc(bg.get("color2", "#3d4170"))
+        grad(arr, (0, 0, W, H), mix(c1, WHITE, 0.1), c1, levels=4, radial=(W / 2, H * .45, H * .6))
+        cx, cy = W / 2, H * 0.45
+        rays = S()
+        for i in range(16):
+            a0 = t * 0.6 + i * math.pi / 8
+            a1 = a0 + math.pi / 16
+            rays.poly([(cx, cy), (cx + 700 * math.cos(a0), cy + 700 * math.sin(a0)),
+                       (cx + 700 * math.cos(a1), cy + 700 * math.sin(a1))])
+        put(arr, rays.m, c2)
+        lines = bg.get("text", "C'est que chez moi ?").upper().split("|")
+        accent = hexc(bg.get("accent", "#ffd93b"))
+        plate = S().rrect([18, cy - 34 * len(lines) - 14, W - 18, cy + 34 * len(lines) + 14], 14).m
+        paint(arr, plate, hexc(bg.get("plate", "#e8414f")), outline=3, shade_px=6)
+        for i, ln in enumerate(lines):
+            y = cy + (i - (len(lines) - 1) / 2) * 62
+            size = 52
+            while _font(size).getlength(ln) > W - 60 and size > 20:
+                size -= 2
+            m = S().text((cx, y), ln, size).m
+            paint(arr, m, accent if i == len(lines) - 1 else WHITE, outline=3, shade_px=3, line=OL)
+        vignette(arr, 0.25)
         return
 
     if kind == "split":

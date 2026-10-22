@@ -386,6 +386,8 @@ def compose(item, lt, cast, cap, header):
     cur = cap.state(item["words"], item["word_times"], lt)
     if _last.get("cap") != (cur,) or "frame" not in _last:
         frame = _last["base"].copy()
+        if item["scene"].get("bg", {}).get("type") == "intro":
+            header = None  # the intro card is the header
         cap.draw(frame, item["words"], cur, header, item["scene"].get("title"),
                  item["scene"].get("title_color"))
         _last.update(cap=(cur,), frame=frame)
