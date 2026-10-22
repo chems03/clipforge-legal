@@ -71,7 +71,7 @@ Les coordonnées sont sur une grille de 135 x 240 (centre = 67). Le sol est à y
 | `props.anim` | `float`, `blink` ; `at_word: n` le fait apparaître sur le n-ième mot |
 | `fx` | `flash`, `zoom` (zoom lent), `shake` (secousse) |
 | `ghost` (perso) | `true` = perso à moitié transparent |
-| `title` (scène) | grand texte au milieu de l'écran, ex. `"PREUVE N°1"` |
+| `title` (scène) | grand texte en haut de l'écran, ex. `"PREUVE N°1"` ; `title_color` pour sa couleur |
 
 ## Conseils pour que ça marche
 
