@@ -1,0 +1,429 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>10 jours sans manger</title>
+<style>
+  @font-face { font-family: Fredoka; font-weight: 600; src: url(https://cdn.jsdelivr.net/npm/@fontsource/fredoka@5.1.0/files/fredoka-latin-600-normal.woff2); }
+  @font-face { font-family: Fredoka; font-weight: 700; src: url(https://cdn.jsdelivr.net/npm/@fontsource/fredoka@5.1.0/files/fredoka-latin-700-normal.woff2); }
+  html, body { margin: 0; width: 1280px; height: 720px; overflow: hidden; font-family: Fredoka, sans-serif; }
+  #bg { position: absolute; inset: 0; transition: none; }
+  canvas { position: absolute; inset: 0; }
+  #badge { position: absolute; top: 28px; left: 36px; padding: 10px 22px; border-radius: 22px;
+    background: rgba(255,255,255,.88); color: #2b2350; font-weight: 700; font-size: 34px;
+    box-shadow: 0 6px 20px rgba(0,0,0,.15); }
+  #dots { position: absolute; top: 44px; right: 40px; display: flex; gap: 10px; }
+  #dots div { width: 18px; height: 18px; border-radius: 50%; background: rgba(255,255,255,.45); box-shadow: 0 2px 6px rgba(0,0,0,.15); }
+  #dots div.on { background: #ffd447; }
+  #cap { position: absolute; left: 50%; bottom: 34px; transform: translateX(-50%); width: 1060px;
+    padding: 18px 30px 20px; border-radius: 28px; background: rgba(255,255,255,.92); color: #2b2350;
+    text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,.18); }
+  #title { font-weight: 700; font-size: 38px; line-height: 1.15; }
+  #sub { font-weight: 600; font-size: 25px; line-height: 1.3; margin-top: 8px; color: #5a4f86; }
+  #big { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    color: #fff; text-align: center; text-shadow: 0 6px 24px rgba(0,0,0,.35); pointer-events: none; }
+  #big h1 { font-size: 92px; margin: 0; font-weight: 700; }
+  #big p { font-size: 34px; margin: 10px 0 0; font-weight: 600; }
+  .lbl { position: absolute; font-weight: 700; font-size: 26px; color: #fff; padding: 4px 14px; border-radius: 14px;
+    transform: translate(-50%, -50%); white-space: nowrap; text-shadow: 0 2px 4px rgba(0,0,0,.3); }
+</style>
+</head>
+<body>
+<div id="bg"></div>
+<div id="badge"></div>
+<div id="dots"></div>
+<div id="lblA" class="lbl"></div>
+<div id="lblB" class="lbl"></div>
+<div id="big"><h1></h1><p></p></div>
+<div id="cap"><div id="title"></div><div id="sub"></div></div>
+
+<script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js" } }</script>
+<script type="module">
+import * as THREE from 'three';
+
+const W = 1280, H = 720;
+const INTRO = 5, DAY = 6, REFEED = 7, OUTRO = 6;
+const TOTAL = INTRO + 10 * DAY + REFEED + OUTRO;
+window.TOTAL = TOTAL;
+
+const DAYS = [
+  ["Jour 1 — On puise dans les réserves de sucre", "Le foie libère son glycogène. La faim arrive par vagues (hormone ghréline)."],
+  ["Jour 2 — Les réserves de sucre sont vides", "Le corps fabrique son propre glucose à partir des graisses et des protéines."],
+  ["Jour 3 — Entrée en cétose", "Le foie transforme les graisses en cétones : un nouveau carburant pour le cerveau."],
+  ["Jour 4 — La faim diminue souvent", "Fatigue, maux de tête, haleine particulière… L'insuline est au plus bas."],
+  ["Jour 5 — Mode « économie »", "L'hormone de croissance monte pour protéger les muscles ; le recyclage cellulaire (autophagie) s'intensifierait."],
+  ["Jour 6 — Le métabolisme ralentit", "Les hormones thyroïdiennes baissent : on a plus froid et moins d'énergie."],
+  ["Jour 7 — Alerte minéraux", "Sodium, potassium, magnésium chutent : vertiges, crampes, cœur qui s'emballe."],
+  ["Jour 8 — Les graisses font l'essentiel du travail", "Le cerveau tire désormais une grande part de son énergie des cétones."],
+  ["Jour 9 — Les muscles fondent aussi", "On perd de l'eau, de la graisse… et du muscle. La faiblesse est marquée."],
+  ["Jour 10 — Le corps est à la limite", "Risques : malaises, troubles du rythme cardiaque, crise de goutte. Suivi médical indispensable."],
+];
+const BGS = [
+  ["#7ec8ff", "#c9a6ff"], ["#8fd3ff", "#ffc2a8"], ["#9fd8ff", "#ffd59a"], ["#a28bff", "#ff9fd0"],
+  ["#8d7bff", "#ffb0c8"], ["#82b4ff", "#b8a6ff"], ["#6aa8ff", "#cfe6ff"], ["#ff9a8b", "#ffd2a0"],
+  ["#9a8bd8", "#d6b0d8"], ["#8d86b0", "#c9b4c8"], ["#7a7aa8", "#b8a8c0"],
+];
+
+// ---------- DOM ----------
+const dots = document.getElementById('dots');
+for (let i = 0; i < 10; i++) dots.appendChild(document.createElement('div'));
+const $ = id => document.getElementById(id);
+
+// ---------- renderer ----------
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(1);
+renderer.setSize(W, H);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+document.body.insertBefore(renderer.domElement, $('badge'));
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(35, W / H, 0.1, 100);
+
+scene.add(new THREE.HemisphereLight(0xffffff, 0xb59cff, 1.3));
+const key = new THREE.DirectionalLight(0xfff1dc, 2.6);
+key.position.set(4, 7, 5);
+key.castShadow = true;
+key.shadow.mapSize.set(1024, 1024);
+key.shadow.radius = 6; key.shadow.bias = -0.002; key.shadow.normalBias = 0.03;
+Object.assign(key.shadow.camera, { left: -4, right: 4, top: 4, bottom: -4 });
+scene.add(key);
+const rim = new THREE.DirectionalLight(0xb8d8ff, 2.2);
+rim.position.set(-5, 3, -4);
+scene.add(rim);
+const fill = new THREE.PointLight(0xffc6e0, 8, 20);
+fill.position.set(-3, 1.5, 4);
+scene.add(fill);
+
+const ground = new THREE.Mesh(new THREE.CircleGeometry(6, 64), new THREE.ShadowMaterial({ opacity: 0.22 }));
+ground.rotation.x = -Math.PI / 2;
+ground.receiveShadow = true;
+scene.add(ground);
+
+// soft disc under character
+const stage = new THREE.Mesh(new THREE.CylinderGeometry(2.1, 2.3, 0.18, 64),
+  new THREE.MeshPhysicalMaterial({ color: 0xffffff, roughness: 0.55, sheen: 1, sheenColor: 0xffe0f0 }));
+stage.position.y = -0.09; stage.receiveShadow = true;
+scene.add(stage);
+
+// ---------- character ----------
+const phys = (c, o = {}) => new THREE.MeshPhysicalMaterial({ color: c, roughness: 0.45, clearcoat: 0.6, clearcoatRoughness: 0.35, sheen: 0.6, sheenColor: 0xffffff, ...o });
+const skinMat = phys(0xffa86b);
+const char = new THREE.Group(); scene.add(char);
+const bodyPivot = new THREE.Group(); char.add(bodyPivot);
+
+const body = new THREE.Mesh(new THREE.SphereGeometry(1, 64, 48), skinMat);
+body.castShadow = true;
+bodyPivot.add(body);
+
+const belly = new THREE.Mesh(new THREE.SphereGeometry(0.62, 48, 32), phys(0xffe0b8, { roughness: 0.6 }));
+bodyPivot.add(belly);
+
+const head = new THREE.Group(); bodyPivot.add(head);
+function makeEye(x) {
+  const g = new THREE.Group();
+  const white = new THREE.Mesh(new THREE.SphereGeometry(0.27, 40, 32), phys(0xffffff, { roughness: 0.15, clearcoat: 1 }));
+  white.scale.set(1, 1.15, 0.7);
+  const iris = new THREE.Mesh(new THREE.SphereGeometry(0.15, 32, 24), phys(0x4a3a8c, { roughness: 0.1, clearcoat: 1 }));
+  iris.position.z = 0.15; iris.scale.set(1, 1.1, 0.6);
+  const pupil = new THREE.Mesh(new THREE.SphereGeometry(0.085, 24, 16), new THREE.MeshBasicMaterial({ color: 0x120a26 }));
+  pupil.position.z = 0.22; pupil.scale.set(1, 1.1, 0.5);
+  const hl = new THREE.Mesh(new THREE.SphereGeometry(0.035, 16, 12), new THREE.MeshBasicMaterial({ color: 0xffffff }));
+  hl.position.set(0.05, 0.06, 0.26);
+  const lid = new THREE.Mesh(new THREE.SphereGeometry(0.29, 40, 20, 0, Math.PI * 2, 0, Math.PI / 2), skinMat);
+  lid.scale.set(1, 1.18, 0.78);
+  g.add(white, iris, pupil, hl, lid);
+  g.position.set(x, 0.32, 0.78);
+  g.userData = { lid, iris, pupil, hl };
+  head.add(g);
+  return g;
+}
+const eyeL = makeEye(-0.3), eyeR = makeEye(0.3);
+const brows = [-0.3, 0.3].map(x => {
+  const b = new THREE.Mesh(new THREE.CapsuleGeometry(0.035, 0.22, 8, 16), phys(0x6b3a1e));
+  b.rotation.z = Math.PI / 2; b.position.set(x, 0.72, 0.8); head.add(b); return b;
+});
+const cheeks = [-0.55, 0.55].map(x => {
+  const c = new THREE.Mesh(new THREE.SphereGeometry(0.11, 24, 16), phys(0xff7a8a, { transparent: true, opacity: 0.6 }));
+  c.scale.set(1, 0.6, 0.3); c.position.set(x, 0.08, 0.84); head.add(c); return c;
+});
+const mouthMat = phys(0x7a2236, { roughness: 0.4 });
+let mouth = null;
+function setMouth(curve) { // curve >0 smile, <0 frown
+  if (mouth) { head.remove(mouth); mouth.geometry.dispose(); }
+  const pts = [];
+  for (let i = 0; i <= 20; i++) { const u = i / 20 - 0.5; pts.push(new THREE.Vector3(u * 0.36, -curve * (0.25 - u * u) * 0.6, 0)); }
+  mouth = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 24, 0.03, 8), mouthMat);
+  mouth.position.set(0, 0.0, 0.95);
+  head.add(mouth);
+}
+setMouth(1);
+
+function limb(len, r) { const m = new THREE.Mesh(new THREE.CapsuleGeometry(r, len, 8, 20), skinMat); m.castShadow = true; return m; }
+const arms = [-1, 1].map(s => {
+  const pivot = new THREE.Group(); pivot.position.set(s * 0.9, -0.05, 0.1);
+  const a = limb(0.45, 0.13); a.position.y = -0.3; pivot.add(a);
+  const hand = new THREE.Mesh(new THREE.SphereGeometry(0.15, 24, 16), skinMat); hand.position.y = -0.6; hand.castShadow = true; pivot.add(hand);
+  pivot.rotation.z = s * 0.5; bodyPivot.add(pivot); pivot.userData = { a, hand, s };
+  return pivot;
+});
+const legs = [-1, 1].map(s => {
+  const l = limb(0.3, 0.16); l.position.set(s * 0.4, 0.28, 0.05);
+  const foot = new THREE.Mesh(new THREE.SphereGeometry(0.2, 24, 16), skinMat); foot.scale.set(1, 0.6, 1.4); foot.position.set(s * 0.4, 0.08, 0.12); foot.castShadow = true;
+  char.add(l, foot); return l;
+});
+// sprout on top (cute)
+const sprout = new THREE.Group(); head.add(sprout); sprout.position.set(0, 0.98, 0);
+const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.03, 0.25, 8), phys(0x3e9b4f)); stem.position.y = 0.12; sprout.add(stem);
+[-1, 1].forEach(s => { const lf = new THREE.Mesh(new THREE.SphereGeometry(0.12, 20, 12), phys(0x5fd26e)); lf.scale.set(1, 0.35, 0.6); lf.position.set(s * 0.11, 0.25, 0); lf.rotation.z = -s * 0.5; sprout.add(lf); });
+
+// ---------- props ----------
+const glow = (c, e = 1.2) => new THREE.MeshPhysicalMaterial({ color: c, emissive: c, emissiveIntensity: e, roughness: 0.3, transparent: true, opacity: 1 });
+// glycogen = golden sugar cubes
+const cubes = [];
+for (let i = 0; i < 10; i++) {
+  const m = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.22, 0.22), phys(0xffd447, { roughness: 0.3, clearcoat: 1, emissive: 0x6b4a00, emissiveIntensity: 0.4 }));
+  m.castShadow = true; scene.add(m); cubes.push(m);
+}
+// fat droplets
+const fats = [];
+for (let i = 0; i < 12; i++) {
+  const m = new THREE.Mesh(new THREE.SphereGeometry(0.13, 24, 16), new THREE.MeshPhysicalMaterial({ color: 0xfff09a, roughness: 0.05, transmission: 0.5, thickness: 0.4, clearcoat: 1, transparent: true }));
+  scene.add(m); fats.push(m);
+}
+// ketones: violet glowing particles
+const kets = [];
+for (let i = 0; i < 18; i++) { const m = new THREE.Mesh(new THREE.IcosahedronGeometry(0.07, 1), glow(0xb36bff, 1.6)); scene.add(m); kets.push(m); }
+// protein: small red beads (muscle)
+const prots = [];
+for (let i = 0; i < 8; i++) { const m = new THREE.Mesh(new THREE.SphereGeometry(0.08, 16, 12), glow(0xff5a6e, 0.7)); scene.add(m); prots.push(m); }
+// brain glow above head
+const brain = new THREE.Mesh(new THREE.SphereGeometry(0.32, 32, 24), glow(0xd9a6ff, 0.9));
+brain.scale.set(1.2, 0.85, 1); scene.add(brain);
+// heart
+const heartShape = new THREE.Shape();
+heartShape.moveTo(0, -0.3); heartShape.bezierCurveTo(-0.45, 0, -0.35, 0.35, 0, 0.18); heartShape.bezierCurveTo(0.35, 0.35, 0.45, 0, 0, -0.3);
+const heart = new THREE.Mesh(new THREE.ExtrudeGeometry(heartShape, { depth: 0.12, bevelEnabled: true, bevelSize: 0.06, bevelThickness: 0.06, bevelSegments: 6, curveSegments: 24 }), phys(0xff3b5c, { emissive: 0x880022, emissiveIntensity: 0.5 }));
+scene.add(heart);
+// snowflakes
+const snow = [];
+for (let i = 0; i < 26; i++) { const m = new THREE.Mesh(new THREE.OctahedronGeometry(0.06, 0), glow(0xe6f6ff, 1.2)); scene.add(m); snow.push(m); }
+// hunger rings
+const rings = [0, 1, 2].map(() => { const r = new THREE.Mesh(new THREE.TorusGeometry(0.4, 0.03, 8, 48), glow(0xffffff, 1)); scene.add(r); return r; });
+// soup bowl
+const bowl = new THREE.Group(); scene.add(bowl);
+const bowlMesh = new THREE.Mesh(new THREE.SphereGeometry(0.5, 48, 24, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2), phys(0x4fb6ff, { side: THREE.DoubleSide }));
+bowlMesh.castShadow = true; bowl.add(bowlMesh);
+const soup = new THREE.Mesh(new THREE.CircleGeometry(0.46, 40), phys(0xffb347, { roughness: 0.2 })); soup.rotation.x = -Math.PI / 2; soup.position.y = -0.08; bowl.add(soup);
+const steams = [0, 1, 2].map(i => { const s = new THREE.Mesh(new THREE.SphereGeometry(0.09, 16, 12), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true })); bowl.add(s); return s; });
+
+// ---------- helpers ----------
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const sm = (a, b, x) => { const t = clamp((x - a) / (b - a)); return t * t * (3 - 2 * t); };
+const lerp = (a, b, t) => a + (b - a) * t;
+const hash = i => { const x = Math.sin(i * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); };
+function vis(m, s) { m.visible = s > 0.01; m.scale.setScalar(Math.max(s, 0.0001)); }
+const v3 = new THREE.Vector3();
+function label(el, txt, pos, color, op) {
+  if (op < 0.02) { el.style.opacity = 0; return; }
+  v3.copy(pos).project(camera);
+  el.textContent = txt; el.style.background = color; el.style.opacity = op;
+  el.style.left = ((v3.x + 1) / 2 * W) + 'px'; el.style.top = ((1 - v3.y) / 2 * H) + 'px';
+}
+let lastCurve = null;
+const skinA = new THREE.Color(0xffa86b), skinB = new THREE.Color(0xd9b49c), skinC = new THREE.Color();
+
+// ---------- frame ----------
+window.setTime = function (t) {
+  // timeline
+  let phase, local, dayIdx = -1;
+  if (t < INTRO) { phase = 'intro'; local = t; }
+  else if (t < INTRO + 10 * DAY) { phase = 'day'; dayIdx = Math.floor((t - INTRO) / DAY); local = (t - INTRO) - dayIdx * DAY; }
+  else if (t < INTRO + 10 * DAY + REFEED) { phase = 'refeed'; local = t - INTRO - 10 * DAY; }
+  else { phase = 'outro'; local = t - INTRO - 10 * DAY - REFEED; }
+  const d = phase === 'intro' ? 0 : phase === 'day' ? dayIdx + clamp(local / DAY) : 10; // continuous day 0..10
+  const recov = phase === 'refeed' ? sm(1.5, 6, local) : phase === 'outro' ? 1 : 0;
+
+  // background
+  const bi = phase === 'intro' ? 0 : phase === 'day' ? dayIdx : 10;
+  const bg = phase === 'refeed' || phase === 'outro' ? ["#ffb88a", "#ffe29a"] : BGS[bi];
+  $('bg').style.background = `radial-gradient(circle at 50% 40%, ${bg[1]} 0%, ${bg[0]} 75%)`;
+
+  // UI text
+  const capIn = phase === 'day' ? sm(0.1, 0.6, local) * (1 - sm(DAY - 0.35, DAY, local)) :
+                phase === 'refeed' ? sm(0.1, 0.6, local) * (1 - sm(REFEED - 0.35, REFEED, local)) : 0;
+  $('cap').style.opacity = capIn;
+  $('cap').style.transform = `translateX(-50%) translateY(${(1 - capIn) * 30}px)`;
+  if (phase === 'day') { $('title').textContent = DAYS[dayIdx][0]; $('sub').textContent = DAYS[dayIdx][1]; }
+  if (phase === 'refeed') { $('title').textContent = "Et après ? On reprend tout doucement !"; $('sub').textContent = "Manger trop vite après un long jeûne peut déclencher un « syndrome de renutrition », potentiellement grave."; }
+  $('badge').style.opacity = phase === 'day' ? 1 : 0;
+  $('badge').textContent = phase === 'day' ? `Jour ${dayIdx + 1} / 10` : '';
+  $('dots').style.opacity = phase === 'day' || phase === 'refeed' ? 1 : 0;
+  [...dots.children].forEach((el, i) => el.className = (phase === 'refeed' || i <= dayIdx) ? 'on' : '');
+  const big = $('big');
+  if (phase === 'intro') {
+    const o = sm(0.3, 1.2, local) * (1 - sm(4.3, 5, local));
+    big.style.opacity = o; big.style.transform = `translateY(${-150 + (1 - o) * 20}px)`;
+    big.querySelector('h1').textContent = "10 jours sans manger";
+    big.querySelector('p').textContent = "Que se passerait-il dans ton corps ? (en buvant de l'eau)";
+  } else if (phase === 'outro') {
+    const o = sm(0.2, 1, local);
+    big.style.opacity = o; big.style.transform = `translateY(215px)`;
+    big.querySelector('h1').style.fontSize = '64px';
+    big.querySelector('h1').textContent = "⚠ Hypothèses à but éducatif";
+    big.querySelector('p').innerHTML = "Ne tente jamais un jeûne prolongé sans suivi médical.<br>Sans eau, le corps ne tient que quelques jours.";
+  } else big.style.opacity = 0;
+
+  // camera: gentle orbit + push in
+  const ca = Math.sin(t * 0.25) * 0.35 + 0;
+  const dist = phase === 'intro' ? lerp(11, 8.2, sm(0, 5, local)) : phase === 'outro' ? 9.5 : 8.2;
+  camera.position.set(Math.sin(ca) * dist, 2.9 + Math.sin(t * 0.4) * 0.15, Math.cos(ca) * dist);
+  camera.lookAt(0, 0.85, 0);
+
+  // character state
+  const thin = d / 10 * (1 - recov);
+  const tired = sm(2.5, 10, d) * (1 - recov);
+  const hop = phase === 'intro' ? Math.abs(Math.sin(t * Math.PI * 1.2)) * 0.25 * (1 - sm(3.5, 5, local)) : phase === 'refeed' ? Math.abs(Math.sin(local * 5)) * 0.18 * sm(3, 4, local) : 0;
+  const breathe = Math.sin(t * 2.2) * 0.02;
+  char.position.y = hop;
+  bodyPivot.position.y = 1.35;
+  const wid = 1 - 0.17 * thin;
+  body.scale.set(1.05 * wid + breathe, 1.15 - 0.03 * thin - breathe, 0.95 * wid + breathe);
+  belly.scale.set(wid * (1 - 0.25 * thin), 1 - 0.2 * thin, 0.7 * wid);
+  belly.position.set(0, -0.32, 0.55 * (1 - 0.15 * thin));
+  head.position.set(0, 0.05, -0.05 * thin);
+  // slump & shiver
+  const shiver = (dayIdx === 5 ? sm(0.5, 1.5, local) * (1 - sm(5, 6, local)) : 0) * Math.sin(t * 60) * 0.03;
+  const wobble = dayIdx === 6 ? Math.sin(t * 2.5) * 0.08 * sm(0.5, 1.5, local) : 0;
+  bodyPivot.rotation.set(0.12 * tired, 0, shiver * 3 + wobble);
+  char.rotation.y = Math.sin(t * 0.7) * 0.12;
+  skinC.copy(skinA).lerp(skinB, tired * 0.85);
+  skinMat.color.copy(skinC);
+  if (dayIdx === 5) skinMat.color.lerp(new THREE.Color(0xa9c8ff), 0.35 * sm(0.5, 1.5, local) * (1 - sm(5, 6, local)));
+  cheeks.forEach(c => c.material.opacity = 0.6 * (1 - tired * 0.8));
+  // arms
+  arms.forEach(p => {
+    const { a, hand, s } = p.userData;
+    const thinArm = 1 - 0.4 * sm(7.5, 9.5, d) * (1 - recov);
+    a.scale.set(thinArm, 1, thinArm);
+    let rz = s * (0.45 + 0.25 * tired) + Math.sin(t * 2 + s) * 0.05;
+    if (phase === 'intro') rz = s * (0.5 + 0.9 * sm(0.5, 1, local) * (1 - sm(3, 4, local))) ;
+    if (dayIdx === 0 || dayIdx === 1) { if (s > 0) rz = lerp(rz, -0.3, sm(1, 2, local) * (1 - sm(5, 6, local))); } // hand on belly
+    if (phase === 'refeed') rz = s * (0.5 + 1.2 * sm(4, 5, local) * Math.abs(Math.sin(local * 5)));
+    p.rotation.set(dayIdx <= 1 && s > 0 ? -0.6 * sm(1, 2, local) * (1 - sm(5, 6, local)) : 0, 0, rz);
+  });
+  // eyes
+  const blink = Math.pow(clamp(1 - Math.abs(((t * 0.37) % 1) - 0.5) * 30), 1.5);
+  const lidClose = clamp(lerp(0.1, 0.62, tired) + blink + (phase === 'refeed' ? -0.1 * recov : 0), 0.05, 1);
+  [eyeL, eyeR].forEach(e => {
+    const { lid } = e.userData;
+    lid.rotation.x = -Math.PI / 2 + (1 - lidClose) * -1.35 - 0.1;
+    lid.rotation.x = lerp(-1.55, 0.25, lidClose);
+    const look = phase === 'day' && dayIdx >= 2 && dayIdx <= 4 ? 0.06 : 0;
+    e.userData.iris.position.y = look; e.userData.pupil.position.y = look * 1.2; e.userData.hl.position.y = 0.06 + look;
+  });
+  brows.forEach((b, i) => { const s = i ? 1 : -1; b.rotation.z = Math.PI / 2 + s * (-0.25 * tired + (dayIdx === 6 ? 0.2 : 0)); b.position.y = 0.72 - 0.05 * tired; });
+  const curve = Math.round(lerp(phase === 'intro' ? 1 : 0.7, -0.6, tired) * 10 + (phase === 'refeed' ? recov * 6 : 0)) / 10;
+  if (curve !== lastCurve) { setMouth(curve); lastCurve = curve; }
+  sprout.rotation.z = Math.sin(t * 2) * 0.1 + 0.9 * tired;
+  sprout.scale.setScalar(1 - 0.3 * tired);
+
+  const torso = new THREE.Vector3(0, 1.35 + hop, 0);
+  const headTop = new THREE.Vector3(0, 2.85 + hop, 0);
+
+  // glycogen cubes orbit and disappear during days 1-2
+  const gly = phase === 'intro' ? sm(1, 3, local) : phase === 'refeed' ? sm(3, 5.5, local) * 0.6 : 1 - sm(0.15, 1.7, d);
+  cubes.forEach((c, i) => {
+    const each = clamp(gly * 10 - i);
+    const a = t * 0.8 + i / cubes.length * Math.PI * 2;
+    // when consumed: fly into body
+    c.position.set(Math.cos(a) * 1.9 * (0.4 + 0.6 * each), 1.4 + Math.sin(a * 2 + i) * 0.3 + hop, Math.sin(a) * 1.9 * (0.4 + 0.6 * each));
+    c.rotation.set(t + i, t * 1.3 + i, 0);
+    vis(c, each);
+  });
+  // fat droplets: flow out from belly from day 2 onward
+  const fatOn = phase === 'day' ? sm(1.2, 2, d) * (dayIdx >= 1 ? 1 : 0) : 0;
+  fats.forEach((f, i) => {
+    const u = (t * 0.35 + hash(i)) % 1;
+    const ang = hash(i + 9) * Math.PI * 2;
+    f.position.set(Math.cos(ang) * (0.5 + u * 1.6), 0.9 + u * 1.2 + hop, Math.sin(ang) * (0.5 + u * 1.6) + 0.3);
+    vis(f, fatOn * Math.sin(u * Math.PI) * (0.85 - 0.3 * sm(7, 10, d)));
+  });
+  // ketones: from belly to brain, from day 3
+  const ketOn = phase === 'day' ? sm(2.1, 2.7, d) : phase === 'refeed' ? 1 - sm(1, 3, local) : 0;
+  kets.forEach((k, i) => {
+    const u = (t * 0.5 + hash(i + 3)) % 1;
+    const off = hash(i + 21) * Math.PI * 2;
+    const r = 1.3 * Math.sin(u * Math.PI);
+    k.position.set(Math.cos(off + u * 4) * r, lerp(1.0, 3.25, u) + hop, Math.sin(off + u * 4) * r);
+    vis(k, ketOn * (0.3 + Math.sin(u * Math.PI)));
+  });
+  const brainOn = phase === 'day' ? sm(2.1, 2.7, d) * (dayIdx === 2 || dayIdx === 7 ? 1 : 0.0) : 0;
+  brain.position.set(0, 3.35 + hop + Math.sin(t * 2) * 0.05, 0);
+  vis(brain, brainOn * (1 + Math.sin(t * 6) * 0.05));
+  brain.scale.x *= 1.2; brain.scale.y *= 0.85;
+  // protein beads (gluconeogenesis day 2, muscle loss day 9)
+  const protOn = phase === 'day' && (dayIdx === 1 || dayIdx === 8) ? sm(0.5, 1.2, local) * (1 - sm(5.2, 6, local)) : 0;
+  prots.forEach((p, i) => {
+    const u = (t * 0.45 + hash(i + 40)) % 1;
+    const s = i % 2 ? 1 : -1;
+    p.position.set(s * lerp(1.2, 2.2, u), lerp(1.0, 2.0, u) + hop, lerp(0.3, 0.8, u));
+    vis(p, protOn * Math.sin(u * Math.PI));
+  });
+  // hunger rings around belly (day 1-2)
+  const hunger = phase === 'day' && dayIdx <= 1 ? sm(0.5, 1, local) * (1 - sm(5, 6, local)) * (dayIdx === 0 ? 1 : 0.7) : 0;
+  rings.forEach((r, i) => {
+    const u = (t * 0.9 + i / 3) % 1;
+    r.position.set(0, 1.0 + hop, 0.9);
+    vis(r, hunger * (0.6 + u * 1.4));
+    r.material.opacity = (1 - u) * hunger;
+  });
+  // heart (day 7)
+  const heartOn = phase === 'day' && dayIdx === 6 ? sm(0.8, 1.5, local) * (1 - sm(5.3, 6, local)) : 0;
+  const beat = 1 + Math.pow(Math.abs(Math.sin(t * 8)), 8) * 0.25;
+  heart.position.set(1.7, 2.4 + Math.sin(t * 1.5) * 0.08, 0.4);
+  heart.rotation.y = Math.sin(t) * 0.4;
+  vis(heart, heartOn * beat * 1.1);
+  // snow (day 6)
+  const snowOn = phase === 'day' && dayIdx === 5 ? sm(0.3, 1.2, local) * (1 - sm(5.2, 6, local)) : 0;
+  snow.forEach((s, i) => {
+    const y = 4.2 - ((t * 0.6 + hash(i) * 4) % 4);
+    s.position.set((hash(i + 5) - 0.5) * 5, y, (hash(i + 7) - 0.5) * 3);
+    s.rotation.set(t + i, t * 0.5, 0);
+    vis(s, snowOn);
+  });
+  // soup bowl (refeed)
+  const bowlOn = phase === 'refeed' ? sm(0.3, 1.3, local) : phase === 'outro' ? 1 - sm(0, 1, local) : 0;
+  bowl.position.set(1.45, 0.5 + (1 - bowlOn) * 2.5, 0.9);
+  bowl.rotation.y = t * 0.3;
+  vis(bowl, bowlOn);
+  steams.forEach((s, i) => { const u = (t * 0.6 + i / 3) % 1; s.position.set(Math.sin(u * 6 + i) * 0.12, 0.1 + u * 0.7, 0); s.material.opacity = (1 - u) * 0.7; s.scale.setScalar(0.6 + u); });
+
+  // 3D-attached labels
+  let la = ['', torso, '#000', 0], lb = ['', torso, '#000', 0];
+  const lo = phase === 'day' ? sm(1, 1.6, local) * (1 - sm(5.2, 5.8, local)) : 0;
+  const L = (txt, p, c) => [txt, p, c, lo];
+  switch (dayIdx) {
+    case 0: la = L('Glycogène', new THREE.Vector3(-2.3, 2.2, 0), '#e0a800'); lb = L('Grrr… 🍽', new THREE.Vector3(1.9, 1.0, 0.8), '#ff7a59'); break;
+    case 1: la = L('Graisses → glucose', new THREE.Vector3(-2.2, 2.3, 0), '#e6b800'); lb = L('Protéines', new THREE.Vector3(2.3, 2.2, 0.6), '#ff4d6a'); break;
+    case 2: la = L('Cétones', new THREE.Vector3(-1.9, 2.5, 0), '#9b4dff'); lb = L('Cerveau', new THREE.Vector3(1.4, 3.6, 0), '#b36bff'); break;
+    case 3: la = L('Insuline ↓', new THREE.Vector3(-2.2, 2.4, 0), '#6a5acd'); lb = L('Faim ↓', new THREE.Vector3(2.2, 2.2, 0), '#ff7a59'); break;
+    case 4: la = L('Hormone de croissance ↑', new THREE.Vector3(-2.0, 3.1, 0), '#3aa36b'); lb = L('Autophagie', new THREE.Vector3(2.2, 1.6, 0), '#9b4dff'); break;
+    case 5: la = L('Thyroïde ↓', new THREE.Vector3(-2.2, 2.6, 0), '#4a8dff'); lb = L('Brrr… 🥶', new THREE.Vector3(2.1, 2.0, 0), '#6aa8ff'); break;
+    case 6: la = L('Na⁺  K⁺  Mg²⁺ ↓', new THREE.Vector3(-2.3, 2.5, 0), '#ff8a00'); lb = L('Cœur', new THREE.Vector3(2.4, 3.1, 0.4), '#ff3b5c'); break;
+    case 7: la = L('Graisses = carburant n°1', new THREE.Vector3(-1.9, 2.9, 0), '#e6b800'); lb = L('Cétones → cerveau', new THREE.Vector3(1.8, 3.8, 0), '#9b4dff'); break;
+    case 8: la = L('Muscles ↓', new THREE.Vector3(-2.3, 1.6, 0), '#ff4d6a'); lb = L('Poids ↓', new THREE.Vector3(2.2, 2.4, 0), '#7a6bbf'); break;
+    case 9: la = L('Danger ⚠', new THREE.Vector3(-2.1, 2.7, 0), '#e5484d'); lb = L('Médecin 🩺', new THREE.Vector3(2.2, 2.3, 0), '#3aa36b'); break;
+  }
+  if (phase === 'refeed') { const o = sm(1, 1.6, local) * (1 - sm(6.2, 7, local)); la = ['Petites portions', new THREE.Vector3(-2.2, 2.4, 0), '#3aa36b', o]; lb = ['Bouillon 🥣', new THREE.Vector3(2.0, 1.9, 0.9), '#ff8a00', o]; }
+  label($('lblA'), ...la); label($('lblB'), ...lb);
+
+  renderer.render(scene, camera);
+};
+window.setTime(0);
+window.ready = true;
+</script>
+</body>
+</html>
