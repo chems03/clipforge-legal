@@ -63,7 +63,10 @@
 import * as THREE from 'three';
 const W = 1280, H = 720;
 const INTRO = 5, DAY = 5, SUMMARY = 8, OUTRO = 7;
-const TOTAL = INTRO + 10 * DAY + SUMMARY + OUTRO;
+const qs = new URLSearchParams(location.search).get('seg');
+// débuts : intro, jour 1..10, bilan, fin, et fin de vidéo (14 valeurs)
+const SEG = qs ? qs.split(',').map(Number) : [0, ...Array.from({ length: 10 }, (_, i) => INTRO + i * DAY), INTRO + 10 * DAY, INTRO + 10 * DAY + SUMMARY, INTRO + 10 * DAY + SUMMARY + OUTRO];
+const TOTAL = SEG[13];
 window.TOTAL = TOTAL;
 
 // ---- Estimations : adulte 75 kg, 1,75 m, jeûne à l'eau ----
@@ -239,10 +242,12 @@ function lossAt(d) { // continu, d en jours (0..10)
 
 window.setTime = function (t) {
   let phase, local, dayIdx = -1;
-  if (t < INTRO) { phase = 'intro'; local = t; }
-  else if (t < INTRO + 10 * DAY) { phase = 'day'; dayIdx = Math.floor((t - INTRO) / DAY); local = t - INTRO - dayIdx * DAY; }
-  else if (t < INTRO + 10 * DAY + SUMMARY) { phase = 'sum'; local = t - INTRO - 10 * DAY; }
-  else { phase = 'outro'; local = t - INTRO - 10 * DAY - SUMMARY; }
+  const INTRO = SEG[1];
+  let DAY = 1;
+  if (t < SEG[1]) { phase = 'intro'; local = t; }
+  else if (t < SEG[11]) { phase = 'day'; dayIdx = 0; while (t >= SEG[dayIdx + 2]) dayIdx++; local = t - SEG[dayIdx + 1]; DAY = SEG[dayIdx + 2] - SEG[dayIdx + 1]; }
+  else if (t < SEG[12]) { phase = 'sum'; local = t - SEG[11]; }
+  else { phase = 'outro'; local = t - SEG[12]; }
   const d = phase === 'intro' ? 0 : phase === 'day' ? dayIdx + clamp((local - 0.4) / (DAY - 1.2)) : 10;
   const L = lossAt(d), lost = L[0] + L[1] + L[2], kg = START - lost;
 

@@ -8,7 +8,7 @@ const srv = http.createServer((q, r) => { const p = path.join(root, decodeURICom
   const browser = await chromium.launch({ args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
   const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
   page.on('console', m => console.log('page:', m.text())); page.on('pageerror', e => console.log('ERR', e.message));
-  await page.goto('http://localhost:8765/' + (process.env.SCENE || 'scene.html'));
+  await page.goto('http://localhost:8765/' + (process.env.SCENE || 'scene.html') + (process.env.SEG ? '?seg=' + process.env.SEG : ''));
   await page.waitForFunction(() => window.ready, null, { timeout: 60000 });
   await page.evaluate(() => document.fonts.ready);
   const total = await page.evaluate(() => window.TOTAL);
