@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Perte de poids sur 10 jours</title>
+<style>
+  @font-face { font-family: Fredoka; font-weight: 600; src: url(https://cdn.jsdelivr.net/npm/@fontsource/fredoka@5.1.0/files/fredoka-latin-600-normal.woff2); }
+  @font-face { font-family: Fredoka; font-weight: 700; src: url(https://cdn.jsdelivr.net/npm/@fontsource/fredoka@5.1.0/files/fredoka-latin-700-normal.woff2); }
+  html, body { margin: 0; width: 1280px; height: 720px; overflow: hidden; font-family: Fredoka, sans-serif; color: #24204a; }
+  #bg { position: absolute; inset: 0; background: radial-gradient(circle at 32% 45%, #fdf3ff 0%, #c9d8ff 55%, #9fb4f0 100%); }
+  canvas { position: absolute; inset: 0; }
+  #panel { position: absolute; top: 28px; right: 28px; width: 420px; bottom: 28px; border-radius: 28px;
+    background: rgba(255,255,255,.9); box-shadow: 0 12px 34px rgba(40,40,110,.18); padding: 24px 28px; box-sizing: border-box; }
+  #day { font-weight: 700; font-size: 30px; color: #6a5acd; }
+  #kg { font-weight: 700; font-size: 86px; line-height: 1; margin-top: 6px; letter-spacing: -1px; }
+  #kg small { font-size: 36px; }
+  #delta { font-weight: 700; font-size: 30px; color: #e5484d; margin-top: 4px; }
+  #pct { font-weight: 600; font-size: 20px; color: #6e6a92; margin-left: 8px; }
+  svg text { font-family: Fredoka; font-weight: 600; font-size: 13px; fill: #8a86aa; }
+  .h { font-weight: 700; font-size: 19px; margin: 14px 0 8px; color: #4a4478; }
+  #bar { display: flex; height: 26px; border-radius: 13px; overflow: hidden; background: #ece9f7; }
+  #bar div { height: 100%; }
+  .leg { display: grid; grid-template-columns: 16px 1fr auto; gap: 6px 10px; align-items: center; margin-top: 10px; font-weight: 600; font-size: 18px; }
+  .sw { width: 16px; height: 16px; border-radius: 5px; }
+  #cap { position: absolute; left: 28px; width: 776px; bottom: 28px; padding: 16px 24px 18px; box-sizing: border-box;
+    border-radius: 24px; background: rgba(255,255,255,.93); box-shadow: 0 10px 30px rgba(40,40,110,.16); }
+  #title { font-weight: 700; font-size: 29px; line-height: 1.15; }
+  #sub { font-weight: 600; font-size: 20px; line-height: 1.3; margin-top: 6px; color: #5a5486; }
+  #lcd { position: absolute; transform: translate(-50%, -50%); font-weight: 700; font-size: 20px; color: #b8ffcf;
+    background: #1d2b2a; padding: 2px 10px; border-radius: 6px; letter-spacing: 1px; }
+  #ghostTag { position: absolute; top: 28px; left: 28px; font-weight: 600; font-size: 19px; background: rgba(255,255,255,.85);
+    padding: 8px 14px; border-radius: 14px; display: flex; align-items: center; gap: 8px; }
+  #ghostTag i { width: 14px; height: 14px; border-radius: 50%; background: #5aa0ff; display: inline-block; opacity: .7; }
+  #big { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; background: rgba(36,32,74,.82); color: #fff; }
+  #big h1 { font-size: 60px; margin: 0 0 14px; }
+  #big p { font-size: 27px; margin: 6px 80px; font-weight: 600; line-height: 1.35; }
+</style>
+</head>
+<body>
+<div id="bg"></div>
+<div id="ghostTag"><i></i> Silhouette au jour 0</div>
+<div id="lcd"></div>
+<div id="panel">
+  <div id="day"></div>
+  <div id="kg"></div>
+  <div id="delta"></div>
+  <svg id="chart" width="364" height="170" viewBox="0 0 364 170"></svg>
+  <div class="h">De quoi est faite la perte ?</div>
+  <div id="bar"><div id="b1" style="background:#5aa0ff"></div><div id="b2" style="background:#ffc93c"></div><div id="b3" style="background:#ff5a6e"></div></div>
+  <div class="leg">
+    <span class="sw" style="background:#5aa0ff"></span><span>Eau + glycogène</span><span id="v1"></span>
+    <span class="sw" style="background:#ffc93c"></span><span>Graisse</span><span id="v2"></span>
+    <span class="sw" style="background:#ff5a6e"></span><span>Muscle / protéines</span><span id="v3"></span>
+  </div>
+  <div class="h" style="margin-top:18px">Tour de taille estimé : <span id="waist" style="color:#e5484d"></span></div>
+</div>
+<div id="cap"><div id="title"></div><div id="sub"></div></div>
+<div id="big"><h1></h1><div id="bigp"></div></div>
+
+<script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js" } }</script>
+<script type="module">
+import * as THREE from 'three';
+const W = 1280, H = 720;
+const INTRO = 5, DAY = 5, SUMMARY = 8, OUTRO = 7;
+const TOTAL = INTRO + 10 * DAY + SUMMARY + OUTRO;
+window.TOTAL = TOTAL;
+
+// ---- Estimations : adulte 75 kg, 1,75 m, jeûne à l'eau ----
+const START = 75;
+// cumul perdu fin de chaque jour : [eau+glycogène, graisse, muscle]
+const LOSS = [[0,0,0],[1.2,0.2,0.1],[1.9,0.45,0.25],[2.3,0.7,0.4],[2.5,1.0,0.5],[2.6,1.3,0.6],[2.7,1.6,0.7],[2.75,1.85,0.8],[2.8,2.1,0.9],[2.85,2.35,1.0],[2.9,2.6,1.0]];
+const TOT = LOSS.map(l => l[0] + l[1] + l[2]);
+const CAP = [
+  ["Jour 1 — On perd surtout de l'eau", "Le glycogène (sucre stocké) est utilisé ; chaque gramme retenait ~3 g d'eau, qui s'en va."],
+  ["Jour 2 — Le glycogène est épuisé", "La balance chute vite… mais c'est encore surtout de l'eau, pas de la graisse."],
+  ["Jour 3 — Les graisses fondent vraiment", "Entrée en cétose : environ 250 g de graisse brûlée par jour."],
+  ["Jour 4 — La perte ralentit", "On passe à environ 0,4 à 0,6 kg par jour."],
+  ["Jour 5 — Le ventre commence à s'affiner", "Graisse abdominale et tour de taille diminuent doucement."],
+  ["Jour 6 — Le corps économise", "Le métabolisme ralentit un peu : on brûle moins d'énergie au repos."],
+  ["Jour 7 — Les muscles sont entamés", "Une partie de l'énergie vient des protéines : bras et jambes s'amincissent."],
+  ["Jour 8 — La silhouette change", "Taille, hanches et visage plus fins. Fatigue et vertiges fréquents."],
+  ["Jour 9 — Environ 0,4 kg par jour", "Surtout de la graisse, mais aussi du muscle."],
+  ["Jour 10 — Environ −6,5 kg au total", "Soit près de 9 % du poids… dont seulement ~2,6 kg de graisse."],
+];
+
+// ---------- DOM ----------
+const $ = id => document.getElementById(id);
+const fmt = x => x.toFixed(1).replace('.', ',');
+const chart = $('chart');
+const CX0 = 34, CX1 = 354, CY0 = 14, CY1 = 140, KMIN = 67, KMAX = 76;
+const cx = d => CX0 + (CX1 - CX0) * d / 10, cy = k => CY0 + (CY1 - CY0) * (KMAX - k) / (KMAX - KMIN);
+let grid = '';
+for (let k = 68; k <= 76; k += 2) grid += `<line x1="${CX0}" x2="${CX1}" y1="${cy(k)}" y2="${cy(k)}" stroke="#ece9f7"/><text x="0" y="${cy(k) + 4}">${k}</text>`;
+for (let d = 0; d <= 10; d += 2) grid += `<text x="${cx(d) - 4}" y="160">${d}</text>`;
+chart.innerHTML = grid + `<text x="${CX1 - 40}" y="160" style="display:none">jours</text><polyline id="ln" fill="none" stroke="#6a5acd" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><circle id="pt" r="7" fill="#e5484d" stroke="#fff" stroke-width="3"/>`;
+
+// ---------- three ----------
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(1); renderer.setSize(W, H);
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.0;
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+document.body.insertBefore(renderer.domElement, $('ghostTag'));
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(30, W / H, 0.1, 50);
+camera.setViewOffset(W, H, 225, 62, W, H);
+
+scene.add(new THREE.HemisphereLight(0xffffff, 0xb0a4e0, 1.4));
+const key = new THREE.DirectionalLight(0xfff0dd, 2.6); key.position.set(2.5, 4, 3); key.castShadow = true;
+key.shadow.mapSize.set(1024, 1024); key.shadow.radius = 5; key.shadow.bias = -0.0015; key.shadow.normalBias = 0.02;
+Object.assign(key.shadow.camera, { left: -1.5, right: 1.5, top: 2.5, bottom: -0.5 }); scene.add(key);
+const rim = new THREE.DirectionalLight(0xbcd6ff, 2.4); rim.position.set(-3, 2.5, -3); scene.add(rim);
+const fill = new THREE.PointLight(0xffd6e8, 3, 10); fill.position.set(-2, 1.4, 2.5); scene.add(fill);
+
+const ground = new THREE.Mesh(new THREE.CircleGeometry(4, 64), new THREE.ShadowMaterial({ opacity: 0.18 }));
+ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; scene.add(ground);
+const stage = new THREE.Mesh(new THREE.CylinderGeometry(0.75, 0.8, 0.06, 64), new THREE.MeshPhysicalMaterial({ color: 0xffffff, roughness: 0.6, sheen: 1, sheenColor: 0xe6e0ff }));
+stage.position.y = -0.03; stage.receiveShadow = true; scene.add(stage);
+
+// bathroom scale
+const scaleG = new THREE.Group(); scene.add(scaleG);
+const sBody = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.045, 0.4), new THREE.MeshPhysicalMaterial({ color: 0xf4f6fb, roughness: 0.25, clearcoat: 1 }));
+sBody.position.y = 0.0225; sBody.castShadow = true; sBody.receiveShadow = true; scaleG.add(sBody);
+const sTop = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.004, 0.38), new THREE.MeshPhysicalMaterial({ color: 0xd8deea, roughness: 0.1, transmission: 0.3, clearcoat: 1 }));
+sTop.position.y = 0.046; sTop.receiveShadow = true; scaleG.add(sTop);
+const lcdAnchor = new THREE.Vector3(0, 0.06, 0.2);
+
+// ---------- human body ----------
+const skin = new THREE.MeshPhysicalMaterial({ color: 0xe9b08f, roughness: 0.55, sheen: 0.5, sheenColor: 0xffd5c0, clearcoat: 0.15 });
+const shorts = new THREE.MeshPhysicalMaterial({ color: 0x3a4fa8, roughness: 0.75, sheen: 0.8, sheenColor: 0x8fa6ff });
+const hairM = new THREE.MeshPhysicalMaterial({ color: 0x3b2618, roughness: 0.7, sheen: 1, sheenColor: 0x7a5232 });
+const ghostM = new THREE.MeshBasicMaterial({ color: 0x5aa0ff, transparent: true, opacity: 0.45, side: THREE.BackSide, depthWrite: false });
+const FEET = 0.05; // stands on scale
+
+function taper(r0, r1, len, seg = 32) { const g = new THREE.CylinderGeometry(r1, r0, len, seg, 1, true); g.translate(0, -len / 2, 0); return g; }
+
+function makeBody(isGhost) {
+  const root = new THREE.Group();
+  const M = m => isGhost ? ghostM : m;
+  const add = (geo, mat, parent = root) => { const m = new THREE.Mesh(geo, M(mat)); m.castShadow = !isGhost; if (isGhost) m.renderOrder = 2; parent.add(m); return m; };
+  const torso = add(new THREE.BufferGeometry(), skin);
+  const trunks = add(new THREE.BufferGeometry(), shorts);
+  const belly = add(new THREE.SphereGeometry(1, 40, 28), skin);
+  const neck = add(new THREE.CylinderGeometry(0.052, 0.058, 0.12, 24), skin);
+  const head = new THREE.Group(); root.add(head);
+  const skull = add(new THREE.SphereGeometry(1, 48, 36), skin, head);
+  const jaw = add(new THREE.SphereGeometry(1, 32, 24), skin, head);
+  const hair = add(new THREE.SphereGeometry(1, 40, 24, 0, Math.PI * 2, 0, Math.PI * 0.55), hairM, head);
+  const nose = add(new THREE.SphereGeometry(0.018, 16, 12), skin, head);
+  const ears = [-1, 1].map(s => add(new THREE.SphereGeometry(0.025, 16, 12), skin, head));
+  const eyes = isGhost ? [] : [-1, 1].map(s => { const e = new THREE.Mesh(new THREE.SphereGeometry(0.011, 12, 10), new THREE.MeshBasicMaterial({ color: 0x2a1c16 })); head.add(e); return e; });
+  const brows = isGhost ? [] : [-1, 1].map(s => { const b = new THREE.Mesh(new THREE.CapsuleGeometry(0.005, 0.03, 4, 8), hairM); b.rotation.z = Math.PI / 2; head.add(b); return b; });
+  const sides = [-1, 1].map(s => {
+    const o = { s };
+    o.shoulder = add(new THREE.SphereGeometry(1, 32, 24), skin);
+    o.arm = new THREE.Group(); root.add(o.arm);
+    o.upper = add(new THREE.BufferGeometry(), skin, o.arm);
+    o.elbowG = new THREE.Group(); o.arm.add(o.elbowG);
+    o.elbow = add(new THREE.SphereGeometry(1, 24, 16), skin, o.elbowG);
+    o.fore = add(new THREE.BufferGeometry(), skin, o.elbowG);
+    o.hand = add(new THREE.SphereGeometry(1, 24, 16), skin, o.elbowG);
+    o.thigh = add(new THREE.BufferGeometry(), skin);
+    o.sleeve = add(new THREE.BufferGeometry(), shorts);
+    o.knee = add(new THREE.SphereGeometry(1, 24, 16), skin);
+    o.calf = add(new THREE.BufferGeometry(), skin);
+    o.calfB = add(new THREE.SphereGeometry(1, 24, 16), skin);
+    o.ankle = add(new THREE.SphereGeometry(1, 20, 14), skin);
+    o.foot = add(new THREE.SphereGeometry(1, 24, 16), skin);
+    return o;
+  });
+  let last = -1;
+  function setGeo(mesh, g) { mesh.geometry.dispose(); mesh.geometry = g; }
+  function update(p) { // p : 0 → jour 0, 1 → jour 10
+    if (Math.abs(p - last) < 0.004) return; last = p;
+    const fat = 1 - p;                 // graisse résiduelle relative
+    const waistF = 1 - 0.11 * p, hipF = 1 - 0.06 * p, bellyF = 1 - 0.55 * p;
+    const limbF = 1 - 0.09 * p, faceF = 1 - 0.07 * p;
+    const y0 = FEET;
+    // torso lathe : (rayon, hauteur)
+    const prof = [[0.01, 0.80], [0.11, 0.81], [0.155 * hipF, 0.86], [0.172 * hipF, 0.93], [0.168 * hipF, 0.98],
+      [0.152 * waistF, 1.06], [0.150 * waistF, 1.12], [0.158 - 0.004 * p, 1.22], [0.170, 1.31], [0.176, 1.38], [0.165, 1.44], [0.11, 1.49], [0.05, 1.515]];
+    const pts = prof.map(([r, y]) => new THREE.Vector2(r, y + y0));
+    const curve = new THREE.SplineCurve(pts);
+    const all = curve.getPoints(60);
+    const lathe = new THREE.LatheGeometry(all.filter(v => v.y >= 0.955 + y0), 56); lathe.scale(1, 1, 0.66);
+    const bulge = g => { const P = g.attributes.position; for (let i = 0; i < P.count; i++) { const x = P.getX(i), y = P.getY(i), z = P.getZ(i); if (z <= 0) continue; const zn = z / Math.hypot(x, z / 0.66); const gy = Math.exp(-Math.pow((y - 1.0 - y0) / 0.085, 2)); P.setZ(i, z * (1 + 0.42 * bellyF * gy * zn * zn)); } g.computeVertexNormals(); return g; };
+    setGeo(torso, bulge(lathe));
+    const lower = all.filter(v => v.y <= 0.975 + y0).map(v => new THREE.Vector2(v.x * 1.03 + 0.002, v.y));
+    const trG = new THREE.LatheGeometry(lower, 56); trG.scale(1, 1, 0.68); setGeo(trunks, bulge(trG));
+    belly.visible = false; belly.scale.set(0.125 * waistF, 0.105 * (0.85 + 0.15 * bellyF), 0.06 + 0.055 * bellyF);
+    belly.position.set(0, 1.04 + y0, 0.035);
+    neck.position.set(0, 1.55 + y0, 0);
+    head.position.set(0, 1.66 + y0, 0.005);
+    skull.scale.set(0.092, 0.115, 0.105);
+    jaw.scale.set(0.078 * faceF, 0.07, 0.085 * faceF); jaw.position.set(0, -0.045, 0.012);
+    hair.scale.set(0.097, 0.12, 0.11); hair.position.set(0, 0.008, -0.006); hair.rotation.x = -0.25;
+    nose.position.set(0, -0.012, 0.103); nose.scale.set(1, 1.3, 1.1);
+    ears.forEach((e, i) => { e.position.set((i ? 1 : -1) * 0.09, -0.005, 0); e.scale.set(0.5, 1.2, 0.9); });
+    eyes.forEach((e, i) => e.position.set((i ? 1 : -1) * 0.033, 0.012, 0.094));
+    brows.forEach((b, i) => b.position.set((i ? 1 : -1) * 0.033, 0.037, 0.088));
+    sides.forEach(o => {
+      const s = o.s;
+      o.shoulder.position.set(s * 0.19, 1.42 + y0, -0.005); o.shoulder.scale.set(0.068 * limbF, 0.062, 0.062 * limbF);
+      o.arm.position.set(s * 0.205, 1.42 + y0, -0.005); o.arm.rotation.z = s * 0.13;
+      setGeo(o.upper, taper(0.05 * limbF, 0.037 * limbF, 0.29));
+      o.elbowG.position.y = -0.29; o.elbowG.rotation.x = -0.12;
+      o.elbow.scale.setScalar(0.037 * limbF);
+      setGeo(o.fore, taper(0.036 * limbF, 0.026, 0.25));
+      o.hand.position.set(0, -0.31, 0.005); o.hand.scale.set(0.028, 0.075, 0.042);
+      // legs
+      const hx = s * 0.092;
+      const th = taper(0.088 * limbF * hipF, 0.054 * limbF, 0.43); th.translate(0, 0.92 + y0, 0);
+      o.thigh.geometry.dispose(); o.thigh.geometry = th; o.thigh.position.set(hx, 0, 0);
+      const sl = taper(0.094 * limbF * hipF, 0.083 * limbF, 0.17); sl.translate(0, 0.935 + y0, 0); setGeo(o.sleeve, sl); o.sleeve.position.set(hx, 0, 0);
+      o.knee.position.set(hx, 0.49 + y0, 0.005); o.knee.scale.setScalar(0.054 * limbF);
+      const ca = taper(0.052 * limbF, 0.034, 0.41); ca.translate(0, 0.49 + y0, 0); setGeo(o.calf, ca); o.calf.position.set(hx, 0, 0);
+      o.calfB.position.set(hx, 0.34 + y0, -0.012); o.calfB.scale.set(0.053 * limbF, 0.11, 0.054 * limbF);
+      o.ankle.position.set(hx, 0.075 + y0, 0); o.ankle.scale.setScalar(0.034);
+      o.foot.position.set(hx * 1.05, 0.03 + y0, 0.045); o.foot.scale.set(0.042, 0.03, 0.11);
+    });
+  }
+  update(0);
+  root.userData.update = update;
+  return root;
+}
+const person = new THREE.Group(); scene.add(person);
+const body = makeBody(false); person.add(body);
+const ghost = makeBody(true); ghost.scale.setScalar(1.004); person.add(ghost);
+
+// ---------- helpers ----------
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const sm = (a, b, x) => { const t = clamp((x - a) / (b - a)); return t * t * (3 - 2 * t); };
+const lerp = (a, b, t) => a + (b - a) * t;
+const v3 = new THREE.Vector3();
+function lossAt(d) { // continu, d en jours (0..10)
+  const i = Math.min(9, Math.floor(d)), f = sm(0, 1, d - i);
+  return [0, 1, 2].map(k => lerp(LOSS[i][k], LOSS[i + 1][k], f));
+}
+
+window.setTime = function (t) {
+  let phase, local, dayIdx = -1;
+  if (t < INTRO) { phase = 'intro'; local = t; }
+  else if (t < INTRO + 10 * DAY) { phase = 'day'; dayIdx = Math.floor((t - INTRO) / DAY); local = t - INTRO - dayIdx * DAY; }
+  else if (t < INTRO + 10 * DAY + SUMMARY) { phase = 'sum'; local = t - INTRO - 10 * DAY; }
+  else { phase = 'outro'; local = t - INTRO - 10 * DAY - SUMMARY; }
+  const d = phase === 'intro' ? 0 : phase === 'day' ? dayIdx + clamp((local - 0.4) / (DAY - 1.2)) : 10;
+  const L = lossAt(d), lost = L[0] + L[1] + L[2], kg = START - lost;
+
+  // panel
+  $('day').textContent = phase === 'intro' ? 'Jour 0 — avant le jeûne' : phase === 'day' ? `Jour ${dayIdx + 1} sur 10` : 'Bilan après 10 jours';
+  $('kg').innerHTML = `${fmt(kg)} <small>kg</small>`;
+  $('delta').innerHTML = lost > 0.05 ? `−${fmt(lost)} kg <span id="pct">(−${(lost / START * 100).toFixed(1).replace('.', ',')} %)</span>` : `<span id="pct" style="margin:0">Adulte de 75 kg, 1,75 m</span>`;
+  const sum = 6.5;
+  $('b1').style.width = (L[0] / sum * 100) + '%'; $('b2').style.width = (L[1] / sum * 100) + '%'; $('b3').style.width = (L[2] / sum * 100) + '%';
+  $('waist').textContent = lost > 0.05 ? `−${fmt(L[1] * 1.6 + L[0] * 0.5)} cm` : '—';
+  $('v1').textContent = `${fmt(L[0])} kg`; $('v2').textContent = `${fmt(L[1])} kg`; $('v3').textContent = `${fmt(L[2])} kg`;
+  const pts = [];
+  for (let x = 0; x <= d + 1e-6; x += 0.1) { const l = lossAt(Math.min(x, d)); pts.push(`${cx(x).toFixed(1)},${cy(START - l[0] - l[1] - l[2]).toFixed(1)}`); }
+  pts.push(`${cx(d).toFixed(1)},${cy(kg).toFixed(1)}`);
+  $('ln').setAttribute('points', pts.join(' '));
+  $('pt').setAttribute('cx', cx(d)); $('pt').setAttribute('cy', cy(kg));
+
+  // caption
+  let ti = '', su = '', co = 0;
+  if (phase === 'intro') { ti = "10 jours sans manger : combien de kilos ?"; su = "Simulation pour un adulte de 75 kg qui ne boit que de l'eau."; co = sm(0.3, 0.9, local); }
+  else if (phase === 'day') { [ti, su] = CAP[dayIdx]; co = sm(0.05, 0.4, local) * (1 - sm(DAY - 0.3, DAY, local)); }
+  else if (phase === 'sum') { ti = "Bilan : environ −6,5 kg en 10 jours"; su = "Attention : en remangeant, l'eau et le glycogène reviennent vite (+2 à 3 kg en quelques jours)."; co = sm(0.1, 0.6, local); }
+  $('title').textContent = ti; $('sub').textContent = su; $('cap').style.opacity = co;
+  $('cap').style.transform = `translateY(${(1 - co) * 20}px)`;
+  $('ghostTag').style.opacity = phase === 'intro' ? 0 : 1;
+
+  const big = $('big');
+  if (phase === 'outro') {
+    big.style.opacity = sm(0.1, 0.8, local);
+    big.querySelector('h1').textContent = '⚠ Estimations à but éducatif';
+    $('bigp').innerHTML = "<p>Chiffres moyens : la perte réelle varie selon le poids, l'âge, le sexe et l'activité.</p><p>Un jeûne aussi long est dangereux : ne jamais le faire sans suivi médical.</p>";
+  } else big.style.opacity = 0;
+
+  // body
+  const p = lost / 6.5;
+  body.userData.update(p);
+  ghost.visible = p > 0.03;
+  ghostM.opacity = 0.5 * sm(0.03, 0.2, p);
+  // turntable : face, 3/4, profil
+  person.rotation.y = phase === 'intro' ? lerp(Math.PI * 2, 0, sm(0, INTRO, local)) : -1.45 * (0.5 - 0.5 * Math.cos((t - INTRO) * 0.6));
+  const breathe = 1 + Math.sin(t * 1.8) * 0.006;
+  body.scale.set(breathe, 1, breathe);
+
+  // camera
+  const zoom = phase === 'intro' ? lerp(5.8, 4.85, sm(0, INTRO, local)) : 4.85;
+  camera.position.set(Math.sin(t * 0.15) * 0.4, 1.25, zoom);
+  camera.lookAt(0, 0.9, 0);
+
+  renderer.render(scene, camera);
+  v3.copy(lcdAnchor).project(camera);
+  const lcd = $('lcd');
+  lcd.textContent = `${fmt(kg)} kg`;
+  // la vue est décalée : on recalcule avec la même matrice (setViewOffset intégrée)
+  lcd.style.left = ((v3.x + 1) / 2 * W) + 'px'; lcd.style.top = ((1 - v3.y) / 2 * H + 22) + 'px';
+};
+window.setTime(0);
+window.ready = true;
+</script>
+</body>
+</html>
