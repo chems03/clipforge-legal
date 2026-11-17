@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches: ["claude/**"]
-    paths: ["pipeline/gemini_tts.py", ".github/workflows/voice-test.yml"]
+    paths: [".github/workflows/voice-test.yml"]
 
 concurrency:
   group: voice-test
@@ -19,11 +19,11 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
-      - name: Générer les 6 premiers blocs
+      - name: Générer la narration complète (1 requête par partie)
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           PYTHONUNBUFFERED: "1"
-        run: python pipeline/gemini_tts.py videos/kodak/voix_gemini_expressif.txt out --first 6
+        run: python pipeline/gemini_tts.py videos/kodak/voix_gemini_expressif.txt out
       - uses: actions/upload-artifact@v4
         if: always()
         with:

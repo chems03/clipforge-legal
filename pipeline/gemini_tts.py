@@ -27,7 +27,23 @@ GAP = 0.25  # seconds of silence between blocks
 def parse_blocks(path):
     txt = open(path, encoding="utf-8").read()
     pat = re.compile(r"\[Bloc (\d+)\] TON : (.+?)\nTEXTE :\n(.+?)(?=\n\s*\n|\Z)", re.S)
-    return [{"n": int(n), "style": s.strip(), "text": t.strip()} for n, s, t in pat.findall(txt)]
+    blocks, part = [], 0
+    for chunk in re.split(r"\n(?=#{5,}\nPARTIE )", txt):
+        if re.match(r"#{5,}\nPARTIE ", chunk):
+            part += 1
+        for n, st, t in pat.findall(chunk):
+            blocks.append({"n": int(n), "part": part, "style": st.strip(), "text": t.strip()})
+    return blocks
+
+
+def group_parts(blocks):
+    """One request per part: each block's tone becomes an inline [tag] before its text."""
+    parts = {}
+    for b in blocks:
+        parts.setdefault(b["part"], []).append(b)
+    return [{"n": p, "part": p, "style": bs[0]["style"],
+             "text": " ".join(f"[{b['style']}] {b['text']}" for b in bs), "blocks": [b["n"] for b in bs]}
+            for p, bs in sorted(parts.items())]
 
 
 def call(method, url, body=None):
@@ -119,7 +135,7 @@ def choose_strategy(model, vcfg, blocks, out):
     return choice
 
 
-def pick(models, voice, style, text):
+def pick(models, voice, style="neutre", text="Bonjour."):
     prefer = os.environ.get("GEMINI_TTS_MODEL")
     order = ([prefer] if prefer else []) + sorted(models, reverse=True)
     order = list(dict.fromkeys(order))
@@ -148,23 +164,28 @@ def main():
     ap.add_argument("--first", type=int, default=0)
     ap.add_argument("--voice", default="Riko")
     ap.add_argument("--fallback-voice", default="Charon")
+    ap.add_argument("--per-block", action="store_true", help="une requête par bloc (consomme beaucoup de quota)")
     a = ap.parse_args()
 
     blocks = parse_blocks(a.script)
     if a.first:
         blocks = blocks[:a.first]
+    if not a.per_block:
+        blocks = group_parts(blocks)
     print(f"{len(blocks)} blocs à générer")
     os.makedirs(os.path.join(a.out, "blocks"), exist_ok=True)
 
     models = tts_models()
-    chosen = pick(models, a.voice, blocks[0]["style"], blocks[0]["text"])
+    chosen = pick(models, a.voice)
     if not chosen:
         print(f"La voix {a.voice} ne marche pas, essai avec {a.fallback_voice}")
-        chosen = pick(models, a.fallback_voice, blocks[0]["style"], blocks[0]["text"])
+        chosen = pick(models, a.fallback_voice)
     if not chosen:
         sys.exit("Aucune combinaison modèle/voix ne fonctionne.")
     model, vcfg, _, rate = chosen
-    strategy = os.environ.get("TTS_STRATEGY") or choose_strategy(model, vcfg, blocks, a.out)
+    strategy = os.environ.get("TTS_STRATEGY") or ("bracket" if not a.per_block else choose_strategy(model, vcfg, blocks, a.out))
+    if not a.per_block:
+        strategy = "none"  # the [tone] tags are already inline in the text
 
     pcm_all, meta, t = b"", [], 0.0
     gap = b"\x00\x00" * int(rate * GAP)
