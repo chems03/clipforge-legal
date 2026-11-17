@@ -1,0 +1,310 @@
+{
+ "title": "Kodak a inventé l'appareil photo numérique… et ça l'a tué",
+ "description": "En 1975, un ingénieur de Kodak invente l'appareil photo numérique. 37 ans plus tard, Kodak fait faillite. Comment l'entreprise qui dominait la photo a-t-elle pu rater la révolution qu'elle avait elle-même créée ?\n\nChapitres :\n{CHAPTERS}\n\nSources :\n- Steven Sasson, récit au New York Times (2015)\n- Dépôt de bilan Chapter 11 d'Eastman Kodak, 19 janvier 2012\n- Rapports annuels Eastman Kodak\n\nCette vidéo est informative et ne constitue pas un conseil en investissement.",
+ "tags": [
+  "Kodak",
+  "histoire d'entreprise",
+  "faillite",
+  "business",
+  "économie",
+  "innovation",
+  "appareil photo numérique",
+  "documentaire"
+ ],
+ "voice": "fr-FR-HenriNeural",
+ "scenes": [
+  {
+   "visual": {
+    "type": "title",
+    "kicker": "1975 · Rochester, États-Unis",
+    "text": "Un appareil de 4 kilos"
+   },
+   "narration": "Décembre 1975. Dans un laboratoire de Rochester, aux États-Unis, un ingénieur de vingt-quatre ans pose sur une table une drôle de machine. Elle pèse près de quatre kilos. Elle met vingt-trois secondes à enregistrer une seule image en noir et blanc, sur une cassette audio. Mais elle fait quelque chose que personne n'a jamais fait : elle prend une photo sans pellicule."
+  },
+  {
+   "visual": {
+    "type": "quote",
+    "text": "C'est mignon… mais n'en parle à personne.",
+    "author": "La direction de Kodak, selon Steven Sasson"
+   },
+   "narration": "Cet ingénieur s'appelle Steven Sasson. Il vient d'inventer l'appareil photo numérique. Il le présente à la direction de Kodak, son employeur. Et des années plus tard, il racontera la réaction qu'il a reçue : c'est mignon, mais n'en parle à personne."
+  },
+  {
+   "visual": {
+    "type": "stat",
+    "value": "2012",
+    "label": "Kodak se déclare en faillite",
+    "source": "Chapter 11, 19 janvier 2012"
+   },
+   "narration": "Trente-sept ans plus tard, en janvier 2012, Kodak se déclare en faillite. L'entreprise qui avait inventé la photo numérique a été tuée par la photo numérique. Comment c'est possible ? Comment un géant qui avait toutes les cartes en main a-t-il pu perdre la partie ? Et surtout, qu'est-ce que cette histoire peut t'apprendre pour ton propre argent ? C'est ce qu'on va voir."
+  },
+  {
+   "visual": {
+    "type": "title",
+    "kicker": "Partie 1",
+    "text": "L'empire jaune"
+   },
+   "narration": "Pour comprendre la chute, il faut d'abord comprendre à quel point Kodak était puissant."
+  },
+  {
+   "visual": {
+    "type": "text",
+    "heading": "Le slogan de 1888",
+    "lines": [
+     "« Appuyez sur le bouton,",
+     "nous faisons le reste. »"
+    ]
+   },
+   "narration": "Tout commence en 1888, avec un certain George Eastman. À l'époque, la photo est un truc de spécialistes : il faut des plaques de verre, des produits chimiques, un vrai savoir-faire. Eastman a une idée géniale : vendre un appareil simple, déjà chargé de pellicule. Tu prends tes photos, tu renvoies l'appareil, et Kodak développe tout. Son slogan : appuyez sur le bouton, nous faisons le reste."
+  },
+  {
+   "visual": {
+    "type": "text",
+    "heading": "Le modèle Kodak",
+    "lines": [
+     "L'appareil : pas cher",
+     "La pellicule : très rentable",
+     "Le développement : très rentable"
+    ]
+   },
+   "narration": "Et derrière ce slogan, il y a un modèle économique redoutable. L'appareil, Kodak le vend pas cher. Parfois presque à prix coûtant. Ce qui rapporte, c'est tout ce qui vient après : la pellicule, qu'il faut racheter sans arrêt, et le développement des photos. Chaque photo prise par chaque famille, chaque anniversaire, chaque mariage, chaque vacances, c'est de l'argent qui tombe dans la caisse de Kodak. C'est le même principe que les imprimantes et leurs cartouches d'encre aujourd'hui."
+  },
+  {
+   "visual": {
+    "type": "stat",
+    "value": "90 %",
+    "label": "des pellicules vendues aux États-Unis en 1976 étaient des Kodak",
+    "source": "Environ 85 % des appareils photo"
+   },
+   "narration": "Ce modèle fonctionne tellement bien qu'en 1976, Kodak vend environ quatre-vingt-dix pour cent des pellicules aux États-Unis, et à peu près quatre-vingt-cinq pour cent des appareils photo. C'est presque un monopole. Le jaune Kodak est partout. L'expression « un moment Kodak » entre même dans le langage courant pour parler d'un instant qu'on veut garder en mémoire."
+  },
+  {
+   "visual": {
+    "type": "text",
+    "heading": "La machine à cash",
+    "lines": [
+     "Des marges énormes",
+     "Des clients fidèles",
+     "Aucun concurrent sérieux"
+    ]
+   },
+   "narration": "Mets-toi à la place des dirigeants de Kodak dans les années soixante-dix. Tu as une entreprise qui gagne énormément d'argent, des marges que tout le monde t'envie, des clients fidèles depuis des générations et pratiquement aucun concurrent sérieux. Pourquoi tu changerais quoi que ce soit ? Garde cette question en tête. C'est exactement là que le piège se referme."
+  },
+  {
+   "visual": {
+    "type": "title",
+    "kicker": "Partie 2",
+    "text": "L'invention"
+   },
+   "narration": "Revenons à Steven Sasson et à sa machine de quatre kilos."
+  },
+  {
+   "visual": {
+    "type": "text",
+    "heading": "Le prototype de 1975",
+    "lines": [
+     "100 × 100 pixels",
+     "Noir et blanc",
+     "23 secondes par image",
+     "Enregistrement sur cassette"
+    ]
+   },
+   "narration": "Son prototype est rudimentaire. L'image fait cent pixels sur cent. Soit zéro virgule zéro un mégapixel. Pour comparer, le moindre smartphone d'aujourd'hui en fait plusieurs milliers de fois plus. L'image est en noir et blanc, elle met vingt-trois secondes à s'enregistrer sur une cassette, et pour la voir, il faut la brancher sur un téléviseur. Franchement, ça ne ressemble pas à l'avenir. Ça ressemble à un gadget de laboratoire."
+  },
+  {
+   "visual": {
+    "type": "quote",
+    "text": "Ils ne m'ont pas demandé comment ça marchait. Ils m'ont demandé pourquoi quelqu'un voudrait regarder ses photos sur une télé.",
+    "author": "Steven Sasson, à propos de sa présentation"
+   },
+   "narration": "Quand Sasson fait sa démonstration aux cadres de Kodak, ils ne lui posent presque pas de questions techniques. Ils lui demandent plutôt pourquoi quelqu'un voudrait regarder ses photos sur un écran, et combien de temps il faudrait avant que ce soit une menace. Sasson répond honnêtement : peut-être quinze ou vingt ans."
+  },
+  {
+   "visual": {
+    "type": "text",
+    "heading": "Le vrai problème",
+    "lines": [
+     "Pas de pellicule…",
+     "… donc pas de ventes de pellicule",
+     "… donc pas de développement"
+    ]
+   },
+   "narration": "Et c'est là que tu comprends le vrai problème. Ce n'est pas que l'invention soit mauvaise. C'est qu'elle attaque directement ce qui fait gagner de l'argent à Kodak. Un appareil sans pellicule, c'est zéro pellicule vendue. Zéro photo à développer. Kodak vient d'inventer, dans son propre laboratoire, la machine qui peut détruire son modèle économique. Et la réaction naturelle, presque humaine, c'est de la ranger dans un tiroir."
+  },
+  {
+   "visual": {
+    "type": "title",
+    "kicker": "Partie 3",
+    "text": "Ils savaient"
+   },
+   "narration": "On pourrait se dire : d'accord, en 1975, personne ne pouvait prévoir. Sauf que ce n'est pas vrai. Kodak savait."
+  },
+  {
+   "visual": {
+    "type": "stat",
+    "value": "1981",
+    "label": "Une étude interne évalue la menace du numérique",
+    "source": "Menée par Vince Barabba, chef de la veille marché de Kodak"
+   },
+   "narration": "En 1981, Sony présente un appareil photo électronique. Un des plus gros clients de Kodak s'inquiète et demande : est-ce qu'on doit avoir peur du numérique ? La direction lance alors une grande étude interne, dirigée par Vince Barabba, le responsable de la veille marché."
+  },
+  {
+   "visual": {
+    "type": "text",
+    "heading": "Les conclusions de 1981",
+    "lines": [
+     "La mauvaise nouvelle : le numérique",
+     "peut remplacer la pellicule",
+     "La bonne nouvelle : pas tout de suite",
+     "Il reste environ dix ans pour se préparer"
+    ]
+   },
+   "narration": "La conclusion de l'étude est claire. La mauvaise nouvelle : le numérique a le potentiel de remplacer la pellicule. La bonne nouvelle : ça ne va pas arriver tout de suite. Le coût des appareils, la qualité des images, tout ça va prendre du temps. Kodak a donc, en gros, une dizaine d'années pour se préparer. Dix ans. C'est énorme. C'est une chance que très peu d'entreprises ont dans l'histoire : savoir à l'avance ce qui va les tuer, et avoir le temps de réagir."
+  },
+  {
+   "visual": {
+    "type": "text",
+    "heading": "Ce que Kodak a fait",
+    "lines": [
+     "Des brevets numériques, oui",
+     "Des appareils numériques, un peu",
+     "Mais la priorité reste la pellicule"
+    ]
+   },
+   "narration": "Et Kodak ne reste pas totalement immobile. L'entreprise dépose des centaines de brevets sur la photo numérique. Elle lance même des appareils numériques dans les années quatre-vingt-dix. Mais la priorité, l'argent, l'attention de la direction, tout ça reste sur la pellicule. Parce que la pellicule rapporte encore énormément. Et pourquoi sacrifier une machine à cash qui marche, pour un marché qui n'existe pas encore ?"
+  },
+  {
+   "visual": {
+    "type": "stat",
+    "value": "1984",
+    "label": "Fujifilm devient sponsor officiel des Jeux olympiques de Los Angeles",
+    "source": "Sur le terrain de Kodak, aux États-Unis"
+   },
+   "narration": "Pendant ce temps, un autre danger arrive, plus discret. En 1984, le japonais Fujifilm devient sponsor officiel des Jeux olympiques de Los Angeles. En plein cœur des États-Unis, chez Kodak. Avec des pellicules moins chères et de bonne qualité, Fuji commence à grignoter des parts de marché. Kodak est attaqué sur deux fronts : par un concurrent sur la pellicule, et par une technologie qui veut supprimer la pellicule."
+  },
+  {
+   "visual": {
+    "type": "title",
+    "kicker": "Partie 4",
+    "text": "La chute"
+   },
+   "narration": "Et pourtant, pendant des années, les chiffres donnent raison à Kodak."
+  },
+  {
+   "visual": {
+    "type": "stat",
+    "value": "16 milliards $",
+    "label": "Chiffre d'affaires de Kodak en 1996 : son record historique",
+    "source": "Rapports annuels Eastman Kodak"
+   },
+   "narration": "En 1996, Kodak atteint son record historique : environ seize milliards de dollars de chiffre d'affaires. Les ventes de pellicule continuent même de progresser pendant une partie des années quatre-vingt-dix. Vu de l'intérieur, tout va bien. Les dirigeants peuvent se dire : vous voyez, le numérique, ce n'était pas si grave."
+  },
+  {
+   "visual": {
+    "type": "text",
+    "heading": "Puis tout s'accélère",
+    "lines": [
+     "Fin des années 90 : Canon, Sony, Nikon",
+     "Années 2000 : les ventes de pellicule s'effondrent",
+     "2007 : l'iPhone"
+    ]
+   },
+   "narration": "Mais à la fin des années quatre-vingt-dix, tout bascule. Canon, Sony, Nikon, des entreprises japonaises qui maîtrisent l'électronique, inondent le marché d'appareils numériques de plus en plus bons et de moins en moins chers. Au début des années deux mille, les ventes de pellicule commencent à chuter. Puis elles s'effondrent. Et en 2007 arrive le coup de grâce : l'iPhone. Désormais, l'appareil photo est dans la poche de tout le monde, et les photos ne sont plus imprimées. Elles sont partagées sur internet."
+  },
+  {
+   "visual": {
+    "type": "text",
+    "heading": "L'erreur de modèle",
+    "lines": [
+     "Kodak vendait des appareils numériques…",
+     "… mais gagnait sa vie sur la pellicule",
+     "Le numérique : peu de marge, beaucoup de concurrents"
+    ]
+   },
+   "narration": "Kodak finit par se lancer à fond dans le numérique. Mais trop tard, et sur le mauvais terrain. Dans le numérique, il n'y a plus de pellicule à revendre sans arrêt. On vend un appareil une fois, avec des marges faibles, face à des concurrents qui font ça mieux et moins cher. Le modèle magique de Kodak, l'appareil pas cher et la pellicule qui rapporte, n'existe tout simplement plus."
+  },
+  {
+   "visual": {
+    "type": "stat",
+    "value": "47 000",
+    "label": "emplois supprimés par Kodak entre 2003 et 2012",
+    "source": "13 usines et 130 laboratoires fermés"
+   },
+   "narration": "Alors Kodak commence à rétrécir. Entre 2003 et 2012, l'entreprise ferme treize usines et cent trente laboratoires de développement photo, et supprime quarante-sept mille emplois. Rochester, la ville qui vivait au rythme de Kodak, voit son principal employeur fondre année après année."
+  },
+  {
+   "visual": {
+    "type": "stat",
+    "value": "6,75 milliards $",
+    "label": "de dettes au moment de la faillite, pour 5,1 milliards d'actifs",
+    "source": "Chapter 11, 19 janvier 2012"
+   },
+   "narration": "Le 19 janvier 2012, Kodak se place sous la protection de la loi américaine sur les faillites. Au moment du dépôt de bilan, l'entreprise déclare cinq virgule un milliards de dollars d'actifs et six virgule soixante-quinze milliards de dettes. Ironie de l'histoire : parmi ce qu'elle possède encore de plus précieux, il y a ses brevets sur la photo numérique. Les brevets de la technologie qui l'a tuée."
+  },
+  {
+   "visual": {
+    "type": "text",
+    "heading": "Kodak aujourd'hui",
+    "lines": [
+     "Sortie de faillite en 2013",
+     "Une entreprise bien plus petite",
+     "Impression et produits chimiques"
+    ]
+   },
+   "narration": "Kodak ne disparaît pas complètement. L'entreprise sort de la faillite en 2013, mais transformée en une société beaucoup plus petite, centrée sur l'impression professionnelle et la chimie. Le géant qui faisait seize milliards de dollars de chiffre d'affaires n'en fait plus aujourd'hui qu'une petite fraction."
+  },
+  {
+   "visual": {
+    "type": "title",
+    "kicker": "Partie 5",
+    "text": "La leçon pour ton argent"
+   },
+   "narration": "Alors, qu'est-ce que cette histoire peut t'apprendre, à toi ? Parce que tu ne diriges probablement pas une multinationale. Mais tu as des revenus, peut-être un métier, peut-être des placements. Et le piège de Kodak est un piège dans lequel n'importe qui peut tomber."
+  },
+  {
+   "visual": {
+    "type": "text",
+    "heading": "Leçon 1",
+    "lines": [
+     "Ne protège pas ta source de revenus actuelle",
+     "au point de rater la suivante"
+    ]
+   },
+   "narration": "Première leçon : ne protège pas ta source de revenus actuelle au point de rater la suivante. Kodak n'a pas perdu parce qu'il était bête. Il a perdu parce que ce qui marchait aujourd'hui l'empêchait de voir ce qui marcherait demain. Pour toi, c'est pareil. Si ton métier est en train de changer, à cause de l'intelligence artificielle, de l'automatisation, ou de n'importe quelle nouvelle technologie, le moment d'apprendre la suite, c'est maintenant. Quand tu as encore un salaire et du temps. Pas le jour où ton poste disparaît."
+  },
+  {
+   "visual": {
+    "type": "text",
+    "heading": "Leçon 2",
+    "lines": [
+     "Ne mets pas tous tes œufs",
+     "dans le même panier"
+    ]
+   },
+   "narration": "Deuxième leçon : ne mets pas tous tes œufs dans le même panier. Beaucoup de salariés de Kodak avaient leur emploi, leur retraite et leurs économies liés à une seule entreprise. Quand elle est tombée, ils ont tout perdu en même temps. Si tu investis, la diversification, ce n'est pas un mot savant de banquier. C'est ce qui t'évite qu'un seul problème détruise toute ta situation."
+  },
+  {
+   "visual": {
+    "type": "text",
+    "heading": "Leçon 3",
+    "lines": [
+     "Quand tu as le temps de te préparer,",
+     "c'est le meilleur moment pour agir"
+    ]
+   },
+   "narration": "Et troisième leçon, la plus importante : Kodak avait dix ans d'avance. Dix ans pour se préparer. Et il les a gaspillés parce que tout allait encore bien. Le meilleur moment pour changer, c'est quand tout va bien, parce que c'est le seul moment où tu as encore le choix."
+  },
+  {
+   "visual": {
+    "type": "title",
+    "kicker": "Prochaine vidéo",
+    "text": "Nokia : de numéro 1 mondial à l'oubli"
+   },
+   "narration": "Dans la prochaine vidéo, on verra une histoire étonnamment proche : comment Nokia est passé de numéro un mondial du téléphone portable à l'oubli, en seulement quelques années. Abonne-toi pour ne pas la rater, et dis-moi en commentaire quelle entreprise tu veux qu'on décortique ensuite."
+  }
+ ],
+ "thumbnail": {
+  "text": "ILS L'AVAIENT",
+  "subtitle": "Kodak · 1975 → 2012"
+ }
+}

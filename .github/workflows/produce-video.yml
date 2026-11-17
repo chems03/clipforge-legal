@@ -1,0 +1,57 @@
+name: Fabriquer et publier une vidéo
+
+on:
+  workflow_dispatch:
+    inputs:
+      script:
+        description: "Chemin du script (ex. videos/kodak/script.json)"
+        required: true
+  push:
+    branches: ["claude/**"]
+    paths: ["videos/*/script.json"]
+
+jobs:
+  produce:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 2
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - run: sudo apt-get update -q && sudo apt-get install -y -q ffmpeg fonts-dejavu-core
+      - run: pip install -r pipeline/requirements.txt
+      - name: Trouver le script à fabriquer
+        id: pick
+        run: |
+          if [ -n "${{ inputs.script }}" ]; then
+            echo "script=${{ inputs.script }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "script=$(git diff --name-only HEAD~1 HEAD -- 'videos/*/script.json' | head -1)" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Fabriquer la vidéo
+        run: python pipeline/make_video.py "${{ steps.pick.outputs.script }}" out
+      - uses: actions/upload-artifact@v4
+        with:
+          name: video
+          path: |
+            out/video.mp4
+            out/thumbnail.png
+            out/subtitles.srt
+            out/description.txt
+          retention-days: 14
+      - name: Envoyer en privé sur YouTube
+        env:
+          YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+          YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+        run: |
+          S="${{ steps.pick.outputs.script }}"
+          python pipeline/youtube_upload.py out/video.mp4 \
+            --title "$(python -c "import json;print(json.load(open('$S'))['title'])")" \
+            --description-file out/description.txt \
+            --tags "$(python -c "import json;print(','.join(json.load(open('$S'))['tags']))")" \
+            --thumbnail out/thumbnail.png \
+            --privacy private
