@@ -78,14 +78,17 @@ def build_body(strategy, vcfg, style, text):
 
 def synth(model, vcfg, style, text, strategy="system"):
     body = build_body(strategy, vcfg, style, text)
-    for attempt in range(6):
+    for attempt in range(4):
         code, data = call("POST", f"{API}/models/{model}:generateContent", body)
         if code == 200:
             part = data["candidates"][0]["content"]["parts"][0]["inlineData"]
             rate = int(re.search(r"rate=(\d+)", part.get("mimeType", "")).group(1)) if "rate=" in part.get("mimeType", "") else 24000
             return base64.b64decode(part["data"]), rate, None
         msg = data.get("error", {}).get("message", "")
+        if code == 429 and re.search(r"per ?day|PerDay|daily", msg, re.I):
+            sys.exit(f"Quota journalier atteint : {msg}")
         if code in (429, 500, 503):
+            print(f"  {code} : {msg[:300]}")
             m = re.search(r"retry in ([\d.]+)s", msg)
             wait = float(m.group(1)) + 1 if m else 15 * (attempt + 1)
             print(f"  limite atteinte ({code}), nouvelle tentative dans {wait:.0f} s")

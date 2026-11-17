@@ -6,9 +6,14 @@ on:
     branches: ["claude/**"]
     paths: ["pipeline/gemini_tts.py", ".github/workflows/voice-test.yml"]
 
+concurrency:
+  group: voice-test
+  cancel-in-progress: true
+
 jobs:
   voice:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v6
@@ -17,6 +22,7 @@ jobs:
       - name: Générer les 6 premiers blocs
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          PYTHONUNBUFFERED: "1"
         run: python pipeline/gemini_tts.py videos/kodak/voix_gemini_expressif.txt out --first 6
       - uses: actions/upload-artifact@v4
         if: always()
