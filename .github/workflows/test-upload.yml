@@ -2,11 +2,6 @@ name: Test d'envoi YouTube
 
 on:
   workflow_dispatch:
-  push:
-    branches: ["claude/**"]
-    paths:
-      - ".github/workflows/test-upload.yml"
-      - "pipeline/youtube_upload.py"
 
 jobs:
   upload:
