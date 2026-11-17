@@ -1,0 +1,306 @@
+SCRIPT KODAK — VERSION EXPRESSIVE (Gemini 3.8 Flash TTS)
+
+COMMENT L'UTILISER
+- 1 bloc ci-dessous = 1 « speech block » dans AI Studio (bouton « + Add speech block »).
+- « TON » : à écrire dans le menu de style du bloc (celui qui affichait « Rich, velvety… »).
+- « TEXTE » : à coller dans le bloc. Les balises entre < > sont des effets.
+- Les balises viennent du bouton « + Expression ». Si une balise n'existe pas dans
+  ta liste, remplace-la par la plus proche (ou supprime-la).
+- Même voix (même Speaker) pour tous les blocs.
+- Génère par groupes (Partie 1, Partie 2…) et télécharge un fichier par partie.
+
+####################################################################
+PARTIE 1 — L'ACCROCHE ET L'EMPIRE
+####################################################################
+
+[Bloc 1] TON : mystérieux, lent, voix basse, intrigant
+TEXTE :
+Cette machine pèse quatre kilos. <short pause> Elle met vingt-trois secondes pour prendre une seule photo. <short pause> En noir et blanc. <short pause> Sur une cassette audio.
+
+[Bloc 2] TON : montée en intensité, dramatique
+TEXTE :
+Et pourtant… <long pause> elle va détruire l'une des entreprises les plus puissantes de la planète.
+
+[Bloc 3] TON : chuchoté, confidentiel
+TEXTE :
+Le pire ? <short pause> C'est cette entreprise qui l'a inventée.
+
+[Bloc 4] TON : énergique, chaleureux, comme un générique d'émission
+TEXTE :
+Bienvenue dans l'histoire de Kodak. <short pause> Le géant qui a inventé l'avenir… <short pause> et qui l'a caché dans un tiroir.
+
+[Bloc 5] TON : conteur, rythme posé, un peu amusé
+TEXTE :
+On est en 1888. Prendre une photo, à l'époque, c'est un cauchemar. <short pause> Des plaques de verre. Des produits chimiques. Des heures de travail.
+
+[Bloc 6] TON : enthousiaste, rythme qui accélère
+TEXTE :
+Et puis un homme arrive. George Eastman. <short pause> Son idée est simple : tu achètes un appareil déjà chargé, tu prends tes photos, tu le renvoies… et Kodak s'occupe de tout. <short pause> Son slogan ? « Appuyez sur le bouton. Nous faisons le reste. »
+
+[Bloc 7] TON : complice, malin, comme si tu révélais un secret
+TEXTE :
+Mais le vrai génie, il est ailleurs. <short pause> L'appareil, Kodak le vend presque à perte. Ce qui rapporte, c'est la pellicule. Celle que tu dois racheter. <short pause> Encore. <short pause> Et encore. <short pause> Et encore.
+
+[Bloc 8] TON : rythmé, énumération rapide
+TEXTE :
+Chaque anniversaire. Chaque mariage. Chaque vacances. C'est de l'argent qui tombe dans la caisse de Kodak.
+
+[Bloc 9] TON : très énergique, impressionné, insiste sur le chiffre
+TEXTE :
+Résultat ? En 1976, Kodak vend quatre-vingt-dix pour cent des pellicules aux États-Unis. <short pause> Quatre-vingt-dix pour cent !
+
+[Bloc 10] TON : grave, solennel
+TEXTE :
+C'est plus une entreprise. <short pause> C'est un empire.
+
+[Bloc 11] TON : lent, interrogatif, suspense
+TEXTE :
+Et quand tu es un empire… <long pause> pourquoi tu changerais quoi que ce soit ?
+
+[Bloc 12] TON : chuchoté, inquiétant
+TEXTE :
+Retiens bien cette question. <short pause> Parce que c'est exactement là que tout bascule.
+
+####################################################################
+PARTIE 2 — L'INVENTION
+####################################################################
+
+[Bloc 13] TON : narration de film, posée, atmosphère
+TEXTE :
+Décembre 1975. <short pause> Rochester, aux États-Unis. Un jeune ingénieur de Kodak, Steven Sasson, vingt-quatre ans, pose une drôle de machine sur la table.
+
+[Bloc 14] TON : léger, un peu amusé
+TEXTE :
+Cent pixels sur cent. <short pause> Pour comparer, ton téléphone en fait plusieurs milliers de fois plus.
+
+[Bloc 15] TON : émerveillé, montée vers la révélation
+TEXTE :
+Mais cette machine fait un truc que personne n'a jamais fait : <short pause> elle prend une photo… <long pause> sans pellicule.
+
+[Bloc 16] TON : fort, triomphant
+TEXTE :
+Sasson vient d'inventer l'appareil photo numérique.
+
+[Bloc 17] TON : suspense, ralentir
+TEXTE :
+Il le montre à ses patrons. <short pause> Et la réponse tombe :
+
+[Bloc 18] TON : moqueur, condescendant, voix d'un vieux patron
+TEXTE :
+« C'est mignon… <short pause> mais n'en parle à personne. »
+
+[Bloc 19] TON : direct, comme si tu parlais au spectateur
+TEXTE :
+Pourquoi ? <short pause> Réfléchis deux secondes.
+
+[Bloc 20] TON : rythmé, de plus en plus fort
+TEXTE :
+Pas de pellicule… ça veut dire zéro pellicule vendue. <short pause> Zéro photo à développer. <short pause> Zéro argent.
+
+[Bloc 21] TON : grave, lent, dramatique
+TEXTE :
+Kodak vient d'inventer, dans son propre labo, l'arme qui peut le tuer.
+
+[Bloc 22] TON : chuchoté, complot
+TEXTE :
+Alors on la range. <short pause> Et on fait comme si de rien n'était.
+
+####################################################################
+PARTIE 3 — ILS SAVAIENT
+####################################################################
+
+[Bloc 23] TON : provocateur, direct
+TEXTE :
+Tu vas me dire : en 1975, personne ne pouvait savoir. <long pause> Sauf que… Kodak savait.
+
+[Bloc 24] TON : rapide, tendu, ambiance de panique
+TEXTE :
+1981. Sony présente un appareil photo électronique. Panique chez les clients de Kodak.
+
+[Bloc 25] TON : mystérieux, voix basse
+TEXTE :
+La direction lance une grande étude secrète. <short pause> Et la conclusion fait froid dans le dos.
+
+[Bloc 26] TON : grave, lent
+TEXTE :
+Mauvaise nouvelle : le numérique peut remplacer la pellicule.
+
+[Bloc 27] TON : soulagé, plus léger
+TEXTE :
+Bonne nouvelle : pas tout de suite. Kodak a environ… <short pause> dix ans pour se préparer.
+
+[Bloc 28] TON : très énergique, presque incrédule
+TEXTE :
+Dix ans ! <short pause> C'est un cadeau que presque aucune entreprise ne reçoit dans l'histoire. Savoir ce qui va te tuer… et avoir le temps de réagir.
+
+[Bloc 29] TON : suspense, lent
+TEXTE :
+Alors, qu'est-ce que fait Kodak ?
+
+[Bloc 30] TON : déçu, ironique
+TEXTE :
+Il dépose des brevets. Il sort quelques appareils numériques. <short pause> Mais l'argent, l'énergie, la priorité… tout reste sur la pellicule. Parce que la pellicule rapporte encore une fortune.
+
+[Bloc 31] TON : inquiétant, montée de tension
+TEXTE :
+Et pendant ce temps, un autre danger arrive.
+
+[Bloc 32] TON : rythmé, comme un commentateur sportif
+TEXTE :
+1984. Jeux olympiques de Los Angeles. Le sponsor officiel des pellicules ? <short pause> Pas Kodak. <short pause> Fujifilm. Un japonais. En plein cœur de l'Amérique.
+
+[Bloc 33] TON : sérieux, posé
+TEXTE :
+Kodak est attaqué des deux côtés. Par un concurrent… <short pause> et par une technologie.
+
+####################################################################
+PARTIE 4 — LA CHUTE
+####################################################################
+
+[Bloc 34] TON : faussement rassurant
+TEXTE :
+Et pourtant, les chiffres continuent de lui donner raison.
+
+[Bloc 35] TON : très énergique, triomphant, insiste sur le chiffre
+TEXTE :
+1996. Kodak bat son record absolu. Seize milliards de dollars de chiffre d'affaires. <short pause> Seize milliards !
+
+[Bloc 36] TON : arrogant, satisfait, voix d'un dirigeant
+TEXTE :
+À l'intérieur, tout le monde se dit : « Vous voyez ? Le numérique, c'était rien. »
+
+[Bloc 37] TON : sec, grave, une seule respiration
+TEXTE :
+Grosse erreur.
+
+[Bloc 38] TON : rapide, de plus en plus intense, accélère
+TEXTE :
+Fin des années quatre-vingt-dix. Canon. Sony. Nikon. Les japonais inondent le marché d'appareils numériques. Toujours meilleurs. Toujours moins chers.
+
+[Bloc 39] TON : dramatique, descente
+TEXTE :
+Années deux mille : les ventes de pellicule commencent à chuter. <short pause> Puis elles s'effondrent.
+
+[Bloc 40] TON : lent, suspense, puis frappe sur le dernier mot
+TEXTE :
+Et en 2007… <long pause> le coup de grâce. <short pause> L'iPhone.
+
+[Bloc 41] TON : constat, posé
+TEXTE :
+Désormais, l'appareil photo, il est dans toutes les poches. Et plus personne n'imprime ses photos.
+
+[Bloc 42] TON : explicatif, rythme soutenu
+TEXTE :
+Kodak finit par se lancer dans le numérique. Mais trop tard. Et sur le mauvais terrain. Parce que dans le numérique, il n'y a plus de pellicule à revendre. Tu vends un appareil une fois. Avec une petite marge. Face à des concurrents plus rapides que toi.
+
+[Bloc 43] TON : grave, lent, définitif
+TEXTE :
+La machine à cash est morte.
+
+[Bloc 44] TON : sombre, énumération lente
+TEXTE :
+Entre 2003 et 2012, Kodak ferme treize usines. <short pause> Cent trente laboratoires. <short pause> Et supprime quarante-sept mille emplois.
+
+[Bloc 45] TON : chuchoté, émouvant
+TEXTE :
+Quarante-sept mille personnes.
+
+[Bloc 46] TON : solennel, lent, dramatique
+TEXTE :
+Et le dix-neuf janvier 2012… <long pause> Kodak se déclare en faillite. <short pause> Six milliards sept cent cinquante millions de dollars de dettes.
+
+[Bloc 47] TON : intrigant, voix basse
+TEXTE :
+Et tu sais ce qui lui restait de plus précieux ? <short pause> Ses brevets… sur la photo numérique.
+
+[Bloc 48] TON : chuchoté, ironie amère
+TEXTE :
+Les brevets de la technologie qui l'a tué.
+
+####################################################################
+PARTIE 5 — FUJIFILM ET 2020
+####################################################################
+
+[Bloc 49] TON : relance, intrigué, énergique
+TEXTE :
+Et maintenant, le plus fou dans cette histoire. <short pause> Tu te souviens de Fujifilm ? Le concurrent japonais ? Lui aussi vivait de la pellicule. Lui aussi a vu le numérique arriver. <short pause> Lui aussi aurait dû mourir.
+
+[Bloc 50] TON : révélation, appuyé
+TEXTE :
+Sauf que Fuji a fait l'inverse de Kodak.
+
+[Bloc 51] TON : curieux, posé
+TEXTE :
+Au lieu de protéger la pellicule, Fuji s'est posé une question toute bête : <short pause> qu'est-ce qu'on sait faire, à part des pellicules ?
+
+[Bloc 52] TON : explicatif, fasciné
+TEXTE :
+Et la réponse est surprenante. Une pellicule photo, c'est de la chimie ultra précise. Des couches très fines. Des molécules qui protègent les couleurs de la lumière et du temps.
+
+[Bloc 53] TON : de plus en plus amusé, surprise à la fin
+TEXTE :
+Alors Fuji a utilisé ce savoir ailleurs. Dans l'imagerie médicale. Dans les matériaux pour écrans. Et même… <short pause> dans les crèmes anti-âge. <short pause> Oui. Une marque de pellicule qui vend des cosmétiques.
+
+[Bloc 54] TON : complice, explicatif
+TEXTE :
+Parce que protéger une photo du vieillissement, et protéger une peau du vieillissement, c'est un peu la même chimie.
+
+[Bloc 55] TON : contraste fort, rythme lent et appuyé
+TEXTE :
+Résultat : Fujifilm existe toujours, et c'est un géant. <short pause> Kodak, lui, a fait faillite.
+
+[Bloc 56] TON : solennel, très lent, chaque phrase détachée
+TEXTE :
+Même marché. <short pause> Même menace. <short pause> Même époque. <long pause> Deux décisions différentes. <short pause> Deux destins opposés.
+
+[Bloc 57] TON : relance, intrigant
+TEXTE :
+Et l'histoire de Kodak ne s'arrête même pas là.
+
+[Bloc 58] TON : incrédule, énergique
+TEXTE :
+Été 2020. En pleine pandémie, le gouvernement américain annonce un prêt de sept cent soixante-cinq millions de dollars à Kodak… pour fabriquer des ingrédients de médicaments. <short pause> Kodak. <short pause> Des médicaments.
+
+[Bloc 59] TON : très rapide, excité, comme une folie boursière
+TEXTE :
+En quelques jours, l'action Kodak explose. Elle est multipliée par plus de dix.
+
+[Bloc 60] TON : soupçonneux, voix basse
+TEXTE :
+Et puis, on découvre que des dirigeants ont reçu des options sur des actions… <short pause> la veille de l'annonce.
+
+[Bloc 61] TON : chute rapide, sec
+TEXTE :
+Le prêt est suspendu. Et l'action retombe aussi vite qu'elle était montée.
+
+[Bloc 62] TON : ironique, amusé
+TEXTE :
+Le géant de la photo, transformé en montagne russe boursière.
+
+####################################################################
+PARTIE 6 — LES LEÇONS ET LA FIN
+####################################################################
+
+[Bloc 63] TON : chaleureux, proche, direct au spectateur
+TEXTE :
+Alors, quelle leçon pour toi ? <short pause> Parce que tu n'es pas Kodak. Mais tu as un salaire. Peut-être un métier. Peut-être des économies.
+
+[Bloc 64] TON : convaincu, posé, chaque mot compte
+TEXTE :
+Leçon numéro un : <short pause> ne protège pas ce qui te rapporte aujourd'hui au point de rater ce qui te rapportera demain. Si ton métier change, apprends la suite maintenant. <short pause> Pas le jour où ton poste disparaît.
+
+[Bloc 65] TON : sérieux, un peu grave
+TEXTE :
+Leçon numéro deux : <short pause> ne mets jamais tous tes œufs dans le même panier. Des milliers de salariés de Kodak avaient leur emploi, leur retraite et leurs économies liés à une seule entreprise. Quand elle est tombée… <short pause> ils ont tout perdu d'un coup.
+
+[Bloc 66] TON : intense, insiste sur « dix ans »
+TEXTE :
+Et leçon numéro trois, la plus importante : Kodak avait dix ans d'avance. <short pause> Dix ans ! <short pause> Et il les a gaspillés… parce que tout allait bien.
+
+[Bloc 67] TON : lent, profond, inspirant, presque chuchoté à la fin
+TEXTE :
+Le meilleur moment pour changer, c'est quand tout va bien. <long pause> Parce que c'est le seul moment où tu as encore le choix.
+
+[Bloc 68] TON : énergique, enjoué, appel à l'action
+TEXTE :
+Dans la prochaine vidéo : Nokia. Numéro un mondial du téléphone… <short pause> et rayé de la carte en quelques années. Abonne-toi pour ne pas la rater. Et dis-moi en commentaire quelle entreprise tu veux qu'on décortique ensuite.
