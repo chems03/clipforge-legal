@@ -1,0 +1,26 @@
+name: Test de voix Gemini
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["claude/**"]
+    paths: ["pipeline/gemini_tts.py", ".github/workflows/voice-test.yml"]
+
+jobs:
+  voice:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Générer les 6 premiers blocs
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python pipeline/gemini_tts.py videos/kodak/voix_gemini_expressif.txt out --first 6
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: voix-test
+          path: out/
+          retention-days: 7
