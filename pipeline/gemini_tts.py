@@ -57,12 +57,27 @@ def voice_configs(voice):
     return [{"voice": voice}, {"prebuiltVoiceConfig": {"voiceName": voice}}]
 
 
-def synth(model, vcfg, style, text):
-    prompt = f"Lis ce texte en français, avec ce ton : {style}.\n\n{text}"
-    body = {
-        "contents": [{"parts": [{"text": prompt}]}],
-        "generationConfig": {"responseModalities": ["AUDIO"], "speechConfig": {"voiceConfig": vcfg}},
-    }
+STRATEGIES = ["system", "say", "bracket", "none"]
+
+
+def build_body(strategy, vcfg, style, text):
+    gen = {"responseModalities": ["AUDIO"], "speechConfig": {"voiceConfig": vcfg}}
+    body = {"generationConfig": gen}
+    if strategy == "system":
+        body["systemInstruction"] = {"parts": [{"text": f"Tu es un narrateur français. Ton de la lecture : {style}. "
+                                                       "Lis uniquement le texte fourni, sans rien ajouter."}]}
+        body["contents"] = [{"role": "user", "parts": [{"text": text}]}]
+    elif strategy == "say":
+        body["contents"] = [{"role": "user", "parts": [{"text": f"Say in French, in this tone ({style}): {text}"}]}]
+    elif strategy == "bracket":
+        body["contents"] = [{"role": "user", "parts": [{"text": f"[{style}] {text}"}]}]
+    else:
+        body["contents"] = [{"role": "user", "parts": [{"text": text}]}]
+    return body
+
+
+def synth(model, vcfg, style, text, strategy="system"):
+    body = build_body(strategy, vcfg, style, text)
     for attempt in range(6):
         code, data = call("POST", f"{API}/models/{model}:generateContent", body)
         if code == 200:
@@ -80,12 +95,34 @@ def synth(model, vcfg, style, text):
     return None, None, f"{code} : {msg}"
 
 
+def choose_strategy(model, vcfg, blocks, out):
+    """Pick the style strategy whose audio is not inflated by the instructions being read aloud."""
+    probe = min(blocks, key=lambda b: len(b["text"]))
+    print(f"Test des façons de donner le ton sur : « {probe['text']} » ({probe['style']})")
+    durs = {}
+    os.makedirs(os.path.join(out, "probe"), exist_ok=True)
+    for st in STRATEGIES:
+        audio, rate, err = synth(model, vcfg, probe["style"], probe["text"], st)
+        if not audio:
+            print(f"  {st} : échec {err}")
+            continue
+        durs[st] = len(audio) / 2 / rate
+        write_wav(os.path.join(out, "probe", f"{st}.wav"), audio, rate)
+        print(f"  {st} : {durs[st]:.1f} s")
+    base = durs.get("none")
+    ok = [st for st in ("system", "bracket", "say") if st in durs and (base is None or durs[st] <= base * 1.5 + 0.8)]
+    choice = ok[0] if ok else "none"
+    print(f"Façon retenue : {choice}")
+    return choice
+
+
 def pick(models, voice, style, text):
     prefer = os.environ.get("GEMINI_TTS_MODEL")
     order = ([prefer] if prefer else []) + sorted(models, reverse=True)
+    order = list(dict.fromkeys(order))
     for model in order:
         for vcfg in voice_configs(voice):
-            audio, rate, err = synth(model, vcfg, style, text)
+            audio, rate, err = synth(model, vcfg, style, text, "none")
             if audio:
                 print(f"OK : modèle {model}, voix {vcfg}")
                 return model, vcfg, audio, rate
@@ -123,16 +160,16 @@ def main():
         chosen = pick(models, a.fallback_voice, blocks[0]["style"], blocks[0]["text"])
     if not chosen:
         sys.exit("Aucune combinaison modèle/voix ne fonctionne.")
-    model, vcfg, audio, rate = chosen
+    model, vcfg, _, rate = chosen
+    strategy = os.environ.get("TTS_STRATEGY") or choose_strategy(model, vcfg, blocks, a.out)
 
     pcm_all, meta, t = b"", [], 0.0
     gap = b"\x00\x00" * int(rate * GAP)
     for i, b in enumerate(blocks):
-        if i > 0:
-            audio, r, err = synth(model, vcfg, b["style"], b["text"])
-            if not audio:
-                sys.exit(f"Bloc {b['n']} : échec {err}")
-            rate = r
+        audio, r, err = synth(model, vcfg, b["style"], b["text"], strategy)
+        if not audio:
+            sys.exit(f"Bloc {b['n']} : échec {err}")
+        rate = r
         write_wav(os.path.join(a.out, "blocks", f"{b['n']:03}.wav"), audio, rate)
         dur = len(audio) / 2 / rate
         meta.append({**b, "start": round(t, 3), "end": round(t + dur, 3)})
@@ -140,7 +177,7 @@ def main():
         t += dur + GAP
         print(f"Bloc {b['n']} : {dur:.1f} s")
     write_wav(os.path.join(a.out, "narration.wav"), pcm_all, rate)
-    json.dump({"model": model, "voice": vcfg, "rate": rate, "blocks": meta},
+    json.dump({"model": model, "voice": vcfg, "strategy": strategy, "rate": rate, "blocks": meta},
               open(os.path.join(a.out, "blocks.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     print(f"Narration : {t / 60:.1f} min")
 
