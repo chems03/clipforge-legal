@@ -1,4 +1,4 @@
-name: Test de voix Gemini (Riko)
+name: Voix Riko complète
 
 on:
   workflow_dispatch:
@@ -27,6 +27,6 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: voix-test
+          name: voix-riko-kodak
           path: out/
           retention-days: 7
