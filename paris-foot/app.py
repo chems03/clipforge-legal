@@ -7,6 +7,7 @@ import streamlit as st
 
 from pronos import engine
 from pronos.data import COMPETITIONS, LEAGUES, MAIN_LEAGUES
+from pronos import historique as hist
 from pronos.scorers import COLUMNS, load_players, save_players, scorer_probs
 
 st.set_page_config(page_title="Pronos Foot", page_icon="⚽", layout="wide")
@@ -27,8 +28,9 @@ info = getattr(m, "info", {})
 
 # ------------------------------------------------------------------ barre latérale
 st.sidebar.title("⚽ Pronos Foot")
-page = st.sidebar.radio("Menu", ["📅 Prochains matchs", "🔍 Analyse d'un match", "🎟️ Ticket combiné",
-                                 "🏆 Classement de puissance", "👟 Données buteurs", "📈 Fiabilité du modèle"])
+PAGES = ["📅 Prochains matchs", "🔍 Analyse d'un match", "📊 Résultats & bilan", "🎟️ Ticket combiné",
+         "🏆 Classement de puissance", "👟 Données buteurs", "📈 Fiabilité du modèle"]
+page = st.selectbox("Menu", PAGES, label_visibility="collapsed")
 st.sidebar.caption(
     f"{m.n_matches:,} matchs analysés · dernier résultat : {pd.Timestamp(m.ref_date - pd.Timedelta(days=1)).date()}"
     .replace(",", " "))
@@ -212,6 +214,102 @@ elif page == "🔍 Analyse d'un match":
         st.session_state.ticket.append(dict(match=f"{home} – {away}", marche=mk_name, selection=sel,
                                             proba=float(k[mk_name][sel]), cote=cote))
         st.success("Ajouté au ticket.")
+
+elif page == "📊 Résultats & bilan":
+    st.header("📊 Résultats & bilan")
+    st.caption("Prono donné AVANT chaque match (modèle ré-entraîné chaque semaine avec uniquement les "
+               "matchs précédents + cotes d'avant-match), comparé au vrai résultat.")
+
+    @st.cache_data(ttl=6 * 3600, show_spinner=False)
+    def history(_df, last_date, nonce):
+        bar = st.progress(0.0, text="Calcul des pronos de la saison (une seule fois)…")
+        h = hist.build_history(_df, progress=lambda f: bar.progress(f, text="Calcul des pronos de la saison…"))
+        bar.empty()
+        return h
+
+    h = history(results, str(results.date.max()), st.session_state.nonce)
+    if h.empty:
+        st.info("Pas encore de matchs joués cette saison.")
+        st.stop()
+    filt = st.expander("🔎 Filtres (championnats, équipe, période)")
+    f1, f2 = filt.columns([3, 2])
+    lg = f1.multiselect("Championnats", list(LEAGUES), default=MAIN_LEAGUES, format_func=lambda c: LEAGUES[c],
+                        key="hist_lg")
+    teams = sorted(set(h.home) | set(h.away))
+    team = f2.selectbox("Équipe", ["(toutes)"] + teams)
+    d0, d1 = h.date.min().date(), h.date.max().date()
+    per = filt.slider("Période", d0, d1, (d0, d1), format="DD/MM/YYYY")
+    v = h[h.comp.isin(lg) & (h.date.dt.date >= per[0]) & (h.date.dt.date <= per[1])]
+    if team != "(toutes)":
+        v = v[(v.home == team) | (v.away == team)]
+    if v.empty:
+        st.warning("Aucun match avec ces filtres.")
+        st.stop()
+
+    tb, tr, tv = st.tabs(["✅ Bilan réussite", "📋 Résultats & pronos", "💰 Value bets"])
+    with tb:
+        s = hist.summary(v)
+        c = st.columns(len(s))
+        for col, (_, row) in zip(c, s.iterrows()):
+            col.metric(row["Pari"], f"{row['% réussite']:.0%}",
+                       f"✅ {row['✅ Réussis']}  ·  ❌ {row['❌ Ratés']}", delta_color="off")
+        show = s.copy()
+        show["% réussite"] = show["% réussite"].map(pct)
+        show["% attendu"] = show["% attendu"].map(pct)
+        st.dataframe(show, hide_index=True, width="stretch")
+        st.caption("« % attendu » = moyenne des probabilités annoncées. Si les deux colonnes sont proches, "
+                   "les probabilités de l'appli sont honnêtes. Le score exact réussit rarement (~10-13 %) "
+                   "même quand c'est le plus probable : c'est normal, il paye en conséquence.")
+        st.markdown("**Résultat 1X2 selon la confiance du prono**")
+        bc = hist.by_confidence(v)
+        bc["% réussite"] = bc["% réussite"].map(pct)
+        st.dataframe(bc, hide_index=True, width="stretch")
+        st.markdown("**Réussite par championnat (1X2)**")
+        g = v.groupby("comp").agg(Pronos=("ok_1x2", "size"), Reussis=("ok_1x2", "sum"))
+        g["% réussite"] = (g.Reussis / g.Pronos).map(pct)
+        g.index = g.index.map(LEAGUES)
+        st.dataframe(g.rename(columns={"Reussis": "✅ Réussis"}), width="stretch")
+
+    with tr:
+        ok = lambda b: "✅" if b else "❌"  # noqa: E731
+        t = pd.DataFrame({
+            "Date": v.date.dt.strftime("%d/%m"),
+            "Match": [f"{a} {sc} {b}" for a, sc, b in zip(v.home, v.score, v.away)],
+            "1X2": [f"{ok(o)} {p} ({q:.0%})" for p, q, o in zip(v.prono_1x2, v.p_prono_1x2, v.ok_1x2)],
+            "Buts": [f"{ok(o)} {p}" for p, o in zip(v.prono_buts, v.ok_buts)],
+            "BTTS": [f"{ok(o)} {p}" for p, o in zip(v.prono_btts, v.ok_btts)],
+            "Score prévu": [f"{ok(o)} {p}" for p, o in zip(v.prono_score, v.ok_score)],
+            "Double ch.": [f"{ok(o)} {p}" for p, o in zip(v.prono_dc, v.ok_dc)],
+            "MT": v.mt,
+            "xG": [f"{a:.1f}-{b:.1f}" if np.isfinite(a) else "" for a, b in zip(v.hxg, v.axg)],
+            "Champ.": v.comp.map(LEAGUES),
+        })
+        st.dataframe(t, hide_index=True, width="stretch", height=650)
+
+    with tv:
+        vb = hist.value_bets(v)
+        if vb.empty:
+            st.info("Aucun value bet détecté sur cette sélection.")
+        else:
+            n, w = len(vb), int(vb.gagne.sum())
+            profit = float(vb.profit.sum())
+            c1, c2, c3, c4 = st.columns(4)
+            c1.metric("Value bets", n, f"✅ {w}  ·  ❌ {n - w}", delta_color="off")
+            c2.metric("% gagnés", f"{w / n:.0%}")
+            c3.metric("Bénéfice (mise 1 €)", f"{profit:+.2f} €")
+            c4.metric("ROI", f"{profit / n:+.1%}")
+            st.caption("Mise fixe de 1 € par pari, à la meilleure cote du marché avant le match. Les value bets "
+                       "sont souvent des outsiders : on en perd plus qu'on en gagne, c'est la cote qui doit "
+                       "compenser. Sur quelques centaines de paris, le résultat reste très incertain.")
+            st.line_chart(vb.assign(**{"Bénéfice cumulé (€)": vb.profit.cumsum()}).set_index("date")[
+                ["Bénéfice cumulé (€)"]])
+            sv = vb.sort_values("date", ascending=False).copy()
+            sv["date"] = sv.date.dt.strftime("%d/%m")
+            sv["comp"] = sv.comp.map(LEAGUES)
+            sv["proba"] = sv.proba.map(pct)
+            sv["gagne"] = sv.gagne.map({True: "✅", False: "❌"})
+            sv["profit"] = sv.profit.map(lambda x: f"{x:+.2f} €")
+            st.dataframe(sv, hide_index=True, width="stretch")
 
 elif page == "🎟️ Ticket combiné":
     st.header("🎟️ Ticket combiné")
