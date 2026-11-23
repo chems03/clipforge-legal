@@ -9,9 +9,11 @@ from pronos import engine
 from pronos.data import COMPETITIONS, CUPS, LEAGUES, MAIN_LEAGUES, NAT_COMPS
 from pronos.nationals import active_teams, national_scorers
 from pronos import historique as hist
+from pronos import ui
 from pronos.scorers import COLUMNS, load_players, save_players, scorer_probs
 
-st.set_page_config(page_title="Pronos Foot", page_icon="⚽", layout="wide")
+st.set_page_config(page_title="Pronos Foot", page_icon="⚽", layout="wide", initial_sidebar_state="collapsed")
+ui.inject()
 
 
 @st.cache_resource(ttl=6 * 3600, show_spinner="Téléchargement des données et calcul du modèle…")
@@ -32,14 +34,25 @@ def nat_model(_nonce: int = 0):
 m, results = model(st.session_state.nonce)
 info = getattr(m, "info", {})
 
-# ------------------------------------------------------------------ barre latérale
-st.sidebar.title("⚽ Pronos Foot")
+# ------------------------------------------------------------------ navigation
 PAGES = ["📅 Prochains matchs", "🔍 Analyse d'un match", "📊 Résultats & bilan", "🎟️ Ticket combiné",
          "🏆 Classement de puissance", "👟 Données buteurs", "📈 Fiabilité du modèle"]
-page = st.selectbox("Menu", PAGES, label_visibility="collapsed")
-st.sidebar.caption(
-    f"{m.n_matches:,} matchs analysés · dernier résultat : {pd.Timestamp(m.ref_date - pd.Timedelta(days=1)).date()}"
-    .replace(",", " "))
+ui.brand(f"{m.n_matches:,} matchs analysés · données au "
+         f"{pd.Timestamp(m.ref_date - pd.Timedelta(days=1)):%d/%m/%Y}".replace(",", " "))
+page = st.selectbox("Menu", PAGES, label_visibility="collapsed", key="page")
+for _k, _v in dict(ch=0.0, cd=0.0, ca=0.0, co=0.0, cu=0.0).items():
+    st.session_state.setdefault(_k, _v)
+
+
+def open_match(comp, home, away, odds):
+    """Bouton « Analyser » d'une carte : ouvre l'analyse détaillée pré-remplie (équipes + cotes)."""
+    st.session_state.page = "🔍 Analyse d'un match"
+    st.session_state.kind = "⚽ Clubs"
+    st.session_state.comp_club = comp
+    st.session_state.home_club = home
+    st.session_state.away_club = away
+    for key, v in zip(["ch", "cd", "ca", "co", "cu"], odds):
+        st.session_state[key] = float(v) if v and v == v else 0.0
 if st.sidebar.button("🔄 Mettre à jour les données"):
     model.clear()
     nat_model.clear()
@@ -68,11 +81,12 @@ def team_label(t):
 # ------------------------------------------------------------------ pages
 if page == "📅 Prochains matchs":
     st.header("📅 Prochains matchs")
-    st.caption("Calendrier et cotes moyennes du marché : football-data.co.uk. Les probabilités combinent le "
+    _info = st.expander("ℹ️ Comment lire les cartes")
+    _info.caption("Calendrier et cotes moyennes du marché : football-data.co.uk. Les probabilités combinent le "
                f"modèle ({int(engine.ALPHA_MODEL * 100)} %) et le consensus des bookmakers "
                f"({int((1 - engine.ALPHA_MODEL) * 100)} %). Value = proba × meilleure cote − 1 ≥ "
                f"{engine.MIN_EDGE:.0%}.")
-    st.caption("Coupes d'Europe et sélections nationales : aucun calendrier gratuit n'est disponible → "
+    _info.caption("Coupes d'Europe et sélections nationales : aucun calendrier gratuit n'est disponible → "
                "choisis l'affiche dans « 🔍 Analyse d'un match » (Ligue des champions, Ligue Europa, "
                "Conférence, Coupe du monde, Euro, qualifs, Ligue des nations, amicaux).")
     leagues = st.multiselect("Championnats", list(LEAGUES), default=MAIN_LEAGUES,
@@ -82,21 +96,44 @@ if page == "📅 Prochains matchs":
         st.info("Pas de matchs à venir publiés pour l'instant (le fichier est mis à jour en milieu de "
                 "semaine). Utilise « Analyse d'un match » pour n'importe quelle affiche.")
     else:
-        only_value = st.toggle("Seulement les matchs avec value bet")
+        f1, f2 = st.columns(2)
+        only_value = f1.toggle("Seulement les value bets")
+        table_view = f2.toggle("Vue tableau")
         if only_value:
             t = t[t.value != ""]
-        show = t.copy()
-        for c in ["P1", "PN", "P2", "P+2.5", "BTTS"]:
-            show[c] = (show[c] * 100).round(1)
-        show["comp"] = show["comp"].map(LEAGUES)
-        st.dataframe(show.drop(columns=["cale_marche"]).round(2), hide_index=True, width="stretch",
-                     column_config={c: st.column_config.ProgressColumn(c, format="%.1f %%", min_value=0,
-                                                                       max_value=100)
-                                    for c in ["P1", "PN", "P2", "P+2.5", "BTTS"]})
+        if table_view:
+            show = t.drop(columns=["cale_marche", "o_h", "o_d", "o_a", "o_o25", "o_u25"]).copy()
+            for c in ["P1", "PN", "P2", "P+2.5", "BTTS"]:
+                show[c] = (show[c] * 100).round(1)
+            show["comp"] = show["comp"].map(LEAGUES)
+            st.dataframe(show.round(2), hide_index=True, width="stretch",
+                         column_config={c: st.column_config.ProgressColumn(c, format="%.1f %%", min_value=0,
+                                                                           max_value=100)
+                                        for c in ["P1", "PN", "P2", "P+2.5", "BTTS"]})
+        else:
+            days = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"]
+            months = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.",
+                      "nov.", "déc."]
+            for d, grp in t.rename(columns={"P+2.5": "P_o25"}).groupby("date", sort=True):
+                d = pd.Timestamp(d)
+                st.markdown(f'<div class="pf-day">{days[d.weekday()]} {d.day} {months[d.month - 1]}</div>',
+                            unsafe_allow_html=True)
+                for i, r in enumerate(grp.itertuples()):
+                    chips = [(f"+2.5 buts {r.P_o25:.0%}", False), (f"Les 2 marquent {r.BTTS:.0%}", False),
+                             (f"xG {r.xg_dom:.1f} – {r.xg_ext:.1f}", False)]
+                    if r.value:
+                        chips.insert(0, (f"💰 Value : {r.value}", True))
+                    ui.match_card(LEAGUES.get(r.comp, r.comp), str(r.heure), r.home, r.away, r.P1, r.PN, r.P2,
+                                  r.score_probable.split(" ")[0], chips)
+                    st.button("Analyse complète ›", key=f"an_{r.comp}_{r.home}_{r.away}",
+                              on_click=open_match, args=(r.comp, r.home, r.away,
+                                                         (r.o_h, r.o_d, r.o_a, r.o_o25, r.o_u25)),
+                              width="stretch")
 
 elif page == "🔍 Analyse d'un match":
     st.header("🔍 Analyse d'un match")
-    kind = st.radio("Type", ["⚽ Clubs", "🌍 Sélections nationales"], horizontal=True, label_visibility="collapsed")
+    kind = st.radio("Type", ["⚽ Clubs", "🌍 Sélections nationales"], horizontal=True, label_visibility="collapsed",
+                    key="kind")
     national = kind.startswith("🌍")
     c1, c2, c3 = st.columns([2, 2, 1])
     if national:
@@ -113,11 +150,15 @@ elif page == "🔍 Analyse d'un match":
     else:
         mod = m
         comps = list(CUPS) + list(LEAGUES)
-        comp = c3.selectbox("Compétition", comps, index=comps.index("F1"), format_func=lambda c: COMPETITIONS[c])
+        st.session_state.setdefault("comp_club", "F1")
+        comp = c3.selectbox("Compétition", comps, format_func=lambda c: COMPETITIONS[c], key="comp_club")
         pool = sorted(m.teams) if comp in CUPS else sorted(t for t in m.teams if m.team_league[t] == comp) or m.teams
-        default_h = pool.index("Paris SG") if "Paris SG" in pool else 0
-        home = c1.selectbox("Domicile", pool, index=default_h, format_func=team_label)
-        away = c2.selectbox("Extérieur", pool, index=1 if default_h == 0 else 0, format_func=team_label)
+        if st.session_state.get("home_club") not in pool:
+            st.session_state.home_club = "Paris SG" if "Paris SG" in pool else pool[0]
+        if st.session_state.get("away_club") not in pool:
+            st.session_state.away_club = next(t for t in pool if t != st.session_state.home_club)
+        home = c1.selectbox("Domicile", pool, format_func=team_label, key="home_club")
+        away = c2.selectbox("Extérieur", pool, format_func=team_label, key="away_club")
         neutral = c3.checkbox("Terrain neutre (finale)")
         if comp in CUPS:
             st.caption("Coupes d'Europe : clubs des 23 championnats couverts (5 grands, Portugal, Pays-Bas, "
@@ -126,11 +167,11 @@ elif page == "🔍 Analyse d'un match":
 
     with st.expander("💶 Cotes du bookmaker (fortement recommandé : cale le modèle sur le marché)"):
         o1, o2, o3, o4, o5 = st.columns(5)
-        ch = o1.number_input("Cote 1", 0.0, 100.0, 0.0, 0.01)
-        cd = o2.number_input("Cote N", 0.0, 100.0, 0.0, 0.01)
-        ca = o3.number_input("Cote 2", 0.0, 100.0, 0.0, 0.01)
-        co = o4.number_input("Cote +2.5", 0.0, 20.0, 0.0, 0.01)
-        cu = o5.number_input("Cote −2.5", 0.0, 20.0, 0.0, 0.01)
+        ch = o1.number_input("Cote 1", 0.0, 100.0, step=0.01, key="ch")
+        cd = o2.number_input("Cote N", 0.0, 100.0, step=0.01, key="cd")
+        ca = o3.number_input("Cote 2", 0.0, 100.0, step=0.01, key="ca")
+        co = o4.number_input("Cote +2.5", 0.0, 20.0, step=0.01, key="co")
+        cu = o5.number_input("Cote −2.5", 0.0, 20.0, step=0.01, key="cu")
     with st.expander("🩹 Ajustements (blessures, suspensions, rotation, météo…)"):
         st.caption("Ex. : buteur principal absent ≈ −8 à −12 % en attaque ; défenseur central titulaire "
                    "absent ≈ −5 % en défense ; équipe B / rotation avant un gros match ≈ −10 à −15 %.")
@@ -150,19 +191,14 @@ elif page == "🔍 Analyse d'un match":
     k = r["markets"]
     lh, la = r["lambda"]
 
-    st.subheader(f"{home} – {away}")
     if r["lambda_market"]:
+        note = "modèle + marché"
         st.caption(f"Buts attendus — modèle : {r['lambda_model'][0]:.2f}–{r['lambda_model'][1]:.2f} · "
                    f"marché : {r['lambda_market'][0]:.2f}–{r['lambda_market'][1]:.2f} · "
-                   f"**retenu : {lh:.2f}–{la:.2f}**")
+                   f"retenu : {lh:.2f}–{la:.2f}")
     else:
-        st.caption(f"Buts attendus (modèle seul) : **{lh:.2f} – {la:.2f}**. Ajoute les cotes pour plus de précision.")
-    x1, x2, x3, x4, x5 = st.columns(5)
-    x1.metric(f"Victoire {home}", pct(k["1X2"]["1"]), f"cote juste {1 / k['1X2']['1']:.2f}", delta_color="off")
-    x2.metric("Nul", pct(k["1X2"]["N"]), f"cote juste {1 / k['1X2']['N']:.2f}", delta_color="off")
-    x3.metric(f"Victoire {away}", pct(k["1X2"]["2"]), f"cote juste {1 / k['1X2']['2']:.2f}", delta_color="off")
-    x4.metric("Plus de 2.5 buts", pct(k["Plus/Moins buts"]["+2.5"]))
-    x5.metric("Les deux marquent", pct(k["BTTS"]["Oui"]))
+        note = "modèle seul · ajoute les cotes"
+    ui.hero(NAT_COMPS.get(comp) if national else COMPETITIONS.get(comp, comp), home, away, lh, la, k, note)
 
     if r["all_value"]:
         st.markdown("**Analyse des cotes saisies**")
@@ -478,3 +514,5 @@ elif page == "📈 Fiabilité du modèle":
         cal = cal.rename(columns={"prevu": "proba annoncée", "observe": "fréquence observée"})
         st.line_chart(cal.set_index("proba annoncée")[["fréquence observée"]])
         st.dataframe(cal.round(3), hide_index=True)
+
+ui.footer()

@@ -138,7 +138,8 @@ def upcoming_table(m: Model, leagues=MAIN_LEAGUES, fixtures: pd.DataFrame | None
             score_probable=f"{top[0]} ({top[1]:.0%})", **{"P+2.5": k["Plus/Moins buts"]["+2.5"]},
             BTTS=k["BTTS"]["Oui"], cote1=r.max_h, coteN=r.max_d, cote2=r.max_a,
             value=", ".join(f"{v['pari']} @{v['cote']:.2f} ({v['value']:+.0%})" for v in res["value"]),
-            cale_marche=res["lambda_market"] is not None))
+            cale_marche=res["lambda_market"] is not None,
+            o_h=odds["h"], o_d=odds["d"], o_a=odds["a"], o_o25=odds["o25"], o_u25=odds["u25"]))
     return pd.DataFrame(rows)
 
 
