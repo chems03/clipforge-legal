@@ -1,0 +1,4 @@
+# Résultats à ajouter à la main (ex. Ligue des champions 2026-27 tant qu'openfootball ne la publie pas).
+# Noms d'équipes = noms football-data (voir le classement de puissance). comp = CL pour la C1.
+# neutral = True uniquement pour une finale.
+date,comp,home,away,hg,ag,neutral
