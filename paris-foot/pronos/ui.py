@@ -35,8 +35,19 @@ h2 { font-size: 1.45rem !important; }
 .pf-meta { display:flex; justify-content:space-between; font-size:.72rem; color:#94a3b8; text-transform:uppercase;
   letter-spacing:.04em; margin-bottom:8px; }
 .pf-teams { display:grid; grid-template-columns: 1fr auto 1fr; align-items:center; gap:8px; }
-.pf-team { font-weight:700; font-size:1rem; }
-.pf-team.r { text-align:right; }
+.pf-team { font-weight:700; font-size:.95rem; display:flex; flex-direction:column; align-items:center;
+  text-align:center; gap:6px; line-height:1.15; }
+.pf-team.r { text-align:center; }
+.pf-crest { display:inline-grid; place-items:center; border-radius:50%; flex:none;
+  border:2px solid rgba(255,255,255,.18); box-shadow:0 4px 14px rgba(0,0,0,.45); }
+.pf-crest b { color:var(--pf-txt,#fff); font-weight:800; letter-spacing:-.03em; text-shadow:0 1px 2px rgba(0,0,0,.25); }
+.pf-crest.flag { background:#0b1220; border-color:#1f2937; }
+/* pastilles (menu, championnats, compétitions) */
+[data-testid="stPills"] button, [data-testid="stButtonGroup"] button { border-radius:99px !important;
+  border:1px solid #1f2937 !important; background:#111827 !important; font-weight:600 !important; }
+[data-testid="stPills"] button[aria-checked="true"], [data-testid="stPills"] button[kind$="Active"],
+[data-testid="stButtonGroup"] button[aria-checked="true"], [data-testid="stButtonGroup"] button[kind$="Active"] {
+  background:rgba(34,197,94,.16) !important; border-color:#22c55e !important; color:#4ade80 !important; }
 .pf-score { background:#0b1220; border:1px solid #1f2937; border-radius:10px; padding:4px 10px; font-weight:800;
   font-variant-numeric: tabular-nums; text-align:center; min-width:56px; }
 .pf-score small { display:block; font-size:.6rem; color:#94a3b8; font-weight:500; }
@@ -94,28 +105,30 @@ def _bar(p1, pn, p2):
 
 
 def match_card(comp: str, when: str, home: str, away: str, p1: float, pn: float, p2: float,
-               score: str, chips: list[tuple[str, bool]]):
+               score: str, chips: list[tuple[str, bool]], national: bool = False):
+    from .badges import crest
     e = html.escape
     chips_html = "".join(f'<span class="pf-chip{" v" if v else ""}">{e(c)}</span>' for c, v in chips)
     st.markdown(f"""<div class="pf-card">
-      <div class="pf-meta"><span>{e(comp)}</span><span>{e(when)}</span></div>
-      <div class="pf-teams"><div class="pf-team">{e(home)}</div>
+      <div class="pf-meta"><span style="text-transform:none">{e(comp)}</span><span>{e(when)}</span></div>
+      <div class="pf-teams"><div class="pf-team">{crest(home, national, 40)}{e(home)}</div>
         <div class="pf-score">{e(score)}<small>score probable</small></div>
-        <div class="pf-team r">{e(away)}</div></div>
+        <div class="pf-team r">{crest(away, national, 40)}{e(away)}</div></div>
       {_bar(p1, pn, p2)}
       <div class="pf-chips">{chips_html}</div></div>""", unsafe_allow_html=True)
 
 
-def hero(comp: str, home: str, away: str, lh: float, la: float, k: dict, note: str):
+def hero(comp: str, home: str, away: str, lh: float, la: float, k: dict, note: str,
+         crest_h: str = "", crest_a: str = ""):
     e = html.escape
     p = k["1X2"]
     top = next(iter(k["Score exact"].items()))
     kpi = lambda l, v, o: f'<div class="pf-kpi"><div class="l">{l}</div><div class="v">{v}</div><div class="o">{o}</div></div>'  # noqa: E731
     st.markdown(f"""<div class="pf-hero">
-      <div class="pf-meta"><span>{e(comp)}</span><span>{e(note)}</span></div>
-      <div class="pf-teams"><div class="pf-team">{e(home)}</div>
+      <div class="pf-meta"><span style="text-transform:none">{e(comp)}</span><span>{e(note)}</span></div>
+      <div class="pf-teams"><div class="pf-team">{crest_h}{e(home)}</div>
         <div class="pf-score">{lh:.2f} – {la:.2f}<small>buts attendus</small></div>
-        <div class="pf-team r">{e(away)}</div></div>
+        <div class="pf-team r">{crest_a}{e(away)}</div></div>
       {_bar(p['1'], p['N'], p['2'])}
       <div class="pf-kpis">
         {kpi("Victoire " + e(home[:12]), f"{p['1']:.0%}", f"cote juste {1/p['1']:.2f}")}

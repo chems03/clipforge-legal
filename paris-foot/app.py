@@ -10,6 +10,7 @@ from pronos.data import COMPETITIONS, CUPS, LEAGUES, MAIN_LEAGUES, NAT_COMPS
 from pronos.nationals import active_teams, national_scorers
 from pronos import historique as hist
 from pronos import ui
+from pronos.badges import comp_label, crest, team_text
 from pronos.scorers import COLUMNS, load_players, save_players, scorer_probs
 
 st.set_page_config(page_title="Pronos Foot", page_icon="⚽", layout="wide", initial_sidebar_state="collapsed")
@@ -35,20 +36,29 @@ m, results = model(st.session_state.nonce)
 info = getattr(m, "info", {})
 
 # ------------------------------------------------------------------ navigation
-PAGES = ["📅 Prochains matchs", "🔍 Analyse d'un match", "📊 Résultats & bilan", "🎟️ Ticket combiné",
-         "🏆 Classement de puissance", "👟 Données buteurs", "📈 Fiabilité du modèle"]
+PAGES = ["📅 Matchs", "🔍 Analyse", "📊 Bilan", "🎟️ Ticket", "🏆 Classement", "👟 Buteurs", "📈 Fiabilité"]
 ui.brand(f"{m.n_matches:,} matchs analysés · données au "
          f"{pd.Timestamp(m.ref_date - pd.Timedelta(days=1)):%d/%m/%Y}".replace(",", " "))
-page = st.selectbox("Menu", PAGES, label_visibility="collapsed", key="page")
+st.session_state.setdefault("page", PAGES[0])
+if st.session_state.page not in PAGES:
+    st.session_state.page = PAGES[0]
+page = st.pills("Menu", PAGES, label_visibility="collapsed", key="page") or PAGES[0]
 for _k, _v in dict(ch=0.0, cd=0.0, ca=0.0, co=0.0, cu=0.0).items():
     st.session_state.setdefault(_k, _v)
 
 
+QUICK_COMPS = ["F1", "E0", "SP1", "I1", "D1", "CL", "EL", "ECL"]
+
+
 def open_match(comp, home, away, odds):
     """Bouton « Analyser » d'une carte : ouvre l'analyse détaillée pré-remplie (équipes + cotes)."""
-    st.session_state.page = "🔍 Analyse d'un match"
+    st.session_state.page = "🔍 Analyse"
     st.session_state.kind = "⚽ Clubs"
-    st.session_state.comp_club = comp
+    if comp in QUICK_COMPS:
+        st.session_state.comp_pill = comp
+    else:
+        st.session_state.comp_pill = "➕"
+        st.session_state.comp_other = comp
     st.session_state.home_club = home
     st.session_state.away_club = away
     for key, v in zip(["ch", "cd", "ca", "co", "cu"], odds):
@@ -79,7 +89,7 @@ def team_label(t):
 
 
 # ------------------------------------------------------------------ pages
-if page == "📅 Prochains matchs":
+if page == "📅 Matchs":
     st.header("📅 Prochains matchs")
     _info = st.expander("ℹ️ Comment lire les cartes")
     _info.caption("Calendrier et cotes moyennes du marché : football-data.co.uk. Les probabilités combinent le "
@@ -89,9 +99,13 @@ if page == "📅 Prochains matchs":
     _info.caption("Coupes d'Europe et sélections nationales : aucun calendrier gratuit n'est disponible → "
                "choisis l'affiche dans « 🔍 Analyse d'un match » (Ligue des champions, Ligue Europa, "
                "Conférence, Coupe du monde, Euro, qualifs, Ligue des nations, amicaux).")
-    leagues = st.multiselect("Championnats", list(LEAGUES), default=MAIN_LEAGUES,
-                             format_func=lambda c: LEAGUES[c])
-    t = engine.upcoming_table(m, leagues=leagues)
+    t_all = engine.upcoming_table(m, leagues=list(LEAGUES))
+    avail = [c for c in LEAGUES if not t_all.empty and c in set(t_all.comp)]
+    st.session_state.setdefault("lg_pills", [c for c in MAIN_LEAGUES if c in avail] or avail)
+    st.session_state.lg_pills = [c for c in st.session_state.lg_pills if c in avail]
+    leagues = st.pills("Championnats", avail, selection_mode="multi", key="lg_pills",
+                       format_func=lambda c: comp_label(c, LEAGUES), label_visibility="collapsed")
+    t = t_all[t_all.comp.isin(leagues)] if not t_all.empty else t_all
     if t.empty:
         st.info("Pas de matchs à venir publiés pour l'instant (le fichier est mis à jour en milieu de "
                 "semaine). Utilise « Analyse d'un match » pour n'importe quelle affiche.")
@@ -123,35 +137,46 @@ if page == "📅 Prochains matchs":
                              (f"xG {r.xg_dom:.1f} – {r.xg_ext:.1f}", False)]
                     if r.value:
                         chips.insert(0, (f"💰 Value : {r.value}", True))
-                    ui.match_card(LEAGUES.get(r.comp, r.comp), str(r.heure), r.home, r.away, r.P1, r.PN, r.P2,
+                    ui.match_card(comp_label(r.comp, LEAGUES), str(r.heure), r.home, r.away, r.P1, r.PN, r.P2,
                                   r.score_probable.split(" ")[0], chips)
                     st.button("Analyse complète ›", key=f"an_{r.comp}_{r.home}_{r.away}",
                               on_click=open_match, args=(r.comp, r.home, r.away,
                                                          (r.o_h, r.o_d, r.o_a, r.o_o25, r.o_u25)),
                               width="stretch")
 
-elif page == "🔍 Analyse d'un match":
+elif page == "🔍 Analyse":
     st.header("🔍 Analyse d'un match")
-    kind = st.radio("Type", ["⚽ Clubs", "🌍 Sélections nationales"], horizontal=True, label_visibility="collapsed",
-                    key="kind")
+    st.session_state.setdefault("kind", "⚽ Clubs")
+    kind = st.segmented_control("Type", ["⚽ Clubs", "🌍 Sélections nationales"], label_visibility="collapsed",
+                                key="kind") or "⚽ Clubs"
     national = kind.startswith("🌍")
-    c1, c2, c3 = st.columns([2, 2, 1])
     if national:
         mod, nat_df, nat_goals = nat_model(st.session_state.nonce)
-        comp = c3.selectbox("Compétition", list(NAT_COMPS), format_func=lambda c: NAT_COMPS[c])
+        st.session_state.setdefault("comp_nat", "CDM")
+        comp = st.pills("Compétition", list(NAT_COMPS), key="comp_nat", label_visibility="collapsed",
+                        format_func=lambda c: f"{comp_label(c, NAT_COMPS)}") or "CDM"
+        c1, c2, c3 = st.columns([2, 2, 1])
         pool = [t for t in active_teams(nat_df) if t in mod.att]
         default_h = pool.index("France") if "France" in pool else 0
         default_a = pool.index("Spain") if "Spain" in pool else 1
-        home = c1.selectbox("Équipe 1 (domicile)", pool, index=default_h)
-        away = c2.selectbox("Équipe 2", pool, index=default_a)
+        home = c1.selectbox("Équipe 1 (domicile)", pool, index=default_h, format_func=lambda t: team_text(t, True))
+        away = c2.selectbox("Équipe 2", pool, index=default_a, format_func=lambda t: team_text(t, True))
         neutral = c3.checkbox("Terrain neutre", value=comp in ("CDM", "CONTINENTAL"),
                               help="Coupe du monde / Euro : terrain neutre sauf pour le pays organisateur.")
         st.caption("Noms des pays en anglais (France, Spain, Germany, England, Morocco, Algeria…).")
     else:
         mod = m
-        comps = list(CUPS) + list(LEAGUES)
-        st.session_state.setdefault("comp_club", "F1")
-        comp = c3.selectbox("Compétition", comps, format_func=lambda c: COMPETITIONS[c], key="comp_club")
+        st.session_state.setdefault("comp_pill", "F1")
+        pick = st.pills("Compétition", QUICK_COMPS + ["➕"], key="comp_pill", label_visibility="collapsed",
+                        format_func=lambda c: "➕ Autres championnats" if c == "➕" else comp_label(c, COMPETITIONS)) or "F1"
+        if pick == "➕":
+            others = [c for c in LEAGUES if c not in QUICK_COMPS]
+            st.session_state.setdefault("comp_other", others[0])
+            comp = st.selectbox("Championnat", others, key="comp_other",
+                                format_func=lambda c: comp_label(c, COMPETITIONS))
+        else:
+            comp = pick
+        c1, c2, c3 = st.columns([2, 2, 1])
         pool = sorted(m.teams) if comp in CUPS else sorted(t for t in m.teams if m.team_league[t] == comp) or m.teams
         if st.session_state.get("home_club") not in pool:
             st.session_state.home_club = "Paris SG" if "Paris SG" in pool else pool[0]
@@ -198,7 +223,8 @@ elif page == "🔍 Analyse d'un match":
                    f"retenu : {lh:.2f}–{la:.2f}")
     else:
         note = "modèle seul · ajoute les cotes"
-    ui.hero(NAT_COMPS.get(comp) if national else COMPETITIONS.get(comp, comp), home, away, lh, la, k, note)
+    ui.hero(comp_label(comp, NAT_COMPS if national else COMPETITIONS), home, away, lh, la, k, note,
+            crest(home, national, 52), crest(away, national, 52))
 
     if r["all_value"]:
         st.markdown("**Analyse des cotes saisies**")
@@ -293,7 +319,7 @@ elif page == "🔍 Analyse d'un match":
                                             proba=float(k[mk_name][sel]), cote=cote))
         st.success("Ajouté au ticket.")
 
-elif page == "📊 Résultats & bilan":
+elif page == "📊 Bilan":
     st.header("📊 Résultats & bilan")
     st.caption("Prono donné AVANT chaque match (modèle ré-entraîné chaque semaine avec uniquement les "
                "matchs précédents + cotes d'avant-match), comparé au vrai résultat.")
@@ -403,7 +429,7 @@ elif page == "📊 Résultats & bilan":
             sv["profit"] = sv.profit.map(lambda x: f"{x:+.2f} €")
             st.dataframe(sv, hide_index=True, width="stretch")
 
-elif page == "🎟️ Ticket combiné":
+elif page == "🎟️ Ticket":
     st.header("🎟️ Ticket combiné")
     t = st.session_state.ticket
     if not t:
@@ -432,7 +458,7 @@ elif page == "🎟️ Ticket combiné":
             st.session_state.ticket = []
             st.rerun()
 
-elif page == "🏆 Classement de puissance":
+elif page == "🏆 Classement":
     st.header("🏆 Classement de puissance")
     if st.radio("Type", ["⚽ Clubs", "🌍 Sélections nationales"], horizontal=True,
                 label_visibility="collapsed").startswith("🌍"):
@@ -446,7 +472,8 @@ elif page == "🏆 Classement de puissance":
         st.stop()
     st.caption("Buts marqués / encaissés attendus contre une équipe moyenne de Premier League, terrain neutre. "
                "Comparable entre championnats grâce aux matchs de C1 et aux montées/descentes.")
-    lg = st.multiselect("Championnats", list(LEAGUES), default=MAIN_LEAGUES, format_func=lambda c: LEAGUES[c])
+    lg = st.pills("Championnats", list(LEAGUES), selection_mode="multi", default=MAIN_LEAGUES,
+                  format_func=lambda c: comp_label(c, LEAGUES), label_visibility="collapsed")
     r = m.ratings()
     r = r[r.ligue.isin(lg)].reset_index(drop=True)
     r.index += 1
@@ -458,7 +485,7 @@ elif page == "🏆 Classement de puissance":
     lv["avantage domicile"] = lv["avantage domicile"].map(lambda v: f"+{v:.0%} de buts")
     st.dataframe(lv.round(3), hide_index=True)
 
-elif page == "👟 Données buteurs":
+elif page == "👟 Buteurs":
     st.header("👟 Données buteurs")
     st.markdown(
         "Les stats individuelles ne sont pas disponibles en libre accès : saisis-les (ou copie-colle depuis "
@@ -482,7 +509,7 @@ elif page == "👟 Données buteurs":
         save_players(out.dropna(subset=["equipe", "joueur"]))
         st.success("Enregistré dans data/joueurs.csv")
 
-elif page == "📈 Fiabilité du modèle":
+elif page == "📈 Fiabilité":
     st.header("📈 Fiabilité du modèle (backtest)")
     st.markdown(
         "Le modèle est ré-entraîné toutes les 3 semaines **avec uniquement le passé**, puis il prédit les "
