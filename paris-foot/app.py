@@ -10,6 +10,7 @@ from pronos.data import COMPETITIONS, CUPS, LEAGUES, MAIN_LEAGUES, NAT_COMPS
 from pronos.nationals import active_teams, national_scorers
 from pronos import historique as hist
 from pronos import ui
+from pronos import simulation as sim
 from pronos.badges import comp_label, crest, team_text
 from pronos.scorers import COLUMNS, load_players, save_players, scorer_probs
 
@@ -36,7 +37,8 @@ m, results = model(st.session_state.nonce)
 info = getattr(m, "info", {})
 
 # ------------------------------------------------------------------ navigation
-PAGES = ["📅 Matchs", "🔍 Analyse", "📊 Bilan", "🎟️ Ticket", "🏆 Classement", "👟 Buteurs", "📈 Fiabilité"]
+PAGES = ["📅 Matchs", "🔍 Analyse", "🎮 Simulateur", "📊 Bilan", "🎟️ Ticket", "🏆 Classement", "👟 Buteurs",
+         "📈 Fiabilité"]
 ui.brand(f"{m.n_matches:,} matchs analysés · données au "
          f"{pd.Timestamp(m.ref_date - pd.Timedelta(days=1)):%d/%m/%Y}".replace(",", " "))
 st.session_state.setdefault("page", PAGES[0])
@@ -82,6 +84,22 @@ def market_table(d: dict, value_odds: dict | None = None) -> pd.DataFrame:
     for k, p in d.items():
         rows.append({"Pari": k, "Probabilité": pct(p), "Cote juste": round(1 / p, 2) if p > 0 else None})
     return pd.DataFrame(rows)
+
+
+def sim_options(k: dict) -> dict:
+    """Marchés jouables dans le simulateur -> {sélection: proba}."""
+    ou = {}
+    for sel, p in k["Plus/Moins buts"].items():
+        ou[sel] = p
+        ou["-" + sel[1:]] = 1 - p
+    return {"1X2": k["1X2"], "Double chance": k["Double chance"], "Plus/Moins buts": ou, "BTTS": k["BTTS"],
+            "Score exact": k["Score exact"]}
+
+
+def get_portfolio() -> dict:
+    if "portfolio" not in st.session_state:
+        st.session_state.portfolio = sim.load_portfolio()
+    return st.session_state.portfolio
 
 
 def team_label(t):
@@ -318,6 +336,181 @@ elif page == "🔍 Analyse":
         st.session_state.ticket.append(dict(match=f"{home} – {away}", marche=mk_name, selection=sel,
                                             proba=float(k[mk_name][sel]), cote=cote))
         st.success("Ajouté au ticket.")
+
+    st.markdown("**🎮 Parier avec de l'argent fictif**")
+    pf = get_portfolio()
+    opts = sim_options(k)
+    g1, g2 = st.columns(2)
+    smk = g1.selectbox("Marché ", list(opts), key="sim_mk")
+    ssel = g2.selectbox("Sélection ", list(opts[smk]), key="sim_sel")
+    sp = float(opts[smk][ssel])
+    g3, g4, g5 = st.columns([1, 1, 1])
+    scote = g3.number_input("Cote du bookmaker", 1.01, 1000.0, round(max(1.01, 0.95 / sp), 2), 0.01,
+                            key=f"sim_cote_{smk}_{ssel}_{home}_{away}")
+    smise = g4.number_input("Mise (€ fictifs)", 1.0, 100000.0, 10.0, 1.0, key="sim_mise")
+    g5.markdown(f"<div style='padding-top:1.9rem;color:#94a3b8;font-size:.85rem'>Proba appli {sp:.0%} · "
+                f"value {sp * scote - 1:+.0%}</div>", unsafe_allow_html=True)
+    if st.button(f"🎮 Parier {smise:.0f} € fictifs · solde {sim.balance(pf)['solde']:.0f} €", width="stretch"):
+        err = sim.place_bet(pf, home=home, away=away, comp=comp, market=smk, selection=ssel, odds=scote,
+                            stake=smise, proba=sp, kind="nat" if national else "clubs")
+        if err:
+            st.error(err)
+        else:
+            sim.save_portfolio(pf)
+            st.success("Pari fictif enregistré ! Il sera réglé automatiquement après le match (page 🎮 Simulateur).")
+
+elif page == "🎮 Simulateur":
+    st.header("🎮 Simulateur")
+    st.caption("Joue avec de l'argent fictif pour tester tes idées sans risque.")
+    pf = get_portfolio()
+    n_auto = sim.auto_settle(pf, results, nat_model(st.session_state.nonce)[1]
+                             if any(b.get("kind") == "nat" and b["status"] == "en cours" for b in pf["bets"]) else None)
+    if n_auto:
+        sim.save_portfolio(pf)
+        st.toast(f"{n_auto} pari(s) réglé(s) automatiquement")
+    bal = sim.balance(pf)
+    b1, b2, b3 = st.columns(3)
+    b1.metric("Solde fictif", f"{bal['solde']:.2f} €", f"{bal['solde'] + bal['en_jeu'] - pf['start']:+.2f} €")
+    b2.metric("En jeu", f"{bal['en_jeu']:.2f} €", f"{bal['en_cours']} pari(s)", delta_color="off")
+    b3.metric("Réussite", f"{bal['gagnes'] / max(1, bal['gagnes'] + bal['perdus']):.0%}",
+              f"✅ {bal['gagnes']} · ❌ {bal['perdus']} · ROI {bal['roi']:+.0%}", delta_color="off")
+
+    t_bet, t_mine, t_strat, t_save = st.tabs(["➕ Parier", "📋 Mes paris", "🧪 Tester une stratégie", "💾 Sauvegarde"])
+
+    with t_bet:
+        up = engine.upcoming_table(m, leagues=list(LEAGUES))
+        if up.empty:
+            st.info("Aucun match à venir publié pour l'instant. Tu peux parier sur n'importe quelle affiche "
+                    "(C1, sélections…) depuis 🔍 Analyse → « Parier avec de l'argent fictif ».")
+        else:
+            labels = {i: f"{comp_label(r.comp, LEAGUES)} · {r.home} – {r.away} · {pd.Timestamp(r.date):%d/%m} {r.heure}"
+                      for i, r in up.iterrows()}
+            i = st.selectbox("Match", list(labels), format_func=labels.get)
+            r = up.loc[i]
+            odds = {k_: (v if v == v else None) for k_, v in
+                    dict(h=r.o_h, d=r.o_d, a=r.o_a, o25=r.o_o25, u25=r.o_u25).items()}
+            res = engine.predict(m, r.home, r.away, r.comp, odds=odds if odds["h"] else None)
+            kk = res["markets"]
+            ui.match_card(comp_label(r.comp, LEAGUES), f"{pd.Timestamp(r.date):%d/%m} {r.heure}", r.home, r.away,
+                          kk["1X2"]["1"], kk["1X2"]["N"], kk["1X2"]["2"], next(iter(kk["Score exact"])), [])
+            opts = sim_options(kk)
+            c1, c2 = st.columns(2)
+            mk = c1.selectbox("Marché", list(opts), key="sb_mk")
+            sel = c2.selectbox("Sélection", list(opts[mk]), key="sb_sel")
+            p_ = float(opts[mk][sel])
+            real = {("1X2", "1"): odds["h"], ("1X2", "N"): odds["d"], ("1X2", "2"): odds["a"],
+                    ("Plus/Moins buts", "+2.5"): odds["o25"], ("Plus/Moins buts", "-2.5"): odds["u25"]}.get((mk, sel))
+            default = float(real) if real else round(max(1.01, 0.93 / p_), 2)
+            c3, c4 = st.columns(2)
+            cote = c3.number_input("Cote", 1.01, 1000.0, default, 0.01, key=f"sb_cote_{i}_{mk}_{sel}",
+                                   help="Cote moyenne du marché si connue, sinon estimation (cote juste − 7 %). "
+                                        "Mets la cote de ton bookmaker pour être réaliste.")
+            mise = c4.number_input("Mise (€ fictifs)", 1.0, 100000.0, 10.0, 1.0, key="sb_mise")
+            v = p_ * cote - 1
+            st.markdown(f"Proba de l'appli **{p_:.0%}** · cote juste **{1 / p_:.2f}** · value "
+                        f"**{v:+.0%}** {'✅' if v >= engine.MIN_EDGE else ''} · gain potentiel "
+                        f"**{mise * (cote - 1):.2f} €**")
+            if st.button(f"🎮 Valider le pari ({mise:.0f} €)", width="stretch", type="primary"):
+                err = sim.place_bet(pf, home=r.home, away=r.away, comp=r.comp, market=mk, selection=sel, odds=cote,
+                                    stake=mise, proba=p_, match_date=r.date)
+                if err:
+                    st.error(err)
+                else:
+                    sim.save_portfolio(pf)
+                    st.success("Pari enregistré ✅")
+                    st.rerun()
+
+    with t_mine:
+        bf = sim.bets_frame(pf)
+        if bf.empty:
+            st.info("Aucun pari pour l'instant.")
+        else:
+            curve = sim.bankroll_curve(pf)
+            if not curve.empty:
+                st.line_chart(curve.set_index("n")[["Bankroll (€)"]])
+            icon = {"en cours": "⏳", "gagné": "✅", "perdu": "❌", "annulé": "↩️"}
+            for b in reversed(pf["bets"]):
+                gain = (b["payout"] - b["stake"]) if b["status"] in ("gagné", "perdu") else None
+                cols = st.columns([5, 2])
+                cols[0].markdown(
+                    f"{icon[b['status']]} **{b['home']} – {b['away']}** {('· ' + b['score']) if b['score'] else ''}  \n"
+                    f"<span style='color:#94a3b8;font-size:.85rem'>{b['market']} : <b>{b['selection']}</b> @ "
+                    f"{b['odds']:.2f} · mise {b['stake']:.0f} €"
+                    f"{f' · {gain:+.2f} €' if gain is not None else ''}</span>", unsafe_allow_html=True)
+                if b["status"] == "en cours":
+                    act = cols[1].selectbox("Régler", ["—", "gagné", "perdu", "annulé"], key=f"set_{b['id']}",
+                                            label_visibility="collapsed")
+                    if act != "—":
+                        sim.settle_manual(pf, b["id"], act)
+                        sim.save_portfolio(pf)
+                        st.rerun()
+            st.caption("Les paris sur les championnats et les sélections se règlent tout seuls dès que le résultat "
+                       "est publié. Pour la C1 / C3 / C4 2026-27 (résultats pas encore publiés), règle-les à la main.")
+
+    with t_strat:
+        st.markdown("Rejoue **tous les matchs de la saison** avec une règle simple, aux **vraies cotes "
+                    "d'avant-match**, en partant des pronos que l'appli donnait avant chaque match.")
+        hs = hist.build_history(results, "clubs")
+        sc1, sc2 = st.columns(2)
+        strat = sc1.selectbox("Stratégie", list(sim.STRATEGIES), format_func=sim.STRATEGIES.get)
+        if strat == "value":
+            thr = sc2.slider("Value minimum", 0.0, 0.30, 0.05, 0.01, format="%.2f")
+        else:
+            lo, hi, dv = {"fav": (0.4, 0.9, 0.6), "over": (0.5, 0.85, 0.6), "under": (0.5, 0.85, 0.6),
+                          "draw": (0.2, 0.4, 0.3), "outsider": (0.2, 0.5, 0.3)}[strat]
+            thr = sc2.slider("Proba minimum", lo, hi, dv, 0.01, format="%.2f")
+        lg = st.pills("Championnats ", [c for c in LEAGUES if c in set(hs.comp)], selection_mode="multi",
+                      default=MAIN_LEAGUES, format_func=lambda c: comp_label(c, LEAGUES), key="strat_lg")
+        sc3, sc4, sc5 = st.columns(3)
+        mode = sc3.selectbox("Mise", ["fixe", "pct", "kelly"], format_func={
+            "fixe": "Montant fixe (€)", "pct": "% de la bankroll", "kelly": "Kelly / 4 (selon la value)"}.get)
+        amount = sc4.number_input("€ ou %", 0.5, 10000.0, 10.0 if mode == "fixe" else 2.0, 0.5,
+                                  disabled=mode == "kelly")
+        startb = sc5.number_input("Bankroll de départ", 10.0, 1e6, 1000.0, 50.0)
+        best = st.toggle("Utiliser la meilleure cote du marché (sinon cote moyenne)", value=strat == "value")
+        bt = sim.run_strategy(hs[hs.comp.isin(lg or [])], results, strat, thr, mode, amount, startb, best)
+        if bt.empty:
+            st.info("Aucun pari ne correspond à cette règle.")
+        else:
+            fin = bt.bankroll.iloc[-1]
+            dd = float((bt.bankroll.cummax() - bt.bankroll).max())
+            k1, k2, k3 = st.columns(3)
+            k1.metric("Bankroll finale", f"{fin:.0f} €", f"{fin - startb:+.0f} €")
+            k2.metric("Paris", len(bt), f"✅ {int(bt.gagne.sum())} · ❌ {int((~bt.gagne).sum())} "
+                                        f"({bt.gagne.mean():.0%})", delta_color="off")
+            k3.metric("ROI", f"{bt.gain.sum() / bt.mise.sum():+.1%}", f"pire chute −{dd:.0f} €", delta_color="off")
+            st.line_chart(bt.assign(n=range(1, len(bt) + 1)).set_index("n")[["bankroll"]])
+            show = bt.sort_values("date", ascending=False).copy()
+            show["date"] = show.date.dt.strftime("%d/%m")
+            show["comp"] = show.comp.map(LEAGUES)
+            show["proba"] = show.proba.map(pct)
+            show["gagne"] = show.gagne.map({True: "✅", False: "❌"})
+            st.dataframe(show.round(2), hide_index=True, width="stretch", height=420)
+            st.caption("Résultat passé ≠ résultat futur. Une stratégie gagnante sur 100-200 paris peut "
+                       "très bien être de la chance : regarde surtout la régularité de la courbe.")
+
+    with t_save:
+        st.caption("En ligne, le portefeuille est remis à zéro si le serveur redémarre : télécharge une "
+                   "sauvegarde de temps en temps, tu pourras la recharger ici.")
+        st.download_button("⬇️ Télécharger ma sauvegarde", data=sim.json.dumps(pf, ensure_ascii=False),
+                           file_name="pronos_foot_simulation.json", mime="application/json", width="stretch")
+        upf = st.file_uploader("⬆️ Restaurer une sauvegarde", type="json")
+        if upf is not None and st.button("Restaurer"):
+            try:
+                data = sim.json.loads(upf.read())
+                assert "bets" in data and "start" in data
+                st.session_state.portfolio = data
+                sim.save_portfolio(data)
+                st.success("Sauvegarde restaurée.")
+                st.rerun()
+            except Exception:
+                st.error("Fichier invalide.")
+        st.markdown("---")
+        nb = st.number_input("Nouvelle bankroll de départ (€)", 10.0, 1e6, 1000.0, 50.0)
+        if st.button("🔄 Recommencer à zéro"):
+            st.session_state.portfolio = sim.new_portfolio(nb)
+            sim.save_portfolio(st.session_state.portfolio)
+            st.rerun()
 
 elif page == "📊 Bilan":
     st.header("📊 Résultats & bilan")
