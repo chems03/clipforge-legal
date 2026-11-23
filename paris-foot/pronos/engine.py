@@ -37,6 +37,23 @@ def get_model(force: bool = False, n_seasons: int = 4) -> tuple[Model, pd.DataFr
     return m, df
 
 
+def get_national_model(force: bool = False):
+    """Modèle des sélections nationales + historique des buteurs."""
+    from .data import load_internationals
+    from .nationals import fit_national
+    key = CACHE / f"natmodel_{date.today():%Y%m%d}.pkl"
+    if key.exists() and not force:
+        with open(key, "rb") as f:
+            return pickle.load(f)
+    df, goals = load_internationals(force=force)
+    m = fit_national(df)
+    for old in CACHE.glob("natmodel_*.pkl"):
+        old.unlink()
+    with open(key, "wb") as f:
+        pickle.dump((m, df, goals), f)
+    return m, df, goals
+
+
 def resolve_team(m: Model, name: str) -> str:
     if name in m.att:
         return name

@@ -43,7 +43,7 @@ def save_players(df: pd.DataFrame) -> None:
 
 def team_season_goals(results: pd.DataFrame, team: str, season: str | None = None) -> tuple[float, int]:
     """Buts et matchs de l'équipe en championnat sur la saison en cours."""
-    r = results[results.comp != "CL"]
+    r = results[~results.comp.isin(["CL", "EL", "ECL"])]
     if season is None and len(r):
         season = r["season"].dropna().max()
     r = r[r["season"] == season]

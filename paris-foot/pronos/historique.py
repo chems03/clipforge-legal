@@ -9,24 +9,38 @@ from typing import Callable
 import numpy as np
 import pandas as pd
 
-from .data import CACHE
+from .data import ROOT
 from .engine import predict
 from .model import Config, fit
 
-HIST_DIR = CACHE / "historique"
-HIST_DIR.mkdir(exist_ok=True)
-STEP_DAYS = 7
+# Les semaines terminées sont sauvegardées ici (versionnées dans le dépôt -> chargement rapide en ligne)
+HIST_DIR = ROOT / "data" / "historique"
+HIST_DIR.mkdir(parents=True, exist_ok=True)
+VERSION = "v2"
+EURO = ["CL", "EL", "ECL"]
+SCOPES = {
+    # nom : (filtre des matchs, pas en jours, début par défaut)
+    "clubs": (lambda d: ~d.comp.isin(EURO), 7, None),
+    "euro": (lambda d: d.comp.isin(EURO), 28, "2024-07-01"),
+    "nat": (lambda d: d.comp.notna(), 14, "2024-09-01"),
+}
 
 
 def _clean(v):
     return float(v) if v is not None and np.isfinite(v) and v > 1 else None
 
 
-def _predict_window(df: pd.DataFrame, t: pd.Timestamp, t2: pd.Timestamp) -> list[dict]:
-    test = df[(df.date >= t) & (df.date < t2) & (df.comp != "CL")]
+def _predict_window(df: pd.DataFrame, t: pd.Timestamp, t2: pd.Timestamp, scope: str) -> list[dict]:
+    flt = SCOPES[scope][0]
+    test = df[(df.date >= t) & (df.date < t2)]
+    test = test[flt(test)]
     if test.empty:
         return []
-    m = fit(df, ref_date=t, config=Config())
+    if scope == "nat":
+        from .nationals import fit_national
+        m = fit_national(df, ref_date=t)
+    else:
+        m = fit(df, ref_date=t, config=Config())
     rows = []
     for r in test.itertuples():
         odds = {k: _clean(getattr(r, c)) for k, c in
@@ -34,7 +48,8 @@ def _predict_window(df: pd.DataFrame, t: pd.Timestamp, t2: pd.Timestamp) -> list
         best = {k: _clean(getattr(r, c)) for k, c in
                 dict(h="max_h", d="max_d", a="max_a", o25="max_o25", u25="max_u25").items()}
         try:
-            res = predict(m, r.home, r.away, r.comp, odds=odds if odds["h"] else None,
+            res = predict(m, r.home, r.away, r.comp, neutral=(r.neutral is True or r.neutral == 1),
+                          odds=odds if odds["h"] else None,
                           value_odds=best if best["h"] else None)
         except KeyError:
             continue
@@ -69,10 +84,14 @@ def _predict_window(df: pd.DataFrame, t: pd.Timestamp, t2: pd.Timestamp) -> list
     return rows
 
 
-def build_history(df: pd.DataFrame, start=None, progress: Callable[[float], None] | None = None) -> pd.DataFrame:
-    """Saison en cours par défaut. Les semaines terminées sont mises en cache (calcul incrémental)."""
-    dom = df[df.comp != "CL"]
+def build_history(df: pd.DataFrame, scope: str = "clubs", start=None,
+                  progress: Callable[[float], None] | None = None) -> pd.DataFrame:
+    """clubs : championnats, saison en cours · euro : C1/C3/C4 · nat : sélections nationales.
+    Les périodes terminées sont mises en cache (calcul incrémental)."""
+    _, step, default_start = SCOPES[scope]
+    start = start or default_start
     if start is None:
+        dom = df[~df.comp.isin(EURO)]
         cur = dom["season"].dropna().max()
         start = dom[dom.season == cur].date.min()
     start = pd.Timestamp(start).normalize()
@@ -82,16 +101,16 @@ def build_history(df: pd.DataFrame, start=None, progress: Callable[[float], None
     t = start
     while t <= last:
         weeks.append(t)
-        t += pd.Timedelta(days=STEP_DAYS)
+        t += pd.Timedelta(days=step)
     rows = []
     for i, t in enumerate(weeks):
-        t2 = t + pd.Timedelta(days=STEP_DAYS)
-        f = HIST_DIR / f"{t:%Y%m%d}.pkl"
+        t2 = t + pd.Timedelta(days=step)
+        f = HIST_DIR / f"{scope}_{VERSION}_{t:%Y%m%d}.pkl"
         complete = t2 <= last  # semaine entièrement jouée -> cachable
         if complete and f.exists():
             part = pickle.loads(f.read_bytes())
         else:
-            part = _predict_window(df, t, t2)
+            part = _predict_window(df, t, t2, scope)
             if complete:
                 f.write_bytes(pickle.dumps(part))
         rows += part

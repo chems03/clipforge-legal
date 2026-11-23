@@ -6,7 +6,8 @@ import pandas as pd
 import streamlit as st
 
 from pronos import engine
-from pronos.data import COMPETITIONS, LEAGUES, MAIN_LEAGUES
+from pronos.data import COMPETITIONS, CUPS, LEAGUES, MAIN_LEAGUES, NAT_COMPS
+from pronos.nationals import active_teams, national_scorers
 from pronos import historique as hist
 from pronos.scorers import COLUMNS, load_players, save_players, scorer_probs
 
@@ -23,6 +24,11 @@ if "nonce" not in st.session_state:
 if "ticket" not in st.session_state:
     st.session_state.ticket = []
 
+@st.cache_resource(ttl=6 * 3600, show_spinner="Chargement des matchs des sélections nationales…")
+def nat_model(_nonce: int = 0):
+    return engine.get_national_model(force=_nonce > 0)
+
+
 m, results = model(st.session_state.nonce)
 info = getattr(m, "info", {})
 
@@ -36,6 +42,7 @@ st.sidebar.caption(
     .replace(",", " "))
 if st.sidebar.button("🔄 Mettre à jour les données"):
     model.clear()
+    nat_model.clear()
     st.session_state.nonce += 1
     st.rerun()
 st.sidebar.markdown("---")
@@ -65,12 +72,15 @@ if page == "📅 Prochains matchs":
                f"modèle ({int(engine.ALPHA_MODEL * 100)} %) et le consensus des bookmakers "
                f"({int((1 - engine.ALPHA_MODEL) * 100)} %). Value = proba × meilleure cote − 1 ≥ "
                f"{engine.MIN_EDGE:.0%}.")
+    st.caption("Coupes d'Europe et sélections nationales : aucun calendrier gratuit n'est disponible → "
+               "choisis l'affiche dans « 🔍 Analyse d'un match » (Ligue des champions, Ligue Europa, "
+               "Conférence, Coupe du monde, Euro, qualifs, Ligue des nations, amicaux).")
     leagues = st.multiselect("Championnats", list(LEAGUES), default=MAIN_LEAGUES,
                              format_func=lambda c: LEAGUES[c])
     t = engine.upcoming_table(m, leagues=leagues)
     if t.empty:
         st.info("Pas de matchs à venir publiés pour l'instant (le fichier est mis à jour en milieu de "
-                "semaine). Utilise « Analyse d'un match » pour n'importe quelle affiche, y compris en C1.")
+                "semaine). Utilise « Analyse d'un match » pour n'importe quelle affiche.")
     else:
         only_value = st.toggle("Seulement les matchs avec value bet")
         if only_value:
@@ -86,14 +96,33 @@ if page == "📅 Prochains matchs":
 
 elif page == "🔍 Analyse d'un match":
     st.header("🔍 Analyse d'un match")
+    kind = st.radio("Type", ["⚽ Clubs", "🌍 Sélections nationales"], horizontal=True, label_visibility="collapsed")
+    national = kind.startswith("🌍")
     c1, c2, c3 = st.columns([2, 2, 1])
-    comp = c3.selectbox("Compétition", ["CL"] + list(LEAGUES), index=1 + list(LEAGUES).index("F1"),
-                        format_func=lambda c: COMPETITIONS[c])
-    pool = sorted(m.teams) if comp == "CL" else sorted(t for t in m.teams if m.team_league[t] == comp) or m.teams
-    default_h = pool.index("Paris SG") if "Paris SG" in pool else 0
-    home = c1.selectbox("Domicile", pool, index=default_h, format_func=team_label)
-    away = c2.selectbox("Extérieur", pool, index=1 if default_h == 0 else 0, format_func=team_label)
-    neutral = c3.checkbox("Terrain neutre (finale)")
+    if national:
+        mod, nat_df, nat_goals = nat_model(st.session_state.nonce)
+        comp = c3.selectbox("Compétition", list(NAT_COMPS), format_func=lambda c: NAT_COMPS[c])
+        pool = [t for t in active_teams(nat_df) if t in mod.att]
+        default_h = pool.index("France") if "France" in pool else 0
+        default_a = pool.index("Spain") if "Spain" in pool else 1
+        home = c1.selectbox("Équipe 1 (domicile)", pool, index=default_h)
+        away = c2.selectbox("Équipe 2", pool, index=default_a)
+        neutral = c3.checkbox("Terrain neutre", value=comp in ("CDM", "CONTINENTAL"),
+                              help="Coupe du monde / Euro : terrain neutre sauf pour le pays organisateur.")
+        st.caption("Noms des pays en anglais (France, Spain, Germany, England, Morocco, Algeria…).")
+    else:
+        mod = m
+        comps = list(CUPS) + list(LEAGUES)
+        comp = c3.selectbox("Compétition", comps, index=comps.index("F1"), format_func=lambda c: COMPETITIONS[c])
+        pool = sorted(m.teams) if comp in CUPS else sorted(t for t in m.teams if m.team_league[t] == comp) or m.teams
+        default_h = pool.index("Paris SG") if "Paris SG" in pool else 0
+        home = c1.selectbox("Domicile", pool, index=default_h, format_func=team_label)
+        away = c2.selectbox("Extérieur", pool, index=1 if default_h == 0 else 0, format_func=team_label)
+        neutral = c3.checkbox("Terrain neutre (finale)")
+        if comp in CUPS:
+            st.caption("Coupes d'Europe : clubs des 23 championnats couverts (5 grands, Portugal, Pays-Bas, "
+                       "Belgique, Turquie, Écosse, Grèce, Autriche, Suisse, Danemark, Norvège, Suède, "
+                       "Pologne, Roumanie + 2es divisions).")
 
     with st.expander("💶 Cotes du bookmaker (fortement recommandé : cale le modèle sur le marché)"):
         o1, o2, o3, o4, o5 = st.columns(5)
@@ -117,7 +146,7 @@ elif page == "🔍 Analyse d'un match":
     odds = None
     if ch > 1 and cd > 1 and ca > 1:
         odds = dict(h=ch, d=cd, a=ca, o25=co if co > 1 else None, u25=cu if cu > 1 else None)
-    r = engine.predict(m, home, away, comp, neutral, odds=odds, adj=adj)
+    r = engine.predict(mod, home, away, comp, neutral, odds=odds, adj=adj)
     k = r["markets"]
     lh, la = r["lambda"]
 
@@ -188,9 +217,22 @@ elif page == "🔍 Analyse d'un match":
         players = load_players()
         tot = lh + la
         any_ = False
+        if national:
+            st.caption("Calculé automatiquement à partir de tous les buteurs en sélection (4 dernières années, "
+                       "le récent compte plus). ⚠️ Vérifie que le joueur est convoqué et titulaire : retire "
+                       "les absents ci-dessous.")
         for team, lam in ((home, lh), (away, la)):
-            sp = scorer_probs(players, team, lam, tot, results)
+            if national:
+                base = national_scorers(nat_goals, team, lam, tot)
+                absents = st.multiselect(f"Absents / non convoqués — {team}",
+                                         list(base.joueur) if not base.empty else [], key=f"abs_{team}")
+                sp = national_scorers(nat_goals, team, lam, tot, absents=absents)
+            else:
+                sp = scorer_probs(players, team, lam, tot, results)
             st.markdown(f"**{team}** — {lam:.2f} but(s) attendu(s)")
+            if sp.empty and national:
+                st.info(f"Pas assez de buteurs récents connus pour {team}.")
+                continue
             if sp.empty:
                 st.info(f"Aucun joueur saisi pour {team}. Va dans « 👟 Données buteurs » pour ajouter "
                         "ses attaquants (buts, minutes, xG…).")
@@ -220,21 +262,35 @@ elif page == "📊 Résultats & bilan":
     st.caption("Prono donné AVANT chaque match (modèle ré-entraîné chaque semaine avec uniquement les "
                "matchs précédents + cotes d'avant-match), comparé au vrai résultat.")
 
+    LABELS = {**COMPETITIONS, **NAT_COMPS}
+    scope_name = st.radio("Quoi ?", ["⚽ Championnats (saison en cours)", "🏆 Coupes d'Europe",
+                                     "🌍 Sélections nationales"], horizontal=True, label_visibility="collapsed")
+    scope = {"⚽": "clubs", "🏆": "euro", "🌍": "nat"}[scope_name[0]]
+    if scope == "euro":
+        st.caption("C1, Ligue Europa, Conférence (+ tours préliminaires) des saisons 2024-25 et 2025-26 "
+                   "(2026-27 pas encore publiée). Pas de cotes disponibles : prono = modèle seul.")
+    if scope == "nat":
+        st.caption("Tous les matchs internationaux depuis septembre 2024, dont la Coupe du monde 2026. "
+                   "Prono = modèle seul.")
+
     @st.cache_data(ttl=6 * 3600, show_spinner=False)
-    def history(_df, last_date, nonce):
-        bar = st.progress(0.0, text="Calcul des pronos de la saison (une seule fois)…")
-        h = hist.build_history(_df, progress=lambda f: bar.progress(f, text="Calcul des pronos de la saison…"))
+    def history(_df, scope, last_date, nonce):
+        bar = st.progress(0.0, text="Calcul des pronos (une seule fois)…")
+        h = hist.build_history(_df, scope, progress=lambda f: bar.progress(f, text="Calcul des pronos…"))
         bar.empty()
         return h
 
-    h = history(results, str(results.date.max()), st.session_state.nonce)
+    src = nat_model(st.session_state.nonce)[1] if scope == "nat" else results
+    h = history(src, scope, str(src.date.max()), st.session_state.nonce)
     if h.empty:
-        st.info("Pas encore de matchs joués cette saison.")
+        st.info("Pas encore de matchs joués.")
         st.stop()
-    filt = st.expander("🔎 Filtres (championnats, équipe, période)")
+    filt = st.expander("🔎 Filtres (compétitions, équipe, période)")
     f1, f2 = filt.columns([3, 2])
-    lg = f1.multiselect("Championnats", list(LEAGUES), default=MAIN_LEAGUES, format_func=lambda c: LEAGUES[c],
-                        key="hist_lg")
+    comps_avail = [c for c in LABELS if c in set(h.comp)]
+    default = [c for c in MAIN_LEAGUES if c in comps_avail] if scope == "clubs" else comps_avail
+    lg = f1.multiselect("Compétitions", comps_avail, default=default, format_func=lambda c: LABELS[c],
+                        key=f"hist_lg_{scope}")
     teams = sorted(set(h.home) | set(h.away))
     team = f2.selectbox("Équipe", ["(toutes)"] + teams)
     d0, d1 = h.date.min().date(), h.date.max().date()
@@ -264,10 +320,10 @@ elif page == "📊 Résultats & bilan":
         bc = hist.by_confidence(v)
         bc["% réussite"] = bc["% réussite"].map(pct)
         st.dataframe(bc, hide_index=True, width="stretch")
-        st.markdown("**Réussite par championnat (1X2)**")
+        st.markdown("**Réussite par compétition (1X2)**")
         g = v.groupby("comp").agg(Pronos=("ok_1x2", "size"), Reussis=("ok_1x2", "sum"))
         g["% réussite"] = (g.Reussis / g.Pronos).map(pct)
-        g.index = g.index.map(LEAGUES)
+        g.index = g.index.map(LABELS)
         st.dataframe(g.rename(columns={"Reussis": "✅ Réussis"}), width="stretch")
 
     with tr:
@@ -282,7 +338,7 @@ elif page == "📊 Résultats & bilan":
             "Double ch.": [f"{ok(o)} {p}" for p, o in zip(v.prono_dc, v.ok_dc)],
             "MT": v.mt,
             "xG": [f"{a:.1f}-{b:.1f}" if np.isfinite(a) else "" for a, b in zip(v.hxg, v.axg)],
-            "Champ.": v.comp.map(LEAGUES),
+            "Champ.": v.comp.map(LABELS),
         })
         st.dataframe(t, hide_index=True, width="stretch", height=650)
 
@@ -305,7 +361,7 @@ elif page == "📊 Résultats & bilan":
                 ["Bénéfice cumulé (€)"]])
             sv = vb.sort_values("date", ascending=False).copy()
             sv["date"] = sv.date.dt.strftime("%d/%m")
-            sv["comp"] = sv.comp.map(LEAGUES)
+            sv["comp"] = sv.comp.map(LABELS)
             sv["proba"] = sv.proba.map(pct)
             sv["gagne"] = sv.gagne.map({True: "✅", False: "❌"})
             sv["profit"] = sv.profit.map(lambda x: f"{x:+.2f} €")
@@ -342,6 +398,16 @@ elif page == "🎟️ Ticket combiné":
 
 elif page == "🏆 Classement de puissance":
     st.header("🏆 Classement de puissance")
+    if st.radio("Type", ["⚽ Clubs", "🌍 Sélections nationales"], horizontal=True,
+                label_visibility="collapsed").startswith("🌍"):
+        nm, nd, _ = nat_model(st.session_state.nonce)
+        act = set(active_teams(nd))
+        r = nm.ratings()
+        r = r[r.equipe.isin(act)].drop(columns=["ligue"]).reset_index(drop=True)
+        r.index += 1
+        st.caption("Buts marqués / encaissés attendus contre une sélection de niveau mondial moyen, terrain neutre.")
+        st.dataframe(r.round(2), width="stretch", height=700)
+        st.stop()
     st.caption("Buts marqués / encaissés attendus contre une équipe moyenne de Premier League, terrain neutre. "
                "Comparable entre championnats grâce aux matchs de C1 et aux montées/descentes.")
     lg = st.multiselect("Championnats", list(LEAGUES), default=MAIN_LEAGUES, format_func=lambda c: LEAGUES[c])

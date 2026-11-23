@@ -25,7 +25,8 @@ from scipy.stats import poisson
 LEAGUE_PRIOR = {
     "E0": 0.0, "SP1": -0.06, "I1": -0.08, "D1": -0.09, "F1": -0.13, "P1": -0.20, "N1": -0.24,
     "B1": -0.28, "T1": -0.30, "SC0": -0.38, "E1": -0.34, "SP2": -0.42, "I2": -0.44,
-    "D2": -0.40, "F2": -0.47,
+    "D2": -0.40, "F2": -0.47, "G1": -0.36, "AUT": -0.36, "SWZ": -0.38, "DNK": -0.38, "NOR": -0.42,
+    "SWE": -0.46, "POL": -0.45, "ROU": -0.50, "NAT": 0.0,
 }
 MAX_GOALS = 10
 
@@ -37,6 +38,7 @@ class Config:
     sigma_team: float = 0.8     # écart-type a priori des écarts équipe (réglé par backtest)
     sigma_league: float = 0.12  # écart-type a priori du niveau de ligue autour du prior
     cl_weight: float = 1.3      # poids des matchs de C1 (rares mais très informatifs)
+    cup_stretch: float = 0.95   # recalibrage spécifique aux coupes d'Europe (clubs de ligues différentes)
     stretch: float = 1.1        # recalibrage : le modèle brut sous-estime les favoris (backtest)
 
 
@@ -70,17 +72,20 @@ class Model:
         log_h = g + h + self.S[lh] + self.att[home] - self.S[la] - self.dfn[away]
         log_a = g + self.S[la] + self.att[away] - self.S[lh] - self.dfn[home]
         k = getattr(self.config, "stretch", 1.0)
+        if comp in ("CL", "EL", "ECL"):
+            k = getattr(self.config, "cup_stretch", 1.0)
         mid, half = (log_h + log_a) / 2, k * (log_h - log_a) / 2
         return float(np.exp(mid + half)), float(np.exp(mid - half))
 
     def ratings(self) -> pd.DataFrame:
         """Buts marqués/encaissés attendus contre une équipe moyenne de Premier League, terrain neutre."""
-        g = self.G["E0"]
+        ref = "E0" if "E0" in self.S else self.leagues[0]
+        g = self.G.get(ref, float(np.mean(list(self.G.values()))))
         rows = []
         for t in self.teams:
             L = self.team_league[t]
-            gf = np.exp(g + self.S[L] + self.att[t] - self.S["E0"])
-            ga = np.exp(g + self.S["E0"] - self.S[L] - self.dfn[t])
+            gf = np.exp(g + self.S[L] + self.att[t] - self.S[ref])
+            ga = np.exp(g + self.S[ref] - self.S[L] - self.dfn[t])
             rows.append(dict(equipe=t, ligue=L, buts_pour=gf, buts_contre=ga, diff=gf - ga,
                              matchs_recents=self.games_recent.get(t, 0)))
         return pd.DataFrame(rows).sort_values("diff", ascending=False).reset_index(drop=True)
@@ -132,13 +137,19 @@ def _target(df: pd.DataFrame, side: str, w_goals: float, xg_coef) -> np.ndarray:
 
 # ------------------------------------------------------------------------ ajustement
 def fit(df: pd.DataFrame, ref_date=None, config: Config | None = None,
-        min_weight: float = 0.02) -> Model:
+        min_weight: float = 0.02, single_pool: str | None = None,
+        comp_weights: dict | None = None) -> Model:
+    """single_pool : toutes les équipes dans une même "ligue" (sélections nationales).
+    comp_weights : poids par compétition (ex. matchs amicaux moins informatifs)."""
     cfg = config or Config()
     ref_date = pd.Timestamp(ref_date) if ref_date is not None else df["date"].max() + pd.Timedelta(days=1)
     d = df[(df["date"] < ref_date)].copy()
     age = (ref_date - d["date"]).dt.days.to_numpy(float)
     w = np.exp(-cfg.xi * age)
-    w = np.where(d["comp"].to_numpy() == "CL", w * cfg.cl_weight, w)
+    euro = np.isin(d["comp"].to_numpy(), ["CL", "EL", "ECL"])
+    w = np.where(euro, w * cfg.cl_weight, w)
+    if comp_weights:
+        w = w * d["comp"].map(comp_weights).fillna(1.0).to_numpy()
     keep = w >= min_weight
     d, w = d[keep].reset_index(drop=True), w[keep]
 
@@ -147,10 +158,12 @@ def fit(df: pd.DataFrame, ref_date=None, config: Config | None = None,
     ya = _target(d, "a", cfg.w_goals, xg_coef)
 
     # ligue "actuelle" de chaque équipe = championnat de son dernier match domestique
-    dom = d[d["comp"] != "CL"]
+    dom = d[~np.isin(d["comp"], ["CL", "EL", "ECL"])]
     last = pd.concat([dom[["date", "home", "comp"]].rename(columns={"home": "t"}),
                       dom[["date", "away", "comp"]].rename(columns={"away": "t"})])
     last = last.sort_values("date").groupby("t")["comp"].last()
+    if single_pool:
+        last = pd.Series(single_pool, index=last.index)
     teams = sorted(last.index)
     d = d[d["home"].isin(last.index) & d["away"].isin(last.index)]
     w, yh, ya = w[d.index], yh[d.index], ya[d.index]
@@ -174,6 +187,7 @@ def fit(df: pd.DataFrame, ref_date=None, config: Config | None = None,
     n_par = o_d + nT
     prior_S = np.array([LEAGUE_PRIOR.get(l, -0.4) for l in leagues])
     k_t, k_l = 1 / cfg.sigma_team ** 2, 1 / cfg.sigma_league ** 2
+    K_G, G0, K_H, H0 = 1 / 0.25 ** 2, np.log(1.3), 1 / 0.15 ** 2, 0.22
 
     def unpack(p):
         return p[o_G:o_H], p[o_H:o_S], p[o_S:o_a], p[o_a:o_d], p[o_d:]
@@ -184,10 +198,13 @@ def fit(df: pd.DataFrame, ref_date=None, config: Config | None = None,
         ea = G[cc] + S[al] + A[ai] - S[hl] - D[hi]
         lh, la = np.exp(eh), np.exp(ea)
         nll = np.sum(w * (lh - yh * eh + la - ya * ea))
-        pen = 0.5 * k_t * (A @ A + D @ D) + 0.5 * k_l * np.sum((S - prior_S) ** 2) + 0.5 * np.sum(H ** 2)
+        # a priori : niveau de buts ~1,3/équipe, avantage du terrain ~+25 % (évite les dérives
+        # quand une compétition n'a que quelques matchs, ex. début de Ligue Conférence)
+        pen = (0.5 * k_t * (A @ A + D @ D) + 0.5 * k_l * np.sum((S - prior_S) ** 2)
+               + 0.5 * K_G * np.sum((G - G0) ** 2) + 0.5 * K_H * np.sum((H - H0) ** 2))
         rh, ra = w * (lh - yh), w * (la - ya)
-        gG = np.bincount(cc, rh + ra, nC)
-        gH = np.bincount(cc, rh * nh, nC) + H
+        gG = np.bincount(cc, rh + ra, nC) + K_G * (G - G0)
+        gH = np.bincount(cc, rh * nh, nC) + K_H * (H - H0)
         gS = (np.bincount(hl, rh - ra, nL) + np.bincount(al, ra - rh, nL)) + k_l * (S - prior_S)
         gA = np.bincount(hi, rh, nT) + np.bincount(ai, ra, nT) + k_t * A
         gD = -np.bincount(ai, rh, nT) - np.bincount(hi, ra, nT) + k_t * D

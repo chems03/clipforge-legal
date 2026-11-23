@@ -1,9 +1,14 @@
 # ⚽ Pronos Foot
 
 Application de pronostics football : 1X2, score exact, buts, BTTS, handicaps, mi-temps/fin de match,
-buteurs, détection de value bets et ticket combiné, pour la **Ligue 1, la Premier League, la Liga, la
-Serie A, la Bundesliga, la Ligue des champions** (et Portugal, Pays-Bas, Belgique, Turquie, Écosse,
-2es divisions).
+buteurs, détection de value bets, ticket combiné et **bilan ✅/❌ des pronos passés**, pour :
+
+* **23 championnats** : Ligue 1, Premier League, Liga, Serie A, Bundesliga, Portugal, Pays-Bas,
+  Belgique, Turquie, Écosse, Grèce, Autriche, Suisse, Danemark, Norvège, Suède, Pologne, Roumanie,
+  plus les 2es divisions anglaise, espagnole, italienne, allemande et française ;
+* **Coupes d'Europe** : Ligue des champions, Ligue Europa, Ligue Conférence ;
+* **Sélections nationales** : Coupe du monde, Euro, Copa América, CAN, qualifications, Ligue des
+  nations, matchs amicaux, avec les probabilités buteurs calculées automatiquement.
 
 ## Installation
 
@@ -31,7 +36,9 @@ Le premier lancement télécharge environ 18 000 matchs (environ 30 s). Les donn
 | Source | Contenu |
 |---|---|
 | football-data.co.uk | Résultats de 15 championnats sur 4 saisons : tirs, tirs cadrés, **xG** (saison en cours), cotes d'ouverture, de clôture et meilleures cotes, calendrier à venir avec cotes |
-| openfootball (GitHub) | Résultats de Ligue des champions : c'est ce qui permet de comparer les championnats entre eux |
+| football-data.co.uk (`/new`) | Autriche, Suisse, Danemark, Norvège, Suède, Pologne, Roumanie |
+| openfootball (GitHub) | C1, C3 et C4, tours préliminaires compris : c'est ce qui permet de comparer les championnats entre eux |
+| martj42/international_results | Tous les matchs internationaux et leurs buteurs (pour les sélections) |
 | `data/joueurs.csv` | Stats des buteurs, **à remplir toi-même** (aucune source ouverte fiable) |
 | `data/resultats_manuels.csv` | Résultats à ajouter à la main (ex. C1 2026-27 tant qu'elle n'est pas publiée) |
 
@@ -52,6 +59,19 @@ Le premier lancement télécharge environ 18 000 matchs (environ 30 s). Les donn
    échantillons) est multipliée par les buts attendus de l'équipe et par les minutes prévues, et
    les penaltys sont ajoutés pour le tireur désigné.
 
+## Bilan des pronos (page « Résultats & bilan »)
+
+Pour chaque match joué, la page affiche le prono que l'appli aurait donné **avant** le match. Le
+modèle est ré-entraîné chaque semaine avec uniquement le passé, puis le prono est marqué ✅ ou ❌.
+
+| | 1X2 | Double chance | +/-2,5 | BTTS | Score exact |
+|---|---|---|---|---|---|
+| Championnats 2026-27 (2 518 matchs) | 53 % | 79 % | 59 % | 56 % | 11 % |
+| Coupes d'Europe 2024-26 (614 matchs, sans cotes) | 50 % | 77 % | 58 % | 57 % | 10 % |
+| Sélections depuis sept. 2024 (2 594 matchs) | 61 % | 84 % | 60 % | 58 % | 12 % |
+
+Les semaines déjà jouées sont enregistrées dans `data/historique/`, ce qui évite de les recalculer.
+
 ## Ce que dit le backtest (honnêtement)
 
 Le backtest porte sur 2 297 matchs des 5 grands championnats depuis août 2025. Le modèle est
@@ -59,7 +79,7 @@ ré-entraîné toutes les 3 semaines avec uniquement le passé.
 
 | | Log-loss 1X2 |
 |---|---|
-| Modèle seul | 0,985 |
+| Modèle seul | 0,984 |
 | Cotes des bookmakers (ouverture) | 0,970 |
 | Cotes des bookmakers (clôture) | 0,969 |
 

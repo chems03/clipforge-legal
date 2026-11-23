@@ -25,7 +25,13 @@ CACHE.mkdir(exist_ok=True)
 
 FD_BASE = "https://www.football-data.co.uk/mmz4281/{season}/{code}.csv"
 FD_FIXTURES = "https://www.football-data.co.uk/fixtures.csv"
-OF_CL_TXT = "https://raw.githubusercontent.com/openfootball/champions-league/master/{season}/cl.txt"
+OF_CUP_TXT = "https://raw.githubusercontent.com/openfootball/champions-league/master/{season}/{file}.txt"
+FD_NEW = "https://www.football-data.co.uk/new/{code}.csv"
+INTL_RESULTS = "https://raw.githubusercontent.com/martj42/international_results/master/results.csv"
+INTL_SCORERS = "https://raw.githubusercontent.com/martj42/international_results/master/goalscorers.csv"
+
+# Coupes d'Europe : fichiers openfootball (phase principale + tours préliminaires)
+EURO_CUPS = {"CL": ["cl", "clq"], "EL": ["el", "elq"], "ECL": ["conf", "confq"]}
 
 # Championnats chargés. Les 2es divisions servent à évaluer correctement les promus
 # (les équipes qui montent/descendent "relient" les divisions entre elles).
@@ -45,15 +51,27 @@ LEAGUES = {
     "I2": "Serie B",
     "D2": "2. Bundesliga",
     "F2": "Ligue 2",
+    "G1": "Super League (GRE)",
+    "AUT": "Bundesliga (AUT)",
+    "SWZ": "Super League (SUI)",
+    "DNK": "Superliga (DAN)",
+    "NOR": "Eliteserien (NOR)",
+    "SWE": "Allsvenskan (SUE)",
+    "POL": "Ekstraklasa (POL)",
+    "ROU": "Liga 1 (ROU)",
 }
+# championnats au format "new" de football-data (un fichier toutes saisons, cotes de clôture)
+NEW_FORMAT = {"AUT", "SWZ", "DNK", "NOR", "SWE", "POL", "ROU"}
 MAIN_LEAGUES = ["F1", "E0", "SP1", "I1", "D1"]
-COMPETITIONS = {**LEAGUES, "CL": "Ligue des champions"}
+CUPS = {"CL": "Ligue des champions", "EL": "Ligue Europa", "ECL": "Ligue Conférence"}
+COMPETITIONS = {**LEAGUES, **CUPS}
 
 # Pays (codes openfootball) -> championnats où chercher l'équipe
 COUNTRY_LEAGUES = {
     "ENG": ["E0", "E1"], "ESP": ["SP1", "SP2"], "ITA": ["I1", "I2"], "GER": ["D1", "D2"],
     "FRA": ["F1", "F2"], "MCO": ["F1", "F2"], "POR": ["P1"], "NED": ["N1"], "BEL": ["B1"],
-    "TUR": ["T1"], "SCO": ["SC0"],
+    "TUR": ["T1"], "SCO": ["SC0"], "GRE": ["G1"], "AUT": ["AUT"], "SUI": ["SWZ"], "DEN": ["DNK"],
+    "NOR": ["NOR"], "SWE": ["SWE"], "POL": ["POL"], "ROU": ["ROU"],
 }
 
 # Noms openfootball -> noms football-data qui ne se devinent pas automatiquement
@@ -118,6 +136,18 @@ ALIASES = {
     "sc freiburg": "Freiburg",
     "fc twente": "Twente",
     "az alkmaar": "AZ Alkmaar",
+    "fc kobenhavn": "FC Copenhagen",
+    "brondby if": "Brondby",
+    "tromso il": "Tromso",
+    "universitatea cluj": "U. Cluj",
+    "heart of midlothian": "Hearts",
+    "heart of midlothian fc": "Hearts",
+    "djurgardens if": "Djurgarden",
+    "istanbul basaksehir": "Buyuksehyr",
+    "istanbul basaksehir fk": "Buyuksehyr",
+    "wisla krakow": "Wisla",
+    "rapid wien": "SK Rapid",
+    "sk rapid wien": "SK Rapid",
 }
 
 UA = {"User-Agent": "Mozilla/5.0 (paris-foot data client)"}
@@ -190,6 +220,8 @@ def _normalize_fd(raw: pd.DataFrame, comp: str) -> pd.DataFrame:
 # --------------------------------------------------------------------------- football-data
 def load_league_history(n_seasons: int = 4, leagues=None, force: bool = False) -> pd.DataFrame:
     leagues = leagues or list(LEAGUES)
+    new = [c for c in leagues if c in NEW_FORMAT]
+    leagues = [c for c in leagues if c not in NEW_FORMAT]
     seasons = season_codes(n_seasons)
     frames = []
     for s in seasons:
@@ -206,6 +238,18 @@ def load_league_history(n_seasons: int = 4, leagues=None, force: bool = False) -
             df = _normalize_fd(raw, code)
             df["season"] = s
             frames.append(df)
+    first = pd.Timestamp(2000 + int(seasons[0][:2]), 1, 1)
+    for code in new:
+        content = _get(FD_NEW.format(code=code), f"fdnew_{code}.csv", max_age_h=6, force=force)
+        if not content:
+            continue
+        raw = pd.read_csv(io.BytesIO(content), encoding="utf-8-sig", on_bad_lines="skip",
+                          encoding_errors="replace")
+        raw = raw.rename(columns={"Home": "HomeTeam", "Away": "AwayTeam", "HG": "FTHG", "AG": "FTAG"})
+        df = _normalize_fd(raw, code)
+        df["season"] = raw["Season"].astype(str).str[-4:].map(lambda y: f"{(int(y) - 1) % 100:02d}{int(y) % 100:02d}"
+                                                               if y.isdigit() else "")
+        frames.append(df[df.date >= first])
     df = pd.concat(frames, ignore_index=True)
     df = df.dropna(subset=["date", "hg", "ag"])
     df = df[(df.home != "nan") & (df.away != "nan")]
@@ -269,7 +313,11 @@ def parse_openfootball_txt(text: str, season_start_year: int) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
+_TRANSLIT = str.maketrans({"ø": "o", "Ø": "O", "ł": "l", "Ł": "L", "æ": "ae", "ß": "ss", "đ": "d", "ı": "i"})
+
+
 def _norm(name: str) -> str:
+    name = name.translate(_TRANSLIT)
     s = unicodedata.normalize("NFKD", name).encode("ascii", "ignore").decode().lower()
     s = s.replace("'", "").replace(".", " ")
     return re.sub(r"\s+", " ", s).strip()
@@ -306,34 +354,75 @@ def match_team(of_name: str, country: str, teams_by_league: dict[str, set[str]])
     return best if best_score >= 0.55 else None
 
 
-def load_champions_league(teams_by_league: dict[str, set[str]], n_seasons: int = 3,
-                          force: bool = False) -> tuple[pd.DataFrame, list[str]]:
-    """Matchs de C1 entre équipes couvertes par les championnats chargés."""
+def load_euro_cups(teams_by_league: dict[str, set[str]], n_seasons: int = 3,
+                   force: bool = False) -> tuple[pd.DataFrame, list[str]]:
+    """Matchs de C1 / C3 / C4 (+ tours préliminaires) entre équipes des championnats chargés."""
     frames, unmatched = [], set()
+    cur = season_codes(1)[0]
     for s in season_codes(n_seasons):
         y0 = 2000 + int(s[:2])
         tag = f"{y0}-{(y0 + 1) % 100:02d}"
-        current = s == season_codes(1)[0]
-        content = _get(OF_CL_TXT.format(season=tag), f"cl_{tag}.txt",
-                       max_age_h=12 if current else 24 * 365, force=force and current)
-        if not content:
-            continue
-        df = parse_openfootball_txt(content.decode("utf-8", "replace"), y0)
-        if df.empty:
-            continue
-        df["home"] = [match_team(t, c, teams_by_league) for t, c in zip(df.t1, df.c1)]
-        df["away"] = [match_team(t, c, teams_by_league) for t, c in zip(df.t2, df.c2)]
-        unmatched |= {f"{t} ({c})" for t, c, h in zip(df.t1, df.c1, df.home)
-                      if h is None and c in COUNTRY_LEAGUES}
-        unmatched |= {f"{t} ({c})" for t, c, h in zip(df.t2, df.c2, df.away)
-                      if h is None and c in COUNTRY_LEAGUES}
-        df = df.dropna(subset=["home", "away"])
-        df["comp"] = "CL"
-        df["season"] = s
-        frames.append(df[["date", "comp", "home", "away", "hg", "ag", "neutral", "season"]])
+        for comp, files in EURO_CUPS.items():
+            for file in files:
+                content = _get(OF_CUP_TXT.format(season=tag, file=file), f"cup_{tag}_{file}.txt",
+                               max_age_h=12 if s == cur else 24 * 30, force=force and s == cur)
+                if not content or content.startswith(b"404"):
+                    continue
+                df = parse_openfootball_txt(content.decode("utf-8", "replace"), y0)
+                if df.empty:
+                    continue
+                df["home"] = [match_team(t, c, teams_by_league) for t, c in zip(df.t1, df.c1)]
+                df["away"] = [match_team(t, c, teams_by_league) for t, c in zip(df.t2, df.c2)]
+                for col_t, col_c, col_m in (("t1", "c1", "home"), ("t2", "c2", "away")):
+                    unmatched |= {f"{t} ({c})" for t, c, h in zip(df[col_t], df[col_c], df[col_m])
+                                  if h is None and c in COUNTRY_LEAGUES}
+                df = df.dropna(subset=["home", "away"])
+                df["comp"] = comp
+                df["season"] = s
+                frames.append(df[["date", "comp", "home", "away", "hg", "ag", "neutral", "season"]])
     if not frames:
         return pd.DataFrame(), sorted(unmatched)
-    return pd.concat(frames, ignore_index=True), sorted(unmatched)
+    out = pd.concat(frames, ignore_index=True).drop_duplicates(["date", "home", "away"])
+    return out, sorted(unmatched)
+
+
+# --------------------------------------------------------------------------- sélections nationales
+def tournament_category(t: str) -> str:
+    t = str(t)
+    if t == "FIFA World Cup":
+        return "CDM"
+    if "qualification" in t:
+        return "QUALIF"
+    if t in ("UEFA Euro", "Copa América", "African Cup of Nations", "AFC Asian Cup", "Gold Cup"):
+        return "CONTINENTAL"
+    if "Nations League" in t:
+        return "NATIONS"
+    if t == "Friendly":
+        return "AMICAL"
+    return "AUTRE"
+
+
+NAT_COMPS = {"CDM": "Coupe du monde", "CONTINENTAL": "Euro / Copa América / CAN / Asie / Gold Cup",
+             "QUALIF": "Qualifications", "NATIONS": "Ligue des nations", "AMICAL": "Match amical",
+             "AUTRE": "Autre tournoi"}
+
+
+def load_internationals(years: int = 10, force: bool = False) -> tuple[pd.DataFrame, pd.DataFrame]:
+    res = _get(INTL_RESULTS, "intl_results.csv", max_age_h=12, force=force)
+    gs = _get(INTL_SCORERS, "intl_goalscorers.csv", max_age_h=12, force=force)
+    r = pd.read_csv(io.BytesIO(res), parse_dates=["date"])
+    r = r[r.date >= pd.Timestamp.today() - pd.Timedelta(days=365 * years)]
+    df = pd.DataFrame({
+        "date": r.date, "home": r.home_team, "away": r.away_team,
+        "hg": pd.to_numeric(r.home_score, errors="coerce"), "ag": pd.to_numeric(r.away_score, errors="coerce"),
+        "tournament": r.tournament, "comp": r.tournament.map(tournament_category),
+        "neutral": r.neutral.astype(str).str.upper().eq("TRUE")})
+    df = df.dropna(subset=["hg", "ag"])
+    for c in ["hthg", "htag", "hs", "as_", "hst", "ast", "hxg", "axg", *ODDS_COLS]:
+        df[c] = np.nan
+    df["season"] = df.date.dt.year.astype(str)
+    g = pd.read_csv(io.BytesIO(gs), parse_dates=["date"]) if gs else pd.DataFrame()
+    return df.sort_values("date").reset_index(drop=True), g
 
 
 def load_manual_results() -> pd.DataFrame:
@@ -353,7 +442,7 @@ def load_manual_results() -> pd.DataFrame:
 def load_all(n_seasons: int = 4, force: bool = False) -> tuple[pd.DataFrame, dict]:
     dom = load_league_history(n_seasons, force=force)
     teams_by_league = {lg: set(g.home) | set(g.away) for lg, g in dom.groupby("comp")}
-    cl, unmatched = load_champions_league(teams_by_league, n_seasons=min(n_seasons, 3), force=force)
+    cl, unmatched = load_euro_cups(teams_by_league, n_seasons=min(n_seasons, 3), force=force)
     man = load_manual_results()
     df = pd.concat([d for d in (dom, cl, man) if not d.empty], ignore_index=True)
     df = df.sort_values("date").reset_index(drop=True)
