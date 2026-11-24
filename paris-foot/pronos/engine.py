@@ -114,6 +114,51 @@ def predict(m: Model, home: str, away: str, comp: str, neutral: bool = False, od
                 value=[v for v in value if v["jouable"]], all_value=value, p_market=p1x2)
 
 
+# --------------------------------------------------------------------------- données API-Football
+API_STATE: dict = {}
+
+
+def set_api(state: dict, results: pd.DataFrame | None = None) -> None:
+    API_STATE.clear()
+    API_STATE.update(state or {})
+    if results is not None:
+        API_STATE["results"] = results
+
+
+def match_context(home: str, away: str, day=None) -> dict:
+    """Absents, ajustements, cotes réelles et id du match issus d'API-Football (vide si pas de clé)."""
+    ctx = dict(abs_h=[], abs_a=[], adj={}, odds={}, fixture_id=None, kickoff=None)
+    fx = API_STATE.get("fixtures")
+    if fx is None or fx.empty:
+        return ctx
+    f = fx[(fx.home == home) & (fx.away == away)]
+    if day is not None and not f.empty:
+        f = f[f.date == pd.Timestamp(day)] if (f.date == pd.Timestamp(day)).any() else f
+    if f.empty:
+        return ctx
+    f = f.iloc[0]
+    ctx["fixture_id"], ctx["kickoff"] = int(f.id), f.time
+    inj = API_STATE.get("injuries")
+    if inj is not None and not inj.empty:
+        mi = inj[inj.fixture == f.id]
+        ctx["abs_h"] = [dict(nom=r.player, raison=r.reason, type=r.type) for r in mi[mi.team == home].itertuples()]
+        ctx["abs_a"] = [dict(nom=r.player, raison=r.reason, type=r.type) for r in mi[mi.team == away].itertuples()]
+        from .apifootball import injury_adjustment
+        res = API_STATE.get("results", pd.DataFrame())
+        sc = API_STATE.get("scorers", pd.DataFrame())
+        ah, dh = injury_adjustment(home, [a["nom"] for a in ctx["abs_h"]], sc, res)
+        aa, da = injury_adjustment(away, [a["nom"] for a in ctx["abs_a"]], sc, res)
+        ctx["adj"] = dict(att_h=ah, def_h=dh, att_a=aa, def_a=da)
+    od = API_STATE.get("odds")
+    if od is not None and not od.empty:
+        o = od[od.id == f.id]
+        if not o.empty:
+            o = o.iloc[0]
+            ctx["odds"] = {k: (float(o[c]) if o[c] == o[c] and o[c] else None)
+                           for k, c in dict(h="o_h", d="o_d", a="o_a", o25="o_o25", u25="o_u25").items()}
+    return ctx
+
+
 def upcoming_table(m: Model, leagues=MAIN_LEAGUES, fixtures: pd.DataFrame | None = None,
                    cups: bool = True) -> pd.DataFrame:
     fx = load_fixtures() if fixtures is None else fixtures
@@ -135,10 +180,13 @@ def upcoming_table(m: Model, leagues=MAIN_LEAGUES, fixtures: pd.DataFrame | None
         try:
             odds = dict(h=r.o_h, d=r.o_d, a=r.o_a, o25=r.o_o25, u25=r.o_u25)
             odds = {k: (v if np.isfinite(v) else None) for k, v in odds.items()}
+            ctx = match_context(r.home, r.away, r.date)
+            if not odds["h"] and ctx["odds"].get("h"):
+                odds = ctx["odds"]                       # vraies cotes de coupe via API-Football
             best = dict(h=r.max_h, d=r.max_d, a=r.max_a, o25=r.max_o25, u25=r.max_u25)
             best = {k: (v if np.isfinite(v) else None) for k, v in best.items()}
             approx = r.home not in m.att or r.away not in m.att
-            res = predict(m, r.home, r.away, r.comp, odds=odds if odds["h"] else None,
+            res = predict(m, r.home, r.away, r.comp, odds=odds if odds["h"] else None, adj=ctx["adj"],
                           value_odds=best if best["h"] else None, allow_unknown=approx and r.comp in ("CL", "EL", "ECL"))
         except KeyError:
             continue
@@ -152,6 +200,7 @@ def upcoming_table(m: Model, leagues=MAIN_LEAGUES, fixtures: pd.DataFrame | None
             BTTS=k["BTTS"]["Oui"], cote1=r.max_h, coteN=r.max_d, cote2=r.max_a,
             value=", ".join(f"{v['pari']} @{v['cote']:.2f} ({v['value']:+.0%})" for v in res["value"]),
             cale_marche=res["lambda_market"] is not None, approx=approx,
+            abs_h=len(ctx["abs_h"]), abs_a=len(ctx["abs_a"]),
             o_h=odds["h"], o_d=odds["d"], o_a=odds["a"], o_o25=odds["o25"], o_u25=odds["u25"]))
     return pd.DataFrame(rows)
 
@@ -214,7 +263,8 @@ def safe_picks(m: Model, min_proba: float = 0.75, min_odds: float = 1.15, league
         if r.approx:
             continue
         o = {k: (v if v == v else None) for k, v in dict(h=r.o_h, d=r.o_d, a=r.o_a, o25=r.o_o25, u25=r.o_u25).items()}
-        res = predict(m, r.home, r.away, r.comp, odds=o if o["h"] else None)
+        res = predict(m, r.home, r.away, r.comp, odds=o if o["h"] else None,
+                      adj=match_context(r.home, r.away, r.date)["adj"])
         k = res["markets"]
         ou = {**k["Plus/Moins buts"], **{"-" + s_[1:]: 1 - p for s_, p in k["Plus/Moins buts"].items()}}
         best = None
@@ -260,7 +310,8 @@ def match_legs(m: Model, leagues=None) -> list[dict]:
         if r.approx:
             continue
         o = {k: (v if v == v else None) for k, v in dict(h=r.o_h, d=r.o_d, a=r.o_a, o25=r.o_o25, u25=r.o_u25).items()}
-        k = predict(m, r.home, r.away, r.comp, odds=o if o["h"] else None)["markets"]
+        k = predict(m, r.home, r.away, r.comp, odds=o if o["h"] else None,
+                    adj=match_context(r.home, r.away, r.date)["adj"])["markets"]
         ou = {**k["Plus/Moins buts"], **{"-" + s_[1:]: 1 - p for s_, p in k["Plus/Moins buts"].items()}}
         legs = []
         for market, sels in LEG_MARKETS:

@@ -7,7 +7,9 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 
-from pronos import engine
+import os
+
+from pronos import apifootball, engine
 from pronos.data import COMPETITIONS, CUPS, LEAGUES, MAIN_LEAGUES, NAT_COMPS
 from pronos.nationals import active_teams, national_scorers
 from pronos import historique as hist
@@ -18,6 +20,11 @@ from pronos.scorers import COLUMNS, load_players, save_players, scorer_probs
 
 st.set_page_config(page_title="Pronos Foot", page_icon="⚽", layout="wide", initial_sidebar_state="collapsed")
 ui.inject()
+try:  # clé API-Football : Streamlit Cloud → Settings → Secrets  (API_FOOTBALL_KEY = "...")
+    if "API_FOOTBALL_KEY" in st.secrets:
+        os.environ["API_FOOTBALL_KEY"] = str(st.secrets["API_FOOTBALL_KEY"])
+except Exception:
+    pass
 
 
 @st.cache_resource(ttl=6 * 3600, show_spinner="Téléchargement des données et calcul du modèle…")
@@ -36,6 +43,15 @@ def nat_model(_nonce: int = 0):
 
 
 m, results = model(st.session_state.nonce)
+
+
+@st.cache_resource(ttl=3 * 3600, show_spinner="Récupération des blessés, compos et cotes…")
+def api_data(_nonce: int = 0):
+    return apifootball.enrich(m.teams, m.team_league)
+
+
+API = api_data(st.session_state.nonce)
+engine.set_api(API, results)
 info = getattr(m, "info", {})
 
 # ------------------------------------------------------------------ navigation
@@ -90,6 +106,7 @@ def open_match(comp, home, away, odds):
 def refresh_data():
     model.clear()
     nat_model.clear()
+    api_data.clear()
     st.session_state.nonce += 1
 
 
@@ -178,7 +195,8 @@ if page == "📅 Matchs":
             def _k(r):
                 o = {k_: (v if v == v else None) for k_, v in dict(h=r.o_h, d=r.o_d, a=r.o_a, o25=r.o_o25,
                                                                     u25=r.o_u25).items()}
-                res = engine.predict(m, r.home, r.away, r.comp, odds=o if o["h"] else None,
+                ctx = engine.match_context(r.home, r.away, r.date)
+                res = engine.predict(m, r.home, r.away, r.comp, odds=o if o["h"] else None, adj=ctx["adj"],
                                      allow_unknown=bool(r.approx))
                 return res["markets"], res["lambda"]
 
@@ -199,6 +217,8 @@ if page == "📅 Matchs":
                     chips = []
                     if r.value:
                         chips.append((f"💰 Value : {r.value}", True))
+                    if r.abs_h or r.abs_a:
+                        chips.append((f"🩹 Absents : {r.home[:12]} {r.abs_h} · {r.away[:12]} {r.abs_a}", False))
                     if r.approx:
                         chips.append(("⚠️ Estimation : équipe hors base", False))
                     href = None if r.approx else "?" + urlencode(dict(
@@ -359,6 +379,12 @@ elif page == "🔍 Analyse":
     odds = None
     if ch > 1 and cd > 1 and ca > 1:
         odds = dict(h=ch, d=cd, a=ca, o25=co if co > 1 else None, u25=cu if cu > 1 else None)
+    ctx = engine.match_context(home, away) if not national else engine.match_context("", "")
+    auto = ctx["adj"]
+    if auto:
+        adj = {k_: adj.get(k_, 0) + auto.get(k_, 0) for k_ in ("att_h", "def_h", "att_a", "def_a")}
+    if odds is None and ctx["odds"].get("h"):
+        odds = ctx["odds"]
     r = engine.predict(mod, home, away, comp, neutral, odds=odds, adj=adj)
     k = r["markets"]
     lh, la = r["lambda"]
@@ -367,6 +393,24 @@ elif page == "🔍 Analyse":
     with hero_slot:
         ui.hero(comp_label(comp, NAT_COMPS if national else COMPETITIONS), home, away, lh, la, k, note,
                 crest(home, national, 52), crest(away, national, 52))
+        if ctx["fixture_id"]:
+            ui.section("Absents & compos")
+            for team, lst, a_att in ((home, ctx["abs_h"], auto.get("att_h", 0)), (away, ctx["abs_a"], auto.get("att_a", 0))):
+                if lst:
+                    ui.bet_row(f"{team} : {len(lst)} absent(s)",
+                               " · ".join(f"{a['nom']} ({a['raison'] or a['type']})" for a in lst),
+                               f"{a_att:+.0%}" if a_att else "≈ 0 %", "impact attaque", ("PRIS EN COMPTE", "y"))
+                else:
+                    ui.bet_row(f"{team} : aucun absent signalé", "Source : API-Football", "✓", "", ("OK", "g"))
+            if st.button("📋 Voir les compos officielles", type="tertiary"):
+                lu = apifootball.lineups(ctx["fixture_id"])
+                if not lu:
+                    st.info("Compos pas encore publiées (elles sortent environ 1 h avant le coup d'envoi).")
+                for x in lu:
+                    ui.bet_row(f"{x['team']} · {x['formation'] or ''}", ", ".join(x["xi"]), "XI",
+                               f"coach {x['coach'] or '?'}")
+        elif apifootball.enabled() and not national:
+            st.caption("Match non trouvé dans API-Football pour les 3 prochains jours (absents non chargés).")
         if r["all_value"]:
             ui.section("Tes cotes valent-elles le coup ?")
             names = {"1": f"Victoire {home}", "N": "Match nul", "2": f"Victoire {away}", "+2.5": "Plus de 2,5 buts",
@@ -434,6 +478,15 @@ elif page == "🔍 Analyse":
                 sp = national_scorers(nat_goals, team, lam, tot, absents=absents)
             else:
                 sp = scorer_probs(players, team, lam, tot, results)
+                api_sc = API.get("scorers", pd.DataFrame())
+                if sp.empty and not api_sc.empty and "equipe" in api_sc:
+                    absent = {a["nom"] for a in (ctx["abs_h"] if team == home else ctx["abs_a"])}
+                    rows = api_sc[(api_sc.equipe == team) & ~api_sc.joueur.isin(absent)].copy()
+                    if not rows.empty:
+                        rows["xg"] = np.nan
+                        rows["minutes_prevues"] = np.nan
+                        rows["tireur_penalty"] = (rows.penaltys == rows.penaltys.max()) & (rows.penaltys > 0)
+                        sp = scorer_probs(rows[COLUMNS].astype({"tireur_penalty": int}), team, lam, tot, results)
             st.markdown(f"**{team}** — {lam:.2f} but(s) attendu(s)")
             if sp.empty and national:
                 st.info(f"Pas assez de buteurs récents connus pour {team}.")
@@ -857,6 +910,16 @@ elif page == "⚙️ Données":
     ui.kpis([("Matchs analysés", f"{m.n_matches:,}".replace(",", " "), "clubs, 4 saisons"),
              ("Dernier résultat", f"{pd.Timestamp(m.ref_date - pd.Timedelta(days=1)):%d/%m/%Y}", "mise à jour auto ~6 h"),
              ("Équipes", len(m.teams), "23 championnats + coupes")])
+    ui.section("API-Football (compos, blessés, vraies cotes)")
+    if apifootball.enabled():
+        n_inj = len(API.get("injuries", [])) if API.get("ok") else 0
+        ui.kpis([("Statut", "Connectée" if API.get("ok") else "Erreur", API.get("error") or "clé valide",
+                  "good" if API.get("ok") else "bad"),
+                 ("Requêtes aujourd'hui", f"{apifootball.usage_today()} / 100", "offre gratuite"),
+                 ("Absents suivis", n_inj, "3 prochains jours")])
+    else:
+        st.info("Pas encore de clé API-Football : l'appli fonctionne, mais sans compos, blessés ni vraies cotes "
+                "de coupe. Ajoute ta clé dans Streamlit → ⋮ → Settings → Secrets :  API_FOOTBALL_KEY = \"ta_clé\"")
     if st.button("🔄 Mettre à jour maintenant", type="primary", width="stretch", on_click=refresh_data):
         st.toast("Mise à jour lancée")
     st.markdown("- **Résultats, tirs, xG, cotes, calendrier des championnats** : football-data.co.uk\n"
