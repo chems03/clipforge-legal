@@ -37,7 +37,7 @@ m, results = model(st.session_state.nonce)
 info = getattr(m, "info", {})
 
 # ------------------------------------------------------------------ navigation
-PAGES = ["📅 Matchs", "🔍 Analyse", "🎮 Simulateur", "📊 Bilan", "🎟️ Ticket", "🏆 Classement", "👟 Buteurs",
+PAGES = ["📅 Matchs", "🔒 Pronos sûrs", "🔍 Analyse", "🎮 Simulateur", "📊 Bilan", "🎟️ Ticket", "🏆 Classement", "👟 Buteurs",
          "📈 Fiabilité"]
 ui.brand(f"{m.n_matches:,} matchs analysés · données au "
          f"{pd.Timestamp(m.ref_date - pd.Timedelta(days=1)):%d/%m/%Y}".replace(",", " "))
@@ -164,6 +164,60 @@ if page == "📅 Matchs":
                               on_click=open_match, args=(r.comp, r.home, r.away,
                                                          (r.o_h, r.o_d, r.o_a, r.o_o25, r.o_u25)),
                               width="stretch")
+
+elif page == "🔒 Pronos sûrs":
+    st.header("🔒 Pronos sûrs")
+    st.caption("Pour chaque match à venir, le pari le PLUS PROBABLE dont la cote atteint ton minimum. "
+               "Aucun pari n'est sûr à 100 % : un prono à 80 % perd 1 fois sur 5.")
+    c1, c2 = st.columns(2)
+    min_p = c1.slider("Probabilité minimum", 0.60, 0.95, 0.75, 0.01, format="%.2f")
+    min_c = c2.slider("Cote minimum", 1.05, 2.00, 1.15, 0.01, format="%.2f")
+    picks = engine.safe_picks(m, min_p, min_c)
+    if picks.empty:
+        st.info("Aucun pari ne remplit ces conditions pour les matchs publiés. Baisse un peu la probabilité "
+                "minimum ou attends la publication du calendrier du week-end (jeudi/vendredi).")
+    else:
+        mode = {"1X2": "Victoire", "Double chance": "Double chance", "Plus/Moins buts": "Buts",
+                "BTTS": "Les 2 marquent", "Remboursé si nul": "Remboursé si nul"}
+        for i, r in picks.iterrows():
+            chips = [(f"✅ {mode[r.marche]} : {r.pari}", True), (f"Proba {r.proba:.0%}", False),
+                     (f"Cote {r.cote:.2f}{'' if r.cote_reelle else ' (estimée)'}", False)]
+            res = engine.predict(m, r.home, r.away, r.comp)
+            kk = res["markets"]
+            ui.match_card(comp_label(r.comp, COMPETITIONS), f"{pd.Timestamp(r.date):%d/%m} {r.heure}", r.home, r.away,
+                          kk["1X2"]["1"], kk["1X2"]["N"], kk["1X2"]["2"], next(iter(kk["Score exact"])), chips)
+            if st.button(f"🎮 Parier 10 € fictifs sur « {r.pari} »", key=f"safe_{i}_{r.home}", width="stretch"):
+                pf = get_portfolio()
+                err = sim.place_bet(pf, home=r.home, away=r.away, comp=r.comp, market=r.marche, selection=r.pari,
+                                    odds=r.cote, stake=10, proba=r.proba, match_date=r.date)
+                if err:
+                    st.error(err)
+                else:
+                    sim.save_portfolio(pf)
+                    st.success("Pari fictif ajouté au simulateur ✅")
+        if len(picks) >= 2:
+            top = picks.head(3)
+            p_comb, c_comb = float(np.prod(top.proba)), float(np.prod(top.cote))
+            st.markdown(f"**🎟️ Combiné des {len(top)} plus sûrs** : cote **{c_comb:.2f}** · chance de passer "
+                        f"**{p_comb:.0%}**  \n" + " · ".join(f"{a} – {b} : {c}" for a, b, c in
+                                                             zip(top.home, top.away, top.pari)))
+            st.caption("Plus tu ajoutes de matchs, plus le combiné devient risqué : 3 pronos à 80 % ne passent "
+                       "ensemble qu'environ 1 fois sur 2.")
+
+    with st.expander("📊 Ce que cette méthode aurait donné cette saison"):
+        hs = hist.build_history(results, "clubs")
+        bt = sim.run_strategy(hs, results, "fav", min_p, min_odds=min_c)
+        if bt.empty:
+            st.write("Pas assez de matchs avec ces réglages.")
+        else:
+            w = int(bt.gagne.sum())
+            st.markdown(f"Favori de l'appli à **{min_p:.0%}** ou plus et cote ≥ **{min_c:.2f}**, 10 € par pari, "
+                        f"cote moyenne du marché : **{len(bt)} paris · ✅ {w} · ❌ {len(bt) - w} "
+                        f"({w / len(bt):.0%} de réussite) · bénéfice {bt.gain.sum():+.0f} € "
+                        f"(ROI {bt.gain.sum() / bt.mise.sum():+.1%})**")
+            st.line_chart(bt.assign(n=range(1, len(bt) + 1)).set_index("n")[["bankroll"]])
+            st.caption("Avec des cotes autour de 1,20, une seule défaite efface 4 à 5 victoires : un taux de "
+                       "réussite élevé ne garantit pas un bénéfice.")
 
 elif page == "🔍 Analyse":
     st.header("🔍 Analyse d'un match")

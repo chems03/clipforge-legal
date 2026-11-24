@@ -33,6 +33,8 @@ def wins(market: str, selection: str, hg: int, ag: int) -> bool | None:
         return both if selection == "Oui" else not both
     if market == "Score exact":
         return selection == f"{hg}-{ag}"
+    if market == "Remboursé si nul":
+        return None if res == "N" else selection == res
     return None
 
 
@@ -105,9 +107,12 @@ def auto_settle(p: dict, results: pd.DataFrame, nat_results: pd.DataFrame | None
             continue
         hg, ag = int(r.iloc[0].hg), int(r.iloc[0].ag)
         w = wins(b["market"], b["selection"], hg, ag)
-        if w is None:
-            continue
         b["score"] = f"{hg}-{ag}"
+        if w is None:
+            if b["market"] == "Remboursé si nul" and hg == ag:   # nul -> mise remboursée
+                b["status"], b["payout"] = "annulé", b["stake"]
+                n += 1
+            continue
         b["status"] = "gagné" if w else "perdu"
         b["payout"] = b["stake"] * b["odds"] if w else 0.0
         n += 1

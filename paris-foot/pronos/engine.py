@@ -184,3 +184,49 @@ def load_backtest() -> dict | None:
     if BACKTEST_JSON.exists():
         return json.loads(BACKTEST_JSON.read_text())
     return None
+
+
+# --------------------------------------------------------------------------- pronos « sûrs »
+SAFE_MARKETS = [("1X2", ["1", "2"]), ("Double chance", ["1N", "N2", "12"]),
+                ("Plus/Moins buts", ["+0.5", "+1.5", "-3.5", "-4.5"]), ("BTTS", ["Non"]),
+                ("Remboursé si nul", ["1", "2"])]
+BOOK_MARGIN = 0.93  # cote estimée = 0,93 / proba quand la vraie cote n'est pas connue
+
+
+def _real_odds(market: str, sel: str, o: dict):
+    h, d, a = o.get("h"), o.get("d"), o.get("a")
+    if market == "1X2":
+        return {"1": h, "2": a}.get(sel)
+    if market == "Double chance" and h and d and a:
+        pair = {"1N": (h, d), "N2": (d, a), "12": (h, a)}[sel]
+        return 1 / (1 / pair[0] + 1 / pair[1])
+    if market == "Plus/Moins buts":
+        return {"+2.5": o.get("o25"), "-2.5": o.get("u25")}.get(sel)
+    return None
+
+
+def safe_picks(m: Model, min_proba: float = 0.75, min_odds: float = 1.15, leagues=None) -> pd.DataFrame:
+    """Pour chaque match à venir : le pari le plus probable dont la cote ≥ min_odds."""
+    from .data import LEAGUES
+    t = upcoming_table(m, leagues=leagues or list(LEAGUES))
+    rows = []
+    for r in t.itertuples():
+        if r.approx:
+            continue
+        o = {k: (v if v == v else None) for k, v in dict(h=r.o_h, d=r.o_d, a=r.o_a, o25=r.o_o25, u25=r.o_u25).items()}
+        res = predict(m, r.home, r.away, r.comp, odds=o if o["h"] else None)
+        k = res["markets"]
+        ou = {**k["Plus/Moins buts"], **{"-" + s_[1:]: 1 - p for s_, p in k["Plus/Moins buts"].items()}}
+        best = None
+        for market, sels in SAFE_MARKETS:
+            src = ou if market == "Plus/Moins buts" else k[market]
+            for sel in sels:
+                p = float(src[sel])
+                real = _real_odds(market, sel, o)
+                cote = float(real) if real else BOOK_MARGIN / p
+                if p >= min_proba and cote >= min_odds and (best is None or p > best["proba"]):
+                    best = dict(date=r.date, heure=r.heure, comp=r.comp, home=r.home, away=r.away, marche=market,
+                                pari=sel, proba=p, cote=round(cote, 2), cote_reelle=bool(real))
+        if best:
+            rows.append(best)
+    return pd.DataFrame(rows).sort_values("proba", ascending=False).reset_index(drop=True) if rows else pd.DataFrame()
