@@ -121,6 +121,65 @@ h2 { font-size: 1.45rem !important; }
 .pf-tag { display:inline-block; font-size:.68rem; font-weight:700; padding:2px 8px; border-radius:99px; margin-right:6px; }
 .pf-tag.g { background:rgba(34,197,94,.15); color:#4ade80; } .pf-tag.r { background:rgba(248,113,113,.15); color:#f87171; }
 .pf-tag.w { background:rgba(148,163,184,.15); color:#cbd5e1; } .pf-tag.y { background:rgba(250,204,21,.15); color:#facc15; }
+/* ---------- affiches déroulantes ---------- */
+details.pf-acc { background:linear-gradient(180deg,rgba(17,24,39,.92),rgba(13,19,33,.92)); border:1px solid #1f2937;
+  border-radius:18px; margin:0 0 10px 0; overflow:hidden; transition:border-color .2s, box-shadow .2s; }
+details.pf-acc[open] { border-color:rgba(34,197,94,.55); box-shadow:0 10px 30px rgba(0,0,0,.35), 0 0 0 1px rgba(34,197,94,.15) inset; }
+details.pf-acc summary { list-style:none; cursor:pointer; padding:12px 14px; -webkit-tap-highlight-color:transparent; }
+details.pf-acc summary::-webkit-details-marker { display:none; }
+.pf-sum { display:grid; grid-template-columns: 44px 1fr auto; gap:10px; align-items:center; }
+.pf-time { font-weight:800; font-size:.85rem; color:#e5e7eb; text-align:center; line-height:1.1; }
+.pf-time small { display:block; font-size:.62rem; color:#64748b; font-weight:600; margin-top:2px; }
+.pf-tm { display:flex; align-items:center; gap:8px; font-weight:700; font-size:.92rem; line-height:1.25; }
+.pf-tm + .pf-tm { margin-top:6px; }
+.pf-tm .pf-crest { width:24px !important; height:24px !important; font-size:8px !important; border-width:1px; box-shadow:none; }
+.pf-pp { display:flex; flex-direction:column; gap:6px; align-items:flex-end; font-variant-numeric:tabular-nums; }
+.pf-pp span { font-size:.8rem; font-weight:800; min-width:38px; text-align:center; padding:2px 6px; border-radius:8px;
+  background:#0b1220; border:1px solid #1f2937; }
+.pf-pp span.hi { background:rgba(34,197,94,.14); border-color:rgba(34,197,94,.45); color:#4ade80; }
+.pf-chev { color:#64748b; font-size:.75rem; text-align:center; margin-top:6px; transition:transform .25s; }
+details.pf-acc[open] .pf-chev { transform:rotate(180deg); }
+.pf-body { padding:4px 14px 14px 14px; animation:pfIn .28s ease-out; }
+@keyframes pfIn { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:none; } }
+.pf-mini { display:grid; grid-template-columns: repeat(3, 1fr); gap:6px; margin-top:10px; }
+.pf-mini div { background:#0b1220; border:1px solid #1f2937; border-radius:12px; padding:8px; text-align:center; }
+.pf-mini b { display:block; font-size:1rem; font-variant-numeric:tabular-nums; }
+.pf-mini small { color:#94a3b8; font-size:.66rem; text-transform:uppercase; letter-spacing:.04em; }
+.pf-scores { display:flex; gap:6px; flex-wrap:wrap; margin-top:10px; }
+.pf-scores span { font-size:.78rem; padding:4px 9px; border-radius:10px; background:#0b1220; border:1px solid #1f2937; }
+.pf-scores span b { margin-right:4px; }
+
+.pf-link { display:block; text-align:center; margin-top:12px; padding:10px; border-radius:12px; font-weight:700;
+  font-size:.86rem; color:#0b1220 !important; text-decoration:none !important;
+  background:linear-gradient(90deg,#22c55e,#4ade80); }
+
+/* ---------- match à la une ---------- */
+.pf-feat { position:relative; border-radius:22px; padding:16px; margin:4px 0 14px 0; overflow:hidden;
+  background: radial-gradient(130% 120% at 0% 0%, rgba(34,197,94,.35) 0%, rgba(15,23,42,0) 55%),
+              radial-gradient(120% 120% at 100% 100%, rgba(59,130,246,.30) 0%, rgba(15,23,42,0) 55%), #0f172a;
+  border:1px solid rgba(255,255,255,.08); box-shadow:0 18px 40px rgba(0,0,0,.45); }
+.pf-feat .lbl { font-size:.66rem; font-weight:800; letter-spacing:.12em; color:#4ade80; text-transform:uppercase; }
+
+/* ---------- tickets combinés ---------- */
+.pf-ticket { position:relative; border-radius:20px; margin:0 0 14px 0; overflow:hidden;
+  background:linear-gradient(160deg,#111827 0%,#0b1220 100%); border:1px solid #1f2937; }
+.pf-ticket .hd { display:flex; justify-content:space-between; align-items:center; padding:14px 16px;
+  background:linear-gradient(90deg, var(--c1), var(--c2)); }
+.pf-ticket .hd b { font-size:1.02rem; font-weight:800; color:#fff; }
+.pf-ticket .hd span { font-size:.72rem; color:rgba(255,255,255,.85); }
+.pf-ticket .lg { display:flex; justify-content:space-between; gap:10px; padding:10px 16px; border-top:1px dashed #263244; }
+.pf-ticket .lg .m { font-weight:700; font-size:.88rem; }
+.pf-ticket .lg .d { color:#94a3b8; font-size:.76rem; margin-top:2px; }
+.pf-ticket .lg .o { font-weight:800; font-variant-numeric:tabular-nums; text-align:right; }
+.pf-ticket .lg .o small { display:block; color:#94a3b8; font-weight:500; font-size:.7rem; }
+.pf-ticket .ft { display:grid; grid-template-columns:repeat(3,1fr); border-top:1px solid #1f2937; }
+.pf-ticket .ft div { padding:10px; text-align:center; }
+.pf-ticket .ft div + div { border-left:1px solid #1f2937; }
+.pf-ticket .ft b { display:block; font-size:1.15rem; font-weight:800; font-variant-numeric:tabular-nums; }
+.pf-ticket .ft small { color:#94a3b8; font-size:.66rem; text-transform:uppercase; letter-spacing:.05em; }
+.pf-ticket::before, .pf-ticket::after { content:""; position:absolute; width:18px; height:18px; border-radius:50%;
+  background:#0b1220; top:58px; } .pf-ticket::before { left:-9px; } .pf-ticket::after { right:-9px; }
+
 /* bouton discret sous les cartes */
 .stButton button[kind="tertiary"] { color:#4ade80 !important; font-size:.85rem; padding:0 !important; min-height:1.6rem; }
 </style>
@@ -135,6 +194,12 @@ def brand(subtitle: str):
     st.markdown(f"""<div class="pf-brand"><div class="pf-logo">⚽</div><div>
         <div class="pf-title">Pronos Foot</div><div class="pf-sub">{html.escape(subtitle)}</div></div></div>""",
                 unsafe_allow_html=True)
+
+
+def _bar_only(p1, pn, p2):
+    return (f'<div class="pf-bar" style="margin:10px 0 0 0"><div style="width:{p1*100:.1f}%;background:{GREEN}"></div>'
+            f'<div style="width:{pn*100:.1f}%;background:{GREY}"></div>'
+            f'<div style="width:{p2*100:.1f}%;background:{BLUE}"></div></div>')
 
 
 def _bar(p1, pn, p2):
@@ -227,3 +292,67 @@ def bet_row(title: str, detail: str, right: str, right_sub: str = "", tag: tuple
         f'<div class="d">{html.escape(detail)}</div></div>'
         f'<div class="r">{html.escape(right)}<small>{html.escape(right_sub)}</small></div></div>',
         unsafe_allow_html=True)
+
+
+def _short(team: str, n: int = 18) -> str:
+    return team if len(team) <= n else team[: n - 1] + "…"
+
+
+def match_accordion(comp_lbl: str, when: str, day: str, home: str, away: str, k: dict, lam: tuple,
+                    chips: list[tuple[str, bool]], national: bool = False, open_: bool = False,
+                    href: str | None = None) -> str:
+    """Affiche compacte qui se déroule (HTML <details>) : résumé + détails des principaux paris."""
+    from .badges import crest
+    e = html.escape
+    p = k["1X2"]
+    best = max(p, key=p.get)
+    pp = "".join(f'<span class="{"hi" if s == best else ""}">{p[s] * 100:.0f}%</span>' for s in ("1", "N", "2"))
+    top = list(k["Score exact"].items())[:4]
+    chips_html = "".join(f'<span class="pf-chip{" v" if v else ""}">{e(c)}</span>' for c, v in chips)
+    mini = (f'<div><small>+2,5 buts</small><b>{k["Plus/Moins buts"]["+2.5"]:.0%}</b></div>'
+            f'<div><small>2 marquent</small><b>{k["BTTS"]["Oui"]:.0%}</b></div>'
+            f'<div><small>xG</small><b>{lam[0]:.1f}–{lam[1]:.1f}</b></div>'
+            f'<div><small>{e(_short(home, 10))} ou nul</small><b>{k["Double chance"]["1N"]:.0%}</b></div>'
+            f'<div><small>Pas de nul</small><b>{k["Double chance"]["12"]:.0%}</b></div>'
+            f'<div><small>Nul ou {e(_short(away, 8))}</small><b>{k["Double chance"]["N2"]:.0%}</b></div>')
+    scores = "".join(f"<span><b>{e(sc)}</b>{pr:.0%}</span>" for sc, pr in top)
+    link = (f'<a class="pf-link" href="{e(href)}" target="_self">Tous les paris de ce match →</a>' if href else "")
+    return f"""<details class="pf-acc"{' open' if open_ else ''}><summary>
+      <div class="pf-sum"><div class="pf-time">{e(when)}<small>{e(day)}</small></div>
+        <div><div class="pf-tm">{crest(home, national, 24)}{e(_short(home))}</div>
+             <div class="pf-tm">{crest(away, national, 24)}{e(_short(away))}</div></div>
+        <div class="pf-pp">{pp}</div></div>
+      {_bar_only(p['1'], p['N'], p['2'])}
+      <div class="pf-chev">▼</div></summary>
+      <div class="pf-body"><div class="pf-meta"><span style="text-transform:none">{e(comp_lbl)}</span>
+        <span>score probable {e(top[0][0])}</span></div>
+        <div class="pf-chips">{chips_html}</div><div class="pf-mini">{mini}</div>
+        <div class="pf-section" style="margin:12px 0 0 2px">Scores exacts les plus probables</div>
+        <div class="pf-scores">{scores}</div>{link}</div></details>"""
+
+
+def featured(comp_lbl: str, when: str, home: str, away: str, k: dict, lam: tuple, national: bool = False):
+    from .badges import crest
+    e = html.escape
+    p = k["1X2"]
+    top = next(iter(k["Score exact"]))
+    st.markdown(f"""<div class="pf-feat"><div class="pf-meta"><span class="lbl">★ Match à la une</span>
+      <span>{e(comp_lbl)} · {e(when)}</span></div>
+      <div class="pf-teams"><div class="pf-team">{crest(home, national, 54)}{e(home)}</div>
+        <div class="pf-score">{e(top)}<small>score probable</small></div>
+        <div class="pf-team r">{crest(away, national, 54)}{e(away)}</div></div>
+      {_bar(p['1'], p['N'], p['2'])}</div>""", unsafe_allow_html=True)
+
+
+def ticket(name: str, subtitle: str, c1: str, c2: str, legs: list[dict], total_odds: float, prob: float):
+    e = html.escape
+    rows = "".join(
+        f'<div class="lg"><div><div class="m">{e(l["home"])} – {e(l["away"])}</div>'
+        f'<div class="d">{e(l["label"])} · {l["proba"]:.0%}</div></div>'
+        f'<div class="o">{l["cote"]:.2f}<small>{"cote" if l.get("reelle") else "estimée"}</small></div></div>'
+        for l in legs)
+    st.markdown(f"""<div class="pf-ticket" style="--c1:{c1};--c2:{c2}">
+      <div class="hd"><b>{e(name)}</b><span>{e(subtitle)}</span></div>{rows}
+      <div class="ft"><div><small>Cote</small><b>{total_odds:.2f}</b></div>
+        <div><small>Chance</small><b>{prob:.0%}</b></div>
+        <div><small>10 € →</small><b>{10 * total_odds:.0f} €</b></div></div></div>""", unsafe_allow_html=True)

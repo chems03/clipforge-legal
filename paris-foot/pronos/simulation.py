@@ -86,6 +86,47 @@ def place_bet(p: dict, *, home: str, away: str, comp: str, market: str, selectio
     return None
 
 
+def place_combo(p: dict, name: str, legs: list[dict], stake: float) -> str | None:
+    if stake <= 0:
+        return "La mise doit être positive."
+    if stake > balance(p)["solde"] + 1e-9:
+        return "Solde fictif insuffisant."
+    odds = float(np.prod([l["cote"] for l in legs]))
+    p["bets"].append(dict(
+        id=uuid.uuid4().hex[:8], cree=datetime.now().isoformat(timespec="minutes"),
+        date=str(max(pd.Timestamp(l["date"]) for l in legs).date()), comp="Combiné",
+        home=f"Combiné {len(legs)} matchs", away="", market="Combiné", selection=name, odds=odds,
+        stake=float(stake), proba=float(np.prod([l["proba"] for l in legs])), kind="clubs",
+        status="en cours", payout=0.0, score=None,
+        legs=[dict(home=l["home"], away=l["away"], comp=l["comp"], market=l["market"], selection=l["selection"],
+                   label=l.get("label", ""), cote=float(l["cote"]), date=str(pd.Timestamp(l["date"]).date()),
+                   status="en cours", score=None) for l in legs]))
+    return None
+
+
+def _settle_combo(b: dict, results: pd.DataFrame) -> bool:
+    for lg in b["legs"]:
+        if lg["status"] != "en cours":
+            continue
+        since = pd.Timestamp(lg["date"]) - pd.Timedelta(days=1)
+        r = results[(results.home == lg["home"]) & (results.away == lg["away"]) & (results.date >= since)]
+        if r.empty:
+            continue
+        hg, ag = int(r.sort_values("date").iloc[0].hg), int(r.sort_values("date").iloc[0].ag)
+        w = wins(lg["market"], lg["selection"], hg, ag)
+        lg["score"] = f"{hg}-{ag}"
+        lg["status"] = "annulé" if w is None else ("gagné" if w else "perdu")
+    st_ = [lg["status"] for lg in b["legs"]]
+    if "perdu" in st_:
+        b["status"], b["payout"] = "perdu", 0.0
+        return True
+    if "en cours" not in st_:
+        odds = float(np.prod([lg["cote"] for lg in b["legs"] if lg["status"] == "gagné"] or [1.0]))
+        b["odds"], b["status"], b["payout"] = odds, "gagné", b["stake"] * odds
+        return True
+    return False
+
+
 def settle_manual(p: dict, bet_id: str, status: str) -> None:
     for b in p["bets"]:
         if b["id"] == bet_id and b["status"] == "en cours":
@@ -98,6 +139,9 @@ def auto_settle(p: dict, results: pd.DataFrame, nat_results: pd.DataFrame | None
     n = 0
     for b in p["bets"]:
         if b["status"] != "en cours":
+            continue
+        if b.get("market") == "Combiné":
+            n += int(_settle_combo(b, results))
             continue
         src = nat_results if b.get("kind") == "nat" and nat_results is not None else results
         since = pd.Timestamp(b["date"]) - pd.Timedelta(days=1) if b.get("date") else \

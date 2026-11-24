@@ -230,3 +230,79 @@ def safe_picks(m: Model, min_proba: float = 0.75, min_odds: float = 1.15, league
         if best:
             rows.append(best)
     return pd.DataFrame(rows).sort_values("proba", ascending=False).reset_index(drop=True) if rows else pd.DataFrame()
+
+
+# --------------------------------------------------------------------------- combinés automatiques
+LEG_MARKETS = [("1X2", ["1", "2"]), ("Double chance", ["1N", "N2", "12"]), ("Remboursé si nul", ["1", "2"]),
+               ("Plus/Moins buts", ["+0.5", "+1.5", "+2.5", "-2.5", "-3.5", "-4.5"]), ("BTTS", ["Oui", "Non"])]
+
+
+def leg_label(market: str, sel: str, home: str, away: str) -> str:
+    if market == "1X2":
+        return f"Victoire {home if sel == '1' else away}"
+    if market == "Double chance":
+        return {"1N": f"{home} ou nul", "N2": f"Nul ou {away}", "12": "Pas de match nul"}[sel]
+    if market == "Remboursé si nul":
+        return f"{home if sel == '1' else away} (remboursé si nul)"
+    if market == "Plus/Moins buts":
+        return f"{'Plus' if sel[0] == '+' else 'Moins'} de {sel[1:].replace('.', ',')} buts"
+    if market == "BTTS":
+        return "Les 2 équipes marquent" if sel == "Oui" else "Une équipe ne marque pas"
+    return f"{market} {sel}"
+
+
+def match_legs(m: Model, leagues=None) -> list[dict]:
+    """Tous les paris candidats (proba + cote réelle ou estimée) de chaque match à venir couvert."""
+    from .data import LEAGUES
+    t = upcoming_table(m, leagues=leagues or list(LEAGUES))
+    out = []
+    for r in t.itertuples():
+        if r.approx:
+            continue
+        o = {k: (v if v == v else None) for k, v in dict(h=r.o_h, d=r.o_d, a=r.o_a, o25=r.o_o25, u25=r.o_u25).items()}
+        k = predict(m, r.home, r.away, r.comp, odds=o if o["h"] else None)["markets"]
+        ou = {**k["Plus/Moins buts"], **{"-" + s_[1:]: 1 - p for s_, p in k["Plus/Moins buts"].items()}}
+        legs = []
+        for market, sels in LEG_MARKETS:
+            src = ou if market == "Plus/Moins buts" else k[market]
+            for sel in sels:
+                p = float(src[sel])
+                real = _real_odds(market, sel, o)
+                cote = float(real) if real else BOOK_MARGIN / p
+                legs.append(dict(date=r.date, heure=r.heure, comp=r.comp, home=r.home, away=r.away, market=market,
+                                 selection=sel, label=leg_label(market, sel, r.home, r.away), proba=p,
+                                 cote=round(cote, 2), reelle=bool(real)))
+        out.append(dict(key=(r.home, r.away), legs=legs))
+    return out
+
+
+COMBOS = {
+    "sur": dict(name="🛡️ Combiné sûr", sub="2-3 pronos très probables", c1="#15803d", c2="#22c55e",
+                min_p=0.75, cmin=1.15, cmax=1.45, target=1.5, max_legs=3),
+    "equilibre": dict(name="⚖️ Combiné équilibré", sub="objectif cote ≈ 3", c1="#1d4ed8", c2="#3b82f6",
+                      min_p=0.60, cmin=1.30, cmax=1.90, target=3.0, max_legs=5),
+    "audacieux": dict(name="🚀 Combiné audacieux", sub="objectif cote ≥ 8", c1="#7c3aed", c2="#db2777",
+                      min_p=0.45, cmin=1.55, cmax=2.80, target=8.0, max_legs=6),
+}
+
+
+def build_combos(m: Model, leagues=None) -> dict:
+    """Construit un ticket par profil : une sélection max par match, les plus probables d'abord."""
+    matches = match_legs(m, leagues)
+    res = {}
+    for key, cfg in COMBOS.items():
+        best_per_match = []
+        for mt in matches:
+            ok = [l for l in mt["legs"] if l["proba"] >= cfg["min_p"] and cfg["cmin"] <= l["cote"] <= cfg["cmax"]]
+            if ok:
+                best_per_match.append(max(ok, key=lambda l: l["proba"]))
+        best_per_match.sort(key=lambda l: -l["proba"])
+        legs, odds = [], 1.0
+        for l in best_per_match:
+            if odds >= cfg["target"] or len(legs) >= cfg["max_legs"]:
+                break
+            legs.append(l)
+            odds *= l["cote"]
+        if len(legs) >= 2:
+            res[key] = dict(**cfg, legs=legs, odds=odds, proba=float(np.prod([l["proba"] for l in legs])))
+    return res

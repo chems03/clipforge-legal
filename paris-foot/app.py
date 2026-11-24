@@ -39,10 +39,25 @@ m, results = model(st.session_state.nonce)
 info = getattr(m, "info", {})
 
 # ------------------------------------------------------------------ navigation
-PAGES = ["📅 Matchs", "🔒 Sûrs", "🔍 Analyse", "🎮 Simu", "📊 Bilan", "☰ Plus"]
-MORE = ["🎟️ Ticket", "🏆 Classement", "👟 Buteurs", "📈 Fiabilité", "⚙️ Données"]
+PAGES = ["📅 Matchs", "🔒 Sûrs", "🎟️ Combinés", "🔍 Analyse", "🎮 Simu", "📊 Bilan", "☰ Plus"]
+MORE = ["🧾 Mon ticket", "🏆 Classement", "👟 Buteurs", "📈 Fiabilité", "⚙️ Données"]
 ui.brand(f"{m.n_matches:,} matchs analysés · données au "
          f"{pd.Timestamp(m.ref_date - pd.Timedelta(days=1)):%d/%m/%Y}".replace(",", " "))
+_qp = st.query_params
+if "h" in _qp and "a" in _qp and "c" in _qp:
+    st.session_state.page = "🔍 Analyse"
+    st.session_state.kind = "⚽ Clubs"
+    _c = _qp["c"]
+    st.session_state.comp_pill = _c if _c in ["F1", "E0", "SP1", "I1", "D1", "CL", "EL", "ECL"] else "➕"
+    if st.session_state.comp_pill == "➕":
+        st.session_state.comp_other = _c
+    st.session_state.home_club, st.session_state.away_club = _qp["h"], _qp["a"]
+    for _key in ["ch", "cd", "ca", "co", "cu"]:
+        try:
+            st.session_state[_key] = float(_qp.get(_key, 0) or 0)
+        except ValueError:
+            st.session_state[_key] = 0.0
+    st.query_params.clear()
 st.session_state.setdefault("page", PAGES[0])
 if st.session_state.page not in PAGES:
     st.session_state.page = PAGES[0]
@@ -114,8 +129,8 @@ def team_label(t):
 
 # ------------------------------------------------------------------ pages
 if page == "📅 Matchs":
-    ui.page_title("Prochains matchs", "Probabilités de l'appli pour chaque affiche. Touche « Analyse complète » "
-                  "pour tous les paris d'un match.")
+    ui.page_title("Prochains matchs", "Touche une affiche pour la dérouler. Les 3 pourcentages = victoire "
+                  "domicile, nul, victoire extérieur.")
     _info = st.expander("ℹ️ Comment lire une carte")
     _info.markdown("- **Barre verte / grise / bleue** : chances de victoire domicile, nul, victoire extérieur.\n"
                    "- **Score probable** : le score le plus fréquent si on rejouait le match des milliers de fois.\n"
@@ -154,26 +169,74 @@ if page == "📅 Matchs":
                                                                            max_value=100)
                                         for c in ["P1", "PN", "P2", "P+2.5", "BTTS"]})
         else:
+            from urllib.parse import urlencode
             days = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"]
             months = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.",
                       "nov.", "déc."]
+            strength = m.ratings().set_index("equipe")["diff"].to_dict()
+
+            def _k(r):
+                o = {k_: (v if v == v else None) for k_, v in dict(h=r.o_h, d=r.o_d, a=r.o_a, o25=r.o_o25,
+                                                                    u25=r.o_u25).items()}
+                res = engine.predict(m, r.home, r.away, r.comp, odds=o if o["h"] else None,
+                                     allow_unknown=bool(r.approx))
+                return res["markets"], res["lambda"]
+
+            # match à la une : la plus grosse affiche des 2 prochains jours
+            soon = t[t.date <= t.date.min() + pd.Timedelta(days=1)]
+            if not soon.empty:
+                fr = max(soon.itertuples(), key=lambda r: min(strength.get(r.home, -9), strength.get(r.away, -9)))
+                fk, fl = _k(fr)
+                ui.featured(comp_label(fr.comp, COMPETITIONS), f"{pd.Timestamp(fr.date):%d/%m} · {fr.heure}",
+                            fr.home, fr.away, fk, fl)
             for d, grp in t.rename(columns={"P+2.5": "P_o25"}).groupby("date", sort=True):
                 d = pd.Timestamp(d)
-                st.markdown(f'<div class="pf-day">{days[d.weekday()]} {d.day} {months[d.month - 1]}</div>',
-                            unsafe_allow_html=True)
-                for i, r in enumerate(grp.itertuples()):
-                    chips = [(f"+2.5 buts {r.P_o25:.0%}", False), (f"Les 2 marquent {r.BTTS:.0%}", False),
-                             (f"xG {r.xg_dom:.1f} – {r.xg_ext:.1f}", False)]
+                st.markdown(f'<div class="pf-day">{days[d.weekday()]} {d.day} {months[d.month - 1]} · '
+                            f'{len(grp)} match{"s" if len(grp) > 1 else ""}</div>', unsafe_allow_html=True)
+                html_items = []
+                for r in grp.itertuples():
+                    kk, lam = _k(r)
+                    chips = []
                     if r.value:
-                        chips.insert(0, (f"💰 Value : {r.value}", True))
+                        chips.append((f"💰 Value : {r.value}", True))
                     if r.approx:
-                        chips.insert(0, ("⚠️ Estimation : équipe hors base", False))
-                    ui.match_card(comp_label(r.comp, COMPETITIONS), str(r.heure), r.home, r.away, r.P1, r.PN, r.P2,
-                                  r.score_probable.split(" ")[0], chips)
-                    if not r.approx:
-                      st.button("Analyse complète →", key=f"an_{r.comp}_{r.home}_{r.away}", type="tertiary",
-                              on_click=open_match, args=(r.comp, r.home, r.away,
-                                                         (r.o_h, r.o_d, r.o_a, r.o_o25, r.o_u25)))
+                        chips.append(("⚠️ Estimation : équipe hors base", False))
+                    href = None if r.approx else "?" + urlencode(dict(
+                        h=r.home, a=r.away, c=r.comp, **{k_: (f"{v:.2f}" if v == v and v else "0") for k_, v in
+                                                        zip(["ch", "cd", "ca", "co", "cu"],
+                                                            [r.o_h, r.o_d, r.o_a, r.o_o25, r.o_u25])}))
+                    html_items.append(ui.match_accordion(comp_label(r.comp, COMPETITIONS), str(r.heure),
+                                                         comp_label(r.comp, COMPETITIONS).split(" ")[0], r.home,
+                                                         r.away, kk, lam, chips, href=href))
+                st.markdown("".join(html_items), unsafe_allow_html=True)
+
+elif page == "🎟️ Combinés":
+    ui.page_title("Combinés", "Trois tickets construits par l'appli sur les matchs à venir, du plus sûr au plus "
+                  "audacieux. Une seule sélection par match.")
+    combos = engine.build_combos(m)
+    if not combos:
+        st.info("Pas assez de matchs publiés pour construire des combinés. Reviens quand le calendrier du "
+                "week-end sera sorti (jeudi/vendredi).")
+    for key, cb in combos.items():
+        ui.ticket(cb["name"], cb["sub"], cb["c1"], cb["c2"], cb["legs"], cb["odds"], cb["proba"])
+        c1, c2 = st.columns([1, 1])
+        mise = c1.number_input("Mise fictive (€)", 1.0, 10000.0, 10.0, 1.0, key=f"cb_mise_{key}",
+                               label_visibility="collapsed")
+        if c2.button("🎮 Jouer en fictif", key=f"cb_{key}", width="stretch"):
+            pf = get_portfolio()
+            err = sim.place_combo(pf, cb["name"], cb["legs"], mise)
+            if err:
+                st.error(err)
+            else:
+                sim.save_portfolio(pf)
+                st.success("Combiné ajouté au simulateur ✅ Il se réglera tout seul après les matchs.")
+    if combos:
+        with st.expander("ℹ️ Bien comprendre un combiné"):
+            st.markdown("- **Chance** = probabilité que *tous* les pronos passent (on multiplie les probabilités).\n"
+                        "- Chaque match ajouté **multiplie la cote mais aussi la marge du bookmaker** : à long terme, "
+                        "un combiné rapporte moins qu'un pari simple, sauf si chaque sélection a de la value.\n"
+                        "- « estimée » = cote calculée par l'appli (vraie cote inconnue). **Vérifie chez ton "
+                        "bookmaker** : si sa cote est plus basse, le ticket rapportera moins.")
 
 elif page == "🔒 Sûrs":
     ui.page_title("Pronos sûrs", "Le pari le plus probable de chaque match, avec une cote minimum. "
@@ -495,8 +558,17 @@ elif page == "🎮 Simu":
                 gain = (b["payout"] - b["stake"]) if b["status"] in ("gagné", "perdu") else 0.0
                 right = f"{gain:+.2f} €" if b["status"] in ("gagné", "perdu") else f"{b['stake']:.0f} €"
                 sub = (f"score {b['score']}" if b["score"] else f"gain possible {b['stake'] * (b['odds'] - 1):.0f} €")
-                ui.bet_row(f"{b['home']} – {b['away']}", f"{b['market']} : {b['selection']} · cote {b['odds']:.2f} · "
-                           f"mise {b['stake']:.0f} €", right, sub, tags[b["status"]])
+                if b.get("market") == "Combiné":
+                    done = sum(1 for lg in b["legs"] if lg["status"] != "en cours")
+                    icon = {"gagné": "✅", "perdu": "❌", "annulé": "↩️", "en cours": "⏳"}
+                    ui.bet_row(f"{b['selection']} ({len(b['legs'])} matchs)",
+                               " · ".join(f"{icon[lg['status']]} {lg['home']}–{lg['away']} : {lg.get('label') or lg['selection']}"
+                                          for lg in b["legs"]) + f" · cote {b['odds']:.2f} · mise {b['stake']:.0f} €",
+                               right, sub if b["status"] != "en cours" else f"{done}/{len(b['legs'])} joués",
+                               tags[b["status"]])
+                else:
+                    ui.bet_row(f"{b['home']} – {b['away']}", f"{b['market']} : {b['selection']} · cote {b['odds']:.2f} · "
+                               f"mise {b['stake']:.0f} €", right, sub, tags[b["status"]])
                 if b["status"] == "en cours":
                     act = st.selectbox("Régler à la main", ["—", "gagné", "perdu", "annulé"], key=f"set_{b['id']}",
                                        label_visibility="collapsed")
@@ -504,8 +576,8 @@ elif page == "🎮 Simu":
                         sim.settle_manual(pf, b["id"], act)
                         sim.save_portfolio(pf)
                         st.rerun()
-            st.caption("Les paris sur les championnats et les sélections se règlent tout seuls dès que le résultat "
-                       "est publié. Pour la C1 / C3 / C4 2026-27 (résultats pas encore publiés), règle-les à la main.")
+            st.caption("Les paris se règlent tout seuls dès que le score est publié (championnats, coupes d'Europe, "
+                       "sélections). Seuls les matchs d'équipes « hors base » sont à régler à la main.")
 
     with t_strat:
         st.markdown("Rejoue **tous les matchs de la saison** avec une règle simple, aux **vraies cotes "
@@ -668,7 +740,7 @@ elif page == "📊 Bilan":
             sv["profit"] = sv.profit.map(lambda x: f"{x:+.2f} €")
             st.dataframe(sv, hide_index=True, width="stretch")
 
-elif page == "🎟️ Ticket":
+elif page == "🧾 Mon ticket":
     ui.page_title("Ticket combiné", "Assemble plusieurs paris et vois la vraie chance que tout passe.")
     t = st.session_state.ticket
     if not t:
