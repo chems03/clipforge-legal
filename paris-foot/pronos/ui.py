@@ -82,6 +82,47 @@ h2 { font-size: 1.45rem !important; }
 [data-testid="stDataFrame"] { border-radius:12px; overflow:hidden; }
 .pf-day { font-weight:800; font-size:.85rem; color:#94a3b8; margin:16px 0 8px 2px; text-transform:capitalize; }
 .pf-foot { font-size:.7rem; color:#64748b; text-align:center; margin-top:28px; }
+
+/* titres de page */
+.pf-page { margin:.6rem 0 1rem 0; }
+.pf-page h1 { font-size:1.55rem !important; margin:0 !important; padding:0 !important; font-weight:800 !important; }
+.pf-page p { margin:.25rem 0 0 0; color:#94a3b8; font-size:.88rem; line-height:1.35; }
+.pf-section { font-size:.78rem; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:.06em;
+  margin:18px 0 8px 2px; }
+
+/* chiffres clés */
+.pf-kgrid { display:grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap:8px; margin:4px 0 12px 0; }
+.pf-k { background:#111827; border:1px solid #1f2937; border-radius:14px; padding:12px 14px; }
+.pf-k .l { font-size:.7rem; color:#94a3b8; text-transform:uppercase; letter-spacing:.05em; }
+.pf-k .v { font-size:1.45rem; font-weight:800; font-variant-numeric:tabular-nums; margin-top:2px; }
+.pf-k .s { font-size:.75rem; color:#94a3b8; margin-top:2px; }
+.pf-k.good .v { color:#4ade80; } .pf-k.bad .v { color:#f87171; }
+
+/* listes de marchés */
+.pf-list { background:#111827; border:1px solid #1f2937; border-radius:14px; padding:6px 12px; margin:0 0 10px 0; }
+.pf-list .t { font-size:.72rem; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:.05em;
+  padding:6px 0 4px 0; }
+.pf-row { display:grid; grid-template-columns: minmax(70px, 1.2fr) 2fr 52px 52px; align-items:center; gap:10px;
+  padding:7px 0; border-top:1px solid #1a2333; font-size:.85rem; font-variant-numeric:tabular-nums; }
+.pf-row:first-of-type { border-top:none; }
+.pf-row .n { font-weight:600; color:#e5e7eb; }
+.pf-row .b { height:6px; border-radius:99px; background:#1f2937; overflow:hidden; }
+.pf-row .b i { display:block; height:100%; background:linear-gradient(90deg,#16a34a,#22c55e); border-radius:99px; }
+.pf-row .p { text-align:right; font-weight:700; }
+.pf-row .o { text-align:right; color:#94a3b8; font-size:.78rem; }
+
+/* lignes de paris (simulateur / value) */
+.pf-bet { display:flex; justify-content:space-between; gap:10px; align-items:center; background:#111827;
+  border:1px solid #1f2937; border-radius:14px; padding:10px 14px; margin:0 0 8px 0; }
+.pf-bet .m { font-weight:700; font-size:.92rem; }
+.pf-bet .d { color:#94a3b8; font-size:.8rem; margin-top:2px; }
+.pf-bet .r { text-align:right; font-weight:800; font-variant-numeric:tabular-nums; white-space:nowrap; }
+.pf-bet .r small { display:block; color:#94a3b8; font-weight:500; font-size:.72rem; }
+.pf-tag { display:inline-block; font-size:.68rem; font-weight:700; padding:2px 8px; border-radius:99px; margin-right:6px; }
+.pf-tag.g { background:rgba(34,197,94,.15); color:#4ade80; } .pf-tag.r { background:rgba(248,113,113,.15); color:#f87171; }
+.pf-tag.w { background:rgba(148,163,184,.15); color:#cbd5e1; } .pf-tag.y { background:rgba(250,204,21,.15); color:#facc15; }
+/* bouton discret sous les cartes */
+.stButton button[kind="tertiary"] { color:#4ade80 !important; font-size:.85rem; padding:0 !important; min-height:1.6rem; }
 </style>
 """
 
@@ -143,3 +184,46 @@ def hero(comp: str, home: str, away: str, lh: float, la: float, k: dict, note: s
 def footer():
     st.markdown('<div class="pf-foot">Probabilités, pas certitudes · Joue responsable · '
                 'Joueurs Info Service 09 74 75 13 13</div>', unsafe_allow_html=True)
+
+
+def page_title(title: str, subtitle: str = ""):
+    sub = f"<p>{html.escape(subtitle)}</p>" if subtitle else ""
+    st.markdown(f'<div class="pf-page"><h1>{html.escape(title)}</h1>{sub}</div>', unsafe_allow_html=True)
+
+
+def section(title: str):
+    st.markdown(f'<div class="pf-section">{html.escape(title)}</div>', unsafe_allow_html=True)
+
+
+def kpis(items: list[tuple]):
+    """items : (libellé, valeur, sous-texte[, ton 'good'|'bad'|''])"""
+    cells = []
+    for it in items:
+        label, value, sub = it[:3]
+        tone = it[3] if len(it) > 3 else ""
+        cells.append(f'<div class="pf-k {tone}"><div class="l">{html.escape(str(label))}</div>'
+                     f'<div class="v">{html.escape(str(value))}</div><div class="s">{html.escape(str(sub))}</div></div>')
+    st.markdown(f'<div class="pf-kgrid">{"".join(cells)}</div>', unsafe_allow_html=True)
+
+
+def market_list(title: str, d: dict, rename: dict | None = None, target=None):
+    """Liste "pro" d'un marché : nom, barre de proba, %, cote juste."""
+    rows = []
+    for k, p in d.items():
+        name = (rename or {}).get(k, k)
+        fair = f"{1 / p:.2f}" if p > 0.0005 else "—"
+        rows.append(f'<div class="pf-row"><span class="n">{html.escape(str(name))}</span>'
+                    f'<span class="b"><i style="width:{min(100, p * 100):.1f}%"></i></span>'
+                    f'<span class="p">{p * 100:.0f}%</span><span class="o">@ {fair}</span></div>')
+    (target or st).markdown(f'<div class="pf-list"><div class="t">{html.escape(title)}</div>{"".join(rows)}</div>',
+                            unsafe_allow_html=True)
+
+
+def bet_row(title: str, detail: str, right: str, right_sub: str = "", tag: tuple[str, str] | None = None,
+            target=None):
+    tg = f'<span class="pf-tag {tag[1]}">{html.escape(tag[0])}</span>' if tag else ""
+    (target or st).markdown(
+        f'<div class="pf-bet"><div><div class="m">{tg}{html.escape(title)}</div>'
+        f'<div class="d">{html.escape(detail)}</div></div>'
+        f'<div class="r">{html.escape(right)}<small>{html.escape(right_sub)}</small></div></div>',
+        unsafe_allow_html=True)

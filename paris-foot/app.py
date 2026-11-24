@@ -1,6 +1,8 @@
 """Appli web de pronostics football — lancer avec :  streamlit run app.py"""
 from __future__ import annotations
 
+import html
+
 import numpy as np
 import pandas as pd
 import streamlit as st
@@ -37,14 +39,17 @@ m, results = model(st.session_state.nonce)
 info = getattr(m, "info", {})
 
 # ------------------------------------------------------------------ navigation
-PAGES = ["📅 Matchs", "🔒 Pronos sûrs", "🔍 Analyse", "🎮 Simulateur", "📊 Bilan", "🎟️ Ticket", "🏆 Classement", "👟 Buteurs",
-         "📈 Fiabilité"]
+PAGES = ["📅 Matchs", "🔒 Sûrs", "🔍 Analyse", "🎮 Simu", "📊 Bilan", "☰ Plus"]
+MORE = ["🎟️ Ticket", "🏆 Classement", "👟 Buteurs", "📈 Fiabilité", "⚙️ Données"]
 ui.brand(f"{m.n_matches:,} matchs analysés · données au "
          f"{pd.Timestamp(m.ref_date - pd.Timedelta(days=1)):%d/%m/%Y}".replace(",", " "))
 st.session_state.setdefault("page", PAGES[0])
 if st.session_state.page not in PAGES:
     st.session_state.page = PAGES[0]
 page = st.pills("Menu", PAGES, label_visibility="collapsed", key="page") or PAGES[0]
+if page == "☰ Plus":
+    st.session_state.setdefault("page2", MORE[0])
+    page = st.pills("Plus", MORE, label_visibility="collapsed", key="page2") or MORE[0]
 for _k, _v in dict(ch=0.0, cd=0.0, ca=0.0, co=0.0, cu=0.0).items():
     st.session_state.setdefault(_k, _v)
 
@@ -65,14 +70,15 @@ def open_match(comp, home, away, odds):
     st.session_state.away_club = away
     for key, v in zip(["ch", "cd", "ca", "co", "cu"], odds):
         st.session_state[key] = float(v) if v and v == v else 0.0
-if st.sidebar.button("🔄 Mettre à jour les données"):
+
+
+def refresh_data():
     model.clear()
     nat_model.clear()
     st.session_state.nonce += 1
-    st.rerun()
-st.sidebar.markdown("---")
-st.sidebar.caption("Le modèle donne des probabilités, pas des certitudes. Ne mise que ce que tu peux "
-                   "perdre. Aide : Joueurs Info Service 09 74 75 13 13.")
+
+
+html_escape = html.escape
 
 
 def pct(x):
@@ -108,8 +114,13 @@ def team_label(t):
 
 # ------------------------------------------------------------------ pages
 if page == "📅 Matchs":
-    st.header("📅 Prochains matchs")
-    _info = st.expander("ℹ️ Comment lire les cartes")
+    ui.page_title("Prochains matchs", "Probabilités de l'appli pour chaque affiche. Touche « Analyse complète » "
+                  "pour tous les paris d'un match.")
+    _info = st.expander("ℹ️ Comment lire une carte")
+    _info.markdown("- **Barre verte / grise / bleue** : chances de victoire domicile, nul, victoire extérieur.\n"
+                   "- **Score probable** : le score le plus fréquent si on rejouait le match des milliers de fois.\n"
+                   "- **💰 Value** : la cote du bookmaker est plus haute que ce qu'elle devrait être → pari "
+                   "intéressant sur le long terme.\n- **xG** : buts attendus pour chaque équipe.")
     _info.caption("Calendrier et cotes moyennes du marché : football-data.co.uk. Les probabilités combinent le "
                f"modèle ({int(engine.ALPHA_MODEL * 100)} %) et le consensus des bookmakers "
                f"({int((1 - engine.ALPHA_MODEL) * 100)} %). Value = proba × meilleure cote − 1 ≥ "
@@ -129,7 +140,7 @@ if page == "📅 Matchs":
                 "semaine). Utilise « Analyse d'un match » pour n'importe quelle affiche.")
     else:
         f1, f2 = st.columns(2)
-        only_value = f1.toggle("Seulement les value bets")
+        only_value = f1.toggle("💰 Value bets uniquement")
         table_view = f2.toggle("Vue tableau")
         if only_value:
             t = t[t.value != ""]
@@ -160,15 +171,13 @@ if page == "📅 Matchs":
                     ui.match_card(comp_label(r.comp, COMPETITIONS), str(r.heure), r.home, r.away, r.P1, r.PN, r.P2,
                                   r.score_probable.split(" ")[0], chips)
                     if not r.approx:
-                      st.button("Analyse complète ›", key=f"an_{r.comp}_{r.home}_{r.away}",
+                      st.button("Analyse complète →", key=f"an_{r.comp}_{r.home}_{r.away}", type="tertiary",
                               on_click=open_match, args=(r.comp, r.home, r.away,
-                                                         (r.o_h, r.o_d, r.o_a, r.o_o25, r.o_u25)),
-                              width="stretch")
+                                                         (r.o_h, r.o_d, r.o_a, r.o_o25, r.o_u25)))
 
-elif page == "🔒 Pronos sûrs":
-    st.header("🔒 Pronos sûrs")
-    st.caption("Pour chaque match à venir, le pari le PLUS PROBABLE dont la cote atteint ton minimum. "
-               "Aucun pari n'est sûr à 100 % : un prono à 80 % perd 1 fois sur 5.")
+elif page == "🔒 Sûrs":
+    ui.page_title("Pronos sûrs", "Le pari le plus probable de chaque match, avec une cote minimum. "
+                  "Rien n'est sûr à 100 % : un prono à 80 % perd 1 fois sur 5.")
     c1, c2 = st.columns(2)
     min_p = c1.slider("Probabilité minimum", 0.60, 0.95, 0.75, 0.01, format="%.2f")
     min_c = c2.slider("Cote minimum", 1.05, 2.00, 1.15, 0.01, format="%.2f")
@@ -186,7 +195,7 @@ elif page == "🔒 Pronos sûrs":
             kk = res["markets"]
             ui.match_card(comp_label(r.comp, COMPETITIONS), f"{pd.Timestamp(r.date):%d/%m} {r.heure}", r.home, r.away,
                           kk["1X2"]["1"], kk["1X2"]["N"], kk["1X2"]["2"], next(iter(kk["Score exact"])), chips)
-            if st.button(f"🎮 Parier 10 € fictifs sur « {r.pari} »", key=f"safe_{i}_{r.home}", width="stretch"):
+            if st.button(f"🎮 Tester avec 10 € fictifs →", key=f"safe_{i}_{r.home}", type="tertiary"):
                 pf = get_portfolio()
                 err = sim.place_bet(pf, home=r.home, away=r.away, comp=r.comp, market=r.marche, selection=r.pari,
                                     odds=r.cote, stake=10, proba=r.proba, match_date=r.date)
@@ -198,9 +207,11 @@ elif page == "🔒 Pronos sûrs":
         if len(picks) >= 2:
             top = picks.head(3)
             p_comb, c_comb = float(np.prod(top.proba)), float(np.prod(top.cote))
-            st.markdown(f"**🎟️ Combiné des {len(top)} plus sûrs** : cote **{c_comb:.2f}** · chance de passer "
-                        f"**{p_comb:.0%}**  \n" + " · ".join(f"{a} – {b} : {c}" for a, b, c in
-                                                             zip(top.home, top.away, top.pari)))
+            ui.section(f"Combiné des {len(top)} plus sûrs")
+            ui.kpis([("Cote totale", f"{c_comb:.2f}", "si tous passent"),
+                     ("Chance de passer", f"{p_comb:.0%}", "tous les pronos justes")])
+            for a, b, c in zip(top.home, top.away, top.pari):
+                ui.bet_row(f"{a} – {b}", "Prono", c)
             st.caption("Plus tu ajoutes de matchs, plus le combiné devient risqué : 3 pronos à 80 % ne passent "
                        "ensemble qu'environ 1 fois sur 2.")
 
@@ -220,7 +231,7 @@ elif page == "🔒 Pronos sûrs":
                        "réussite élevé ne garantit pas un bénéfice.")
 
 elif page == "🔍 Analyse":
-    st.header("🔍 Analyse d'un match")
+    ui.page_title("Analyse d'un match", "Choisis l'affiche : tous les paris et leurs vraies probabilités.")
     st.session_state.setdefault("kind", "⚽ Clubs")
     kind = st.segmented_control("Type", ["⚽ Clubs", "🌍 Sélections nationales"], label_visibility="collapsed",
                                 key="kind") or "⚽ Clubs"
@@ -238,7 +249,7 @@ elif page == "🔍 Analyse":
         away = c2.selectbox("Équipe 2", pool, index=default_a, format_func=lambda t: team_text(t, True))
         neutral = c3.checkbox("Terrain neutre", value=comp in ("CDM", "CONTINENTAL"),
                               help="Coupe du monde / Euro : terrain neutre sauf pour le pays organisateur.")
-        st.caption("Noms des pays en anglais (France, Spain, Germany, England, Morocco, Algeria…).")
+
     else:
         mod = m
         st.session_state.setdefault("comp_pill", "F1")
@@ -260,19 +271,17 @@ elif page == "🔍 Analyse":
         home = c1.selectbox("Domicile", pool, format_func=team_label, key="home_club")
         away = c2.selectbox("Extérieur", pool, format_func=team_label, key="away_club")
         neutral = c3.checkbox("Terrain neutre (finale)")
-        if comp in CUPS:
-            st.caption("Coupes d'Europe : clubs des 23 championnats couverts (5 grands, Portugal, Pays-Bas, "
-                       "Belgique, Turquie, Écosse, Grèce, Autriche, Suisse, Danemark, Norvège, Suède, "
-                       "Pologne, Roumanie + 2es divisions).")
 
-    with st.expander("💶 Cotes du bookmaker (fortement recommandé : cale le modèle sur le marché)"):
+
+    hero_slot = st.container()
+    with st.expander("💶 Ajouter les cotes de ton bookmaker (plus précis + détection de value)"):
         o1, o2, o3, o4, o5 = st.columns(5)
         ch = o1.number_input("Cote 1", 0.0, 100.0, step=0.01, key="ch")
         cd = o2.number_input("Cote N", 0.0, 100.0, step=0.01, key="cd")
         ca = o3.number_input("Cote 2", 0.0, 100.0, step=0.01, key="ca")
         co = o4.number_input("Cote +2.5", 0.0, 20.0, step=0.01, key="co")
         cu = o5.number_input("Cote −2.5", 0.0, 20.0, step=0.01, key="cu")
-    with st.expander("🩹 Ajustements (blessures, suspensions, rotation, météo…)"):
+    with st.expander("🩹 Blessures, suspensions, rotation…"):
         st.caption("Ex. : buteur principal absent ≈ −8 à −12 % en attaque ; défenseur central titulaire "
                    "absent ≈ −5 % en défense ; équipe B / rotation avant un gros match ≈ −10 à −15 %.")
         a1, a2, a3, a4 = st.columns(4)
@@ -291,65 +300,61 @@ elif page == "🔍 Analyse":
     k = r["markets"]
     lh, la = r["lambda"]
 
-    if r["lambda_market"]:
-        note = "modèle + marché"
-        st.caption(f"Buts attendus — modèle : {r['lambda_model'][0]:.2f}–{r['lambda_model'][1]:.2f} · "
-                   f"marché : {r['lambda_market'][0]:.2f}–{r['lambda_market'][1]:.2f} · "
-                   f"retenu : {lh:.2f}–{la:.2f}")
-    else:
-        note = "modèle seul · ajoute les cotes"
-    ui.hero(comp_label(comp, NAT_COMPS if national else COMPETITIONS), home, away, lh, la, k, note,
-            crest(home, national, 52), crest(away, national, 52))
+    note = "modèle + cotes" if r["lambda_market"] else "modèle seul"
+    with hero_slot:
+        ui.hero(comp_label(comp, NAT_COMPS if national else COMPETITIONS), home, away, lh, la, k, note,
+                crest(home, national, 52), crest(away, national, 52))
+        if r["all_value"]:
+            ui.section("Tes cotes valent-elles le coup ?")
+            names = {"1": f"Victoire {home}", "N": "Match nul", "2": f"Victoire {away}", "+2.5": "Plus de 2,5 buts",
+                     "-2.5": "Moins de 2,5 buts"}
+            for v in r["all_value"]:
+                good = v["value"] >= engine.MIN_EDGE
+                ui.bet_row(names.get(v["pari"], v["pari"]),
+                           f"Proba {v['proba']:.0%} · cote juste {1 / v['proba']:.2f} · ta cote {v['cote']:.2f}",
+                           f"{v['value']:+.0%}", f"mise conseillée {v['kelly']:.1%}" if good else "pas de value",
+                           ("VALUE", "g") if good else ("NON", "w"))
 
-    if r["all_value"]:
-        st.markdown("**Analyse des cotes saisies**")
-        vt = pd.DataFrame(r["all_value"])
-        vt["proba"] = vt.proba.map(pct)
-        vt["value"] = vt.value.map(lambda v: f"{v:+.1%}")
-        vt["kelly"] = vt.kelly.map(lambda v: f"{v:.1%} de la bankroll")
-        vt["jouable"] = vt.jouable.map({True: "✅ value", False: "❌"})
-        st.dataframe(vt, hide_index=True, width="stretch")
-
-    tabs = st.tabs(["Score exact", "Buts", "Résultat", "Handicaps", "Mi-temps", "Buteurs"])
+    st.caption("Chaque ligne : probabilité de l'appli et **cote juste** (@). Une cote de bookmaker plus haute "
+               "que la cote juste = pari intéressant.")
+    hs_, as_ = home[:14], away[:14]
+    tabs = st.tabs(["Résultat", "Buts", "Score exact", "Mi-temps", "Handicaps", "Buteurs"])
     with tabs[0]:
-        c1, c2 = st.columns([3, 2])
-        M = k["matrix"][:7, :7]
-        hm = pd.DataFrame(M * 100, index=[f"{home} {i}" for i in range(7)], columns=[f"{j}" for j in range(7)])
-        c1.markdown(f"Probabilité (%) de chaque score — lignes : buts **{home}**, colonnes : buts **{away}**")
-        c1.dataframe(hm.style.format("{:.1f}").background_gradient(cmap="Greens", axis=None),
-                     width="stretch")
-        c2.dataframe(market_table(k["Score exact"]), hide_index=True, width="stretch")
-        c2.caption(f"Autres scores : {pct(k['Score exact (autre)'])}")
+        c1, c2 = st.columns(2)
+        ui.market_list("Résultat final", k["1X2"], {"1": f"{hs_}", "N": "Nul", "2": f"{as_}"}, c1)
+        ui.market_list("Double chance", k["Double chance"],
+                       {"1N": f"{hs_} ou nul", "N2": f"Nul ou {as_}", "12": "Pas de nul"}, c1)
+        ui.market_list("Remboursé si nul", k["Remboursé si nul"], {"1": hs_, "2": as_}, c1)
+        ui.market_list("Résultat + les 2 marquent", k["Résultat + BTTS"], target=c2)
+        ui.market_list("Résultat + buts", k["Résultat + 2.5"], target=c2)
+        ui.market_list("Gagne sans encaisser", k["Gagne sans encaisser"], {"Domicile": hs_, "Extérieur": as_}, c2)
     with tabs[1]:
-        c1, c2, c3 = st.columns(3)
-        c1.markdown("**Plus de … buts**"); c1.dataframe(market_table(k["Plus/Moins buts"]), hide_index=True)
-        c1.markdown("**Les deux équipes marquent**"); c1.dataframe(market_table(k["BTTS"]), hide_index=True)
-        c2.markdown(f"**Buts {home}**"); c2.dataframe(market_table(k["Buts domicile"]), hide_index=True)
-        c2.markdown(f"**Buts {away}**"); c2.dataframe(market_table(k["Buts extérieur"]), hide_index=True)
-        c3.markdown("**Nombre exact de buts**"); c3.dataframe(market_table(k["Nombre exact de buts"]), hide_index=True)
-        c3.markdown("**Pair / impair**"); c3.dataframe(market_table(k["Pair/Impair"]), hide_index=True)
+        c1, c2 = st.columns(2)
+        ui.market_list("Nombre de buts", k["Plus/Moins buts"],
+                       {f"+{i}.5": f"Plus de {i},5" for i in range(6)}, c1)
+        ui.market_list("Les deux équipes marquent", k["BTTS"], target=c1)
+        ui.market_list("Nombre exact de buts", k["Nombre exact de buts"], target=c1)
+        ui.market_list(f"Buts {hs_}", k["Buts domicile"], {f"+{i}.5": f"Plus de {i},5" for i in range(4)}, c2)
+        ui.market_list(f"Buts {as_}", k["Buts extérieur"], {f"+{i}.5": f"Plus de {i},5" for i in range(4)}, c2)
+        ui.market_list("Clean sheet (n'encaisse pas)", k["Clean sheet"], {"Domicile": hs_, "Extérieur": as_}, c2)
     with tabs[2]:
-        c1, c2, c3 = st.columns(3)
-        c1.markdown("**Double chance**"); c1.dataframe(market_table(k["Double chance"]), hide_index=True)
-        c1.markdown("**Remboursé si nul**"); c1.dataframe(market_table(k["Remboursé si nul"]), hide_index=True)
-        c2.markdown("**Résultat + BTTS**"); c2.dataframe(market_table(k["Résultat + BTTS"]), hide_index=True)
-        c2.markdown("**Résultat + 2.5**"); c2.dataframe(market_table(k["Résultat + 2.5"]), hide_index=True)
-        c3.markdown("**Écart final**"); c3.dataframe(market_table(k["Écart"]), hide_index=True)
-        c3.markdown("**Clean sheet / gagne sans encaisser**")
-        c3.dataframe(market_table({**{f"CS {a}": b for a, b in k["Clean sheet"].items()},
-                                   **{f"Gagne à zéro {a}": b for a, b in k["Gagne sans encaisser"].items()}}),
-                     hide_index=True)
+        c1, c2 = st.columns([2, 3])
+        ui.market_list("Scores les plus probables", dict(list(k["Score exact"].items())[:10]), target=c1)
+        M = k["matrix"][:6, :6]
+        hm = pd.DataFrame(M * 100, index=[f"{hs_} {i}" for i in range(6)], columns=[f"{j}" for j in range(6)])
+        c2.markdown(f"<div class='pf-section'>Tous les scores (%) · lignes {html_escape(hs_)}, colonnes "
+                    f"{html_escape(as_)}</div>", unsafe_allow_html=True)
+        c2.dataframe(hm.style.format("{:.1f}").background_gradient(cmap="Greens", axis=None), width="stretch")
     with tabs[3]:
-        rows = [{"Ligne": f"{home} {name.split()[1]}", "Gagné": pct(w), "Remboursé": pct(p),
-                 "Cote juste": round((1 - p) / w + 0, 2) if w > 0 else None}
-                for name, (w, p) in k["Handicap asiatique"].items()]
-        st.dataframe(pd.DataFrame(rows), hide_index=True, width="stretch")
-        st.caption("Cote juste en handicap asiatique : tient compte du remboursement sur les lignes entières.")
+        c1, c2 = st.columns(2)
+        ui.market_list("Résultat à la mi-temps", k["Mi-temps 1X2"], {"1": hs_, "N": "Nul", "2": as_}, c1)
+        ui.market_list("Buts en 1re mi-temps", k["Buts 1re mi-temps"],
+                       {f"+{i}.5": f"Plus de {i},5" for i in range(3)}, c1)
+        ui.market_list("Mi-temps / fin de match", k["Mi-temps / Fin de match"], target=c2)
     with tabs[4]:
-        c1, c2, c3 = st.columns(3)
-        c1.markdown("**Résultat à la mi-temps**"); c1.dataframe(market_table(k["Mi-temps 1X2"]), hide_index=True)
-        c2.markdown("**Mi-temps / fin de match**"); c2.dataframe(market_table(k["Mi-temps / Fin de match"]), hide_index=True)
-        c3.markdown("**Buts en 1re mi-temps**"); c3.dataframe(market_table(k["Buts 1re mi-temps"]), hide_index=True)
+        ah = {f"{hs_} {name.split()[1]}": w / max(1e-9, 1 - p) for name, (w, p) in k["Handicap asiatique"].items()}
+        ui.market_list("Handicap asiatique (hors remboursement)", ah)
+        ui.market_list("Écart final", k["Écart"])
     with tabs[5]:
         players = load_players()
         tot = lh + la
@@ -375,15 +380,14 @@ elif page == "🔍 Analyse":
                         "ses attaquants (buts, minutes, xG…).")
                 continue
             any_ = True
-            show = sp.copy()
-            for c in ["P_buteur", "P_doublé", "P_1er_buteur"]:
-                show[c] = show[c].map(pct)
-            st.dataframe(show.round(2), hide_index=True, width="stretch")
+            for _, pl in sp.head(8).iterrows():
+                ui.bet_row(str(pl["joueur"]), f"Doublé {pl['P_doublé']:.0%} · 1er buteur {pl['P_1er_buteur']:.0%}",
+                           f"{pl['P_buteur']:.0%}", f"cote juste {pl['cote_juste_buteur']:.2f}")
         p_nobody = np.exp(-tot)
         st.caption(f"Pas de buteur (0-0) : {pct(k['Score exact'].get('0-0', p_nobody))}")
 
-    st.markdown("---")
-    st.markdown("**➕ Ajouter une sélection au ticket**")
+    ui.section("Jouer ce match")
+    st.markdown("**🎟️ Ajouter au ticket combiné**")
     s1, s2, s3, s4 = st.columns([2, 2, 1, 1])
     market_names = [n for n, v in k.items() if isinstance(v, dict) and n != "Handicap asiatique"]
     mk_name = s1.selectbox("Marché", market_names)
@@ -416,9 +420,8 @@ elif page == "🔍 Analyse":
             sim.save_portfolio(pf)
             st.success("Pari fictif enregistré ! Il sera réglé automatiquement après le match (page 🎮 Simulateur).")
 
-elif page == "🎮 Simulateur":
-    st.header("🎮 Simulateur")
-    st.caption("Joue avec de l'argent fictif pour tester tes idées sans risque.")
+elif page == "🎮 Simu":
+    ui.page_title("Simulateur", "Parie avec de l'argent fictif sur les vrais matchs, sans risque.")
     pf = get_portfolio()
     n_auto = sim.auto_settle(pf, results, nat_model(st.session_state.nonce)[1]
                              if any(b.get("kind") == "nat" and b["status"] == "en cours" for b in pf["bets"]) else None)
@@ -426,13 +429,14 @@ elif page == "🎮 Simulateur":
         sim.save_portfolio(pf)
         st.toast(f"{n_auto} pari(s) réglé(s) automatiquement")
     bal = sim.balance(pf)
-    b1, b2, b3 = st.columns(3)
-    b1.metric("Solde fictif", f"{bal['solde']:.2f} €", f"{bal['solde'] + bal['en_jeu'] - pf['start']:+.2f} €")
-    b2.metric("En jeu", f"{bal['en_jeu']:.2f} €", f"{bal['en_cours']} pari(s)", delta_color="off")
-    b3.metric("Réussite", f"{bal['gagnes'] / max(1, bal['gagnes'] + bal['perdus']):.0%}",
-              f"✅ {bal['gagnes']} · ❌ {bal['perdus']} · ROI {bal['roi']:+.0%}", delta_color="off")
+    _gain = bal["solde"] + bal["en_jeu"] - pf["start"]
+    ui.kpis([("Solde", f"{bal['solde']:.0f} €", f"{_gain:+.0f} € depuis le départ", "good" if _gain > 0 else ("bad" if _gain < 0 else "")),
+             ("En jeu", f"{bal['en_jeu']:.0f} €", f"{bal['en_cours']} pari(s) en cours"),
+             ("Réussite", f"{bal['gagnes'] / max(1, bal['gagnes'] + bal['perdus']):.0%}",
+              f"✅ {bal['gagnes']} · ❌ {bal['perdus']}"),
+             ("Rentabilité", f"{bal['roi']:+.0%}", "bénéfice / mises")])
 
-    t_bet, t_mine, t_strat, t_save = st.tabs(["➕ Parier", "📋 Mes paris", "🧪 Tester une stratégie", "💾 Sauvegarde"])
+    t_bet, t_mine, t_strat, t_save = st.tabs(["Parier", "Mes paris", "Tester une stratégie", "Sauvegarde"])
 
     with t_bet:
         up = engine.upcoming_table(m, leagues=list(LEAGUES))
@@ -485,18 +489,17 @@ elif page == "🎮 Simulateur":
             curve = sim.bankroll_curve(pf)
             if not curve.empty:
                 st.line_chart(curve.set_index("n")[["Bankroll (€)"]])
-            icon = {"en cours": "⏳", "gagné": "✅", "perdu": "❌", "annulé": "↩️"}
+            tags = {"en cours": ("EN COURS", "y"), "gagné": ("GAGNÉ", "g"), "perdu": ("PERDU", "r"),
+                    "annulé": ("REMBOURSÉ", "w")}
             for b in reversed(pf["bets"]):
-                gain = (b["payout"] - b["stake"]) if b["status"] in ("gagné", "perdu") else None
-                cols = st.columns([5, 2])
-                cols[0].markdown(
-                    f"{icon[b['status']]} **{b['home']} – {b['away']}** {('· ' + b['score']) if b['score'] else ''}  \n"
-                    f"<span style='color:#94a3b8;font-size:.85rem'>{b['market']} : <b>{b['selection']}</b> @ "
-                    f"{b['odds']:.2f} · mise {b['stake']:.0f} €"
-                    f"{f' · {gain:+.2f} €' if gain is not None else ''}</span>", unsafe_allow_html=True)
+                gain = (b["payout"] - b["stake"]) if b["status"] in ("gagné", "perdu") else 0.0
+                right = f"{gain:+.2f} €" if b["status"] in ("gagné", "perdu") else f"{b['stake']:.0f} €"
+                sub = (f"score {b['score']}" if b["score"] else f"gain possible {b['stake'] * (b['odds'] - 1):.0f} €")
+                ui.bet_row(f"{b['home']} – {b['away']}", f"{b['market']} : {b['selection']} · cote {b['odds']:.2f} · "
+                           f"mise {b['stake']:.0f} €", right, sub, tags[b["status"]])
                 if b["status"] == "en cours":
-                    act = cols[1].selectbox("Régler", ["—", "gagné", "perdu", "annulé"], key=f"set_{b['id']}",
-                                            label_visibility="collapsed")
+                    act = st.selectbox("Régler à la main", ["—", "gagné", "perdu", "annulé"], key=f"set_{b['id']}",
+                                       label_visibility="collapsed")
                     if act != "—":
                         sim.settle_manual(pf, b["id"], act)
                         sim.save_portfolio(pf)
@@ -531,11 +534,9 @@ elif page == "🎮 Simulateur":
         else:
             fin = bt.bankroll.iloc[-1]
             dd = float((bt.bankroll.cummax() - bt.bankroll).max())
-            k1, k2, k3 = st.columns(3)
-            k1.metric("Bankroll finale", f"{fin:.0f} €", f"{fin - startb:+.0f} €")
-            k2.metric("Paris", len(bt), f"✅ {int(bt.gagne.sum())} · ❌ {int((~bt.gagne).sum())} "
-                                        f"({bt.gagne.mean():.0%})", delta_color="off")
-            k3.metric("ROI", f"{bt.gain.sum() / bt.mise.sum():+.1%}", f"pire chute −{dd:.0f} €", delta_color="off")
+            ui.kpis([("Bankroll finale", f"{fin:.0f} €", f"{fin - startb:+.0f} €", "good" if fin > startb else "bad"),
+                     ("Paris", len(bt), f"✅ {int(bt.gagne.sum())} · ❌ {int((~bt.gagne).sum())} ({bt.gagne.mean():.0%})"),
+                     ("Rentabilité", f"{bt.gain.sum() / bt.mise.sum():+.1%}", f"pire chute −{dd:.0f} €")])
             st.line_chart(bt.assign(n=range(1, len(bt) + 1)).set_index("n")[["bankroll"]])
             show = bt.sort_values("date", ascending=False).copy()
             show["date"] = show.date.dt.strftime("%d/%m")
@@ -570,17 +571,14 @@ elif page == "🎮 Simulateur":
             st.rerun()
 
 elif page == "📊 Bilan":
-    st.header("📊 Résultats & bilan")
-    st.caption("Prono donné AVANT chaque match (modèle ré-entraîné chaque semaine avec uniquement les "
-               "matchs précédents + cotes d'avant-match), comparé au vrai résultat.")
+    ui.page_title("Bilan des pronos", "Le prono donné AVANT chaque match, comparé au vrai score.")
 
     LABELS = {**COMPETITIONS, **NAT_COMPS}
-    scope_name = st.radio("Quoi ?", ["⚽ Championnats (saison en cours)", "🏆 Coupes d'Europe",
-                                     "🌍 Sélections nationales"], horizontal=True, label_visibility="collapsed")
+    scope_name = st.segmented_control("Quoi ?", ["⚽ Championnats", "🏆 Coupes d'Europe", "🌍 Sélections"],
+                                      default="⚽ Championnats", label_visibility="collapsed") or "⚽ Championnats"
     scope = {"⚽": "clubs", "🏆": "euro", "🌍": "nat"}[scope_name[0]]
     if scope == "euro":
-        st.caption("C1, Ligue Europa, Conférence (+ tours préliminaires) des saisons 2024-25 et 2025-26 "
-                   "(2026-27 pas encore publiée). Pas de cotes disponibles : prono = modèle seul.")
+        st.caption("C1, Ligue Europa et Conférence depuis 2024-25. Prono = modèle seul (pas de cotes).")
     if scope == "nat":
         st.caption("Tous les matchs internationaux depuis septembre 2024, dont la Coupe du monde 2026. "
                    "Prono = modèle seul.")
@@ -614,20 +612,13 @@ elif page == "📊 Bilan":
         st.warning("Aucun match avec ces filtres.")
         st.stop()
 
-    tb, tr, tv = st.tabs(["✅ Bilan réussite", "📋 Résultats & pronos", "💰 Value bets"])
+    tb, tr, tv = st.tabs(["Réussite", "Matchs joués", "Value bets"])
     with tb:
         s = hist.summary(v)
-        c = st.columns(len(s))
-        for col, (_, row) in zip(c, s.iterrows()):
-            col.metric(row["Pari"], f"{row['% réussite']:.0%}",
-                       f"✅ {row['✅ Réussis']}  ·  ❌ {row['❌ Ratés']}", delta_color="off")
-        show = s.copy()
-        show["% réussite"] = show["% réussite"].map(pct)
-        show["% attendu"] = show["% attendu"].map(pct)
-        st.dataframe(show, hide_index=True, width="stretch")
-        st.caption("« % attendu » = moyenne des probabilités annoncées. Si les deux colonnes sont proches, "
-                   "les probabilités de l'appli sont honnêtes. Le score exact réussit rarement (~10-13 %) "
-                   "même quand c'est le plus probable : c'est normal, il paye en conséquence.")
+        ui.kpis([(row["Pari"], f"{row['% réussite']:.0%}", f"✅ {row['✅ Réussis']} · ❌ {row['❌ Ratés']}")
+                 for _, row in s.iterrows()])
+        st.caption(f"Sur {len(v)} matchs. Le score exact réussit rarement (~10-13 %), même quand c'est le "
+                   "plus probable : c'est normal, il paye en conséquence.")
         st.markdown("**Résultat 1X2 selon la confiance du prono**")
         bc = hist.by_confidence(v)
         bc["% réussite"] = bc["% réussite"].map(pct)
@@ -661,11 +652,9 @@ elif page == "📊 Bilan":
         else:
             n, w = len(vb), int(vb.gagne.sum())
             profit = float(vb.profit.sum())
-            c1, c2, c3, c4 = st.columns(4)
-            c1.metric("Value bets", n, f"✅ {w}  ·  ❌ {n - w}", delta_color="off")
-            c2.metric("% gagnés", f"{w / n:.0%}")
-            c3.metric("Bénéfice (mise 1 €)", f"{profit:+.2f} €")
-            c4.metric("ROI", f"{profit / n:+.1%}")
+            ui.kpis([("Value bets", n, f"✅ {w} · ❌ {n - w}"), ("Gagnés", f"{w / n:.0%}", "des paris"),
+                     ("Bénéfice", f"{profit:+.1f} €", "1 € par pari", "good" if profit > 0 else "bad"),
+                     ("Rentabilité", f"{profit / n:+.1%}", "bénéfice / mises")])
             st.caption("Mise fixe de 1 € par pari, à la meilleure cote du marché avant le match. Les value bets "
                        "sont souvent des outsiders : on en perd plus qu'on en gagne, c'est la cote qui doit "
                        "compenser. Sur quelques centaines de paris, le résultat reste très incertain.")
@@ -680,7 +669,7 @@ elif page == "📊 Bilan":
             st.dataframe(sv, hide_index=True, width="stretch")
 
 elif page == "🎟️ Ticket":
-    st.header("🎟️ Ticket combiné")
+    ui.page_title("Ticket combiné", "Assemble plusieurs paris et vois la vraie chance que tout passe.")
     t = st.session_state.ticket
     if not t:
         st.info("Ticket vide. Ajoute des sélections depuis « Analyse d'un match ».")
@@ -694,10 +683,9 @@ elif page == "🎟️ Ticket":
         same_match = df.match.duplicated().any()
         p = float(np.prod(df.proba))
         o = float(np.prod(df.cote))
-        c1, c2, c3 = st.columns(3)
-        c1.metric("Probabilité du combiné", pct(p))
-        c2.metric("Cote totale", f"{o:.2f}", f"cote juste {1 / p:.2f}", delta_color="off")
-        c3.metric("Espérance par € misé", f"{p * o - 1:+.1%}")
+        ui.kpis([("Chance de passer", pct(p), "tous les paris justes"),
+                 ("Cote totale", f"{o:.2f}", f"cote juste {1 / p:.2f}"),
+                 ("Espérance", f"{p * o - 1:+.1%}", "par € misé", "good" if p * o > 1 else "bad")])
         if same_match:
             st.warning("Plusieurs sélections sur le même match : elles sont corrélées, la probabilité "
                        "affichée (produit) est approximative. Utilise plutôt les marchés combinés "
@@ -709,9 +697,9 @@ elif page == "🎟️ Ticket":
             st.rerun()
 
 elif page == "🏆 Classement":
-    st.header("🏆 Classement de puissance")
-    if st.radio("Type", ["⚽ Clubs", "🌍 Sélections nationales"], horizontal=True,
-                label_visibility="collapsed").startswith("🌍"):
+    ui.page_title("Classement de puissance", "Le vrai niveau des équipes, comparable entre championnats.")
+    if (st.segmented_control("Type", ["⚽ Clubs", "🌍 Sélections"], default="⚽ Clubs",
+                             label_visibility="collapsed") or "⚽").startswith("🌍"):
         nm, nd, _ = nat_model(st.session_state.nonce)
         act = set(active_teams(nd))
         r = nm.ratings()
@@ -736,7 +724,7 @@ elif page == "🏆 Classement":
     st.dataframe(lv.round(3), hide_index=True)
 
 elif page == "👟 Buteurs":
-    st.header("👟 Données buteurs")
+    ui.page_title("Données buteurs", "Les stats des attaquants de clubs (les sélections sont automatiques).")
     st.markdown(
         "Les stats individuelles ne sont pas disponibles en libre accès : saisis-les (ou copie-colle depuis "
         "FBref, Sofascore, L'Équipe…) **pour le championnat en cours**. Il suffit des 4-6 joueurs offensifs "
@@ -760,7 +748,7 @@ elif page == "👟 Buteurs":
         st.success("Enregistré dans data/joueurs.csv")
 
 elif page == "📈 Fiabilité":
-    st.header("📈 Fiabilité du modèle (backtest)")
+    ui.page_title("Fiabilité du modèle", "Comment l'appli se compare aux bookmakers sur les matchs passés.")
     st.markdown(
         "Le modèle est ré-entraîné toutes les 3 semaines **avec uniquement le passé**, puis il prédit les "
         "matchs suivants des 5 grands championnats. On compare à la cote moyenne des bookmakers.")
@@ -791,5 +779,19 @@ elif page == "📈 Fiabilité":
         cal = cal.rename(columns={"prevu": "proba annoncée", "observe": "fréquence observée"})
         st.line_chart(cal.set_index("proba annoncée")[["fréquence observée"]])
         st.dataframe(cal.round(3), hide_index=True)
+
+elif page == "⚙️ Données":
+    ui.page_title("Données", "D'où viennent les chiffres, et mise à jour manuelle.")
+    ui.kpis([("Matchs analysés", f"{m.n_matches:,}".replace(",", " "), "clubs, 4 saisons"),
+             ("Dernier résultat", f"{pd.Timestamp(m.ref_date - pd.Timedelta(days=1)):%d/%m/%Y}", "mise à jour auto ~6 h"),
+             ("Équipes", len(m.teams), "23 championnats + coupes")])
+    if st.button("🔄 Mettre à jour maintenant", type="primary", width="stretch", on_click=refresh_data):
+        st.toast("Mise à jour lancée")
+    st.markdown("- **Résultats, tirs, xG, cotes, calendrier des championnats** : football-data.co.uk\n"
+                "- **Coupes d'Europe** (calendrier + résultats) : fixturedownload.com et openfootball\n"
+                "- **Sélections nationales et buteurs** : base internationale ouverte (martj42)\n\n"
+                "Le modèle (Dixon-Coles + xG + forme récente, calé sur les cotes du marché) est recalculé chaque jour.")
+    st.caption("Les paris restent un jeu de hasard. Ne mise que ce que tu peux perdre. "
+               "Joueurs Info Service : 09 74 75 13 13.")
 
 ui.footer()
