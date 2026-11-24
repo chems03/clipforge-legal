@@ -61,16 +61,22 @@ class Model:
     games_recent: dict[str, float] = field(default_factory=dict)
 
     # ---------------------------------------------------------------- prédiction
-    def lambdas(self, home: str, away: str, comp: str, neutral: bool = False) -> tuple[float, float]:
+    UNKNOWN_LEVEL = -0.45  # club hors base (ex. Slavia, Chakhtar, Sabah) ≈ niveau Pologne/Roumanie
+
+    def lambdas(self, home: str, away: str, comp: str, neutral: bool = False,
+                allow_unknown: bool = False) -> tuple[float, float]:
         for t in (home, away):
-            if t not in self.att:
+            if t not in self.att and not allow_unknown:
                 raise KeyError(f"Équipe inconnue : {t}")
         if comp not in self.G:
-            comp = self.team_league[home]
-        lh, la = self.team_league[home], self.team_league[away]
+            comp = self.team_league.get(home, self.team_league.get(away))
+        sh = self.S[self.team_league[home]] if home in self.att else self.UNKNOWN_LEVEL
+        sa = self.S[self.team_league[away]] if away in self.att else self.UNKNOWN_LEVEL
+        ah, dh = self.att.get(home, 0.0), self.dfn.get(home, 0.0)
+        aa, da = self.att.get(away, 0.0), self.dfn.get(away, 0.0)
         g, h = self.G[comp], 0.0 if neutral else self.H[comp]
-        log_h = g + h + self.S[lh] + self.att[home] - self.S[la] - self.dfn[away]
-        log_a = g + self.S[la] + self.att[away] - self.S[lh] - self.dfn[home]
+        log_h = g + h + sh + ah - sa - da
+        log_a = g + sa + aa - sh - dh
         k = getattr(self.config, "stretch", 1.0)
         if comp in ("CL", "EL", "ECL"):
             k = getattr(self.config, "cup_stretch", 1.0)

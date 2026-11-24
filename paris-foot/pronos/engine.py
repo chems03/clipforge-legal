@@ -83,11 +83,12 @@ def _market_from_odds(odds: dict | None):
 
 
 def predict(m: Model, home: str, away: str, comp: str, neutral: bool = False, odds: dict | None = None,
-            adj: dict | None = None, alpha: float = ALPHA_MODEL, value_odds: dict | None = None) -> dict:
+            adj: dict | None = None, alpha: float = ALPHA_MODEL, value_odds: dict | None = None,
+            allow_unknown: bool = False) -> dict:
     """odds       : cotes de référence (consensus) {h,d,a,o25,u25} pour caler le modèle sur le marché
        value_odds : cotes auxquelles tu peux réellement jouer (par défaut = odds)
        adj        : ajustements manuels en % {att_h, def_h, att_a, def_a} (blessures, rotation…)"""
-    lm = m.lambdas(home, away, comp, neutral)
+    lm = m.lambdas(home, away, comp, neutral, allow_unknown=allow_unknown)
     adj = adj or {}
     lm = (lm[0] * (1 + adj.get("att_h", 0)) * (1 - adj.get("def_a", 0)),
           lm[1] * (1 + adj.get("att_a", 0)) * (1 - adj.get("def_h", 0)))
@@ -113,11 +114,22 @@ def predict(m: Model, home: str, away: str, comp: str, neutral: bool = False, od
                 value=[v for v in value if v["jouable"]], all_value=value, p_market=p1x2)
 
 
-def upcoming_table(m: Model, leagues=MAIN_LEAGUES, fixtures: pd.DataFrame | None = None) -> pd.DataFrame:
+def upcoming_table(m: Model, leagues=MAIN_LEAGUES, fixtures: pd.DataFrame | None = None,
+                   cups: bool = True) -> pd.DataFrame:
     fx = load_fixtures() if fixtures is None else fixtures
+    if cups:
+        from .data import load_cup_calendar
+        _, up = load_cup_calendar(set(m.teams))
+        if not up.empty:
+            up = up[up.date.between(pd.Timestamp(date.today()), pd.Timestamp(date.today()) + pd.Timedelta(days=10))]
+            fx = pd.concat([fx, up], ignore_index=True)
+            for c in ["o_h", "o_d", "o_a", "o_o25", "o_u25", "max_h", "max_d", "max_a", "max_o25", "max_u25"]:
+                if c not in fx:
+                    fx[c] = np.nan
+            leagues = list(leagues) + ["CL", "EL", "ECL"]
     if fx.empty:
         return fx
-    fx = fx[fx.comp.isin(leagues) & (fx.date >= pd.Timestamp(date.today()))]
+    fx = fx[fx.comp.isin(leagues) & (fx.date >= pd.Timestamp(date.today()))].sort_values(["date", "time"])
     rows = []
     for r in fx.itertuples():
         try:
@@ -125,8 +137,9 @@ def upcoming_table(m: Model, leagues=MAIN_LEAGUES, fixtures: pd.DataFrame | None
             odds = {k: (v if np.isfinite(v) else None) for k, v in odds.items()}
             best = dict(h=r.max_h, d=r.max_d, a=r.max_a, o25=r.max_o25, u25=r.max_u25)
             best = {k: (v if np.isfinite(v) else None) for k, v in best.items()}
+            approx = r.home not in m.att or r.away not in m.att
             res = predict(m, r.home, r.away, r.comp, odds=odds if odds["h"] else None,
-                          value_odds=best if best["h"] else None)
+                          value_odds=best if best["h"] else None, allow_unknown=approx and r.comp in ("CL", "EL", "ECL"))
         except KeyError:
             continue
         k = res["markets"]
@@ -138,7 +151,7 @@ def upcoming_table(m: Model, leagues=MAIN_LEAGUES, fixtures: pd.DataFrame | None
             score_probable=f"{top[0]} ({top[1]:.0%})", **{"P+2.5": k["Plus/Moins buts"]["+2.5"]},
             BTTS=k["BTTS"]["Oui"], cote1=r.max_h, coteN=r.max_d, cote2=r.max_a,
             value=", ".join(f"{v['pari']} @{v['cote']:.2f} ({v['value']:+.0%})" for v in res["value"]),
-            cale_marche=res["lambda_market"] is not None,
+            cale_marche=res["lambda_market"] is not None, approx=approx,
             o_h=odds["h"], o_d=odds["d"], o_a=odds["a"], o_o25=odds["o25"], o_u25=odds["u25"]))
     return pd.DataFrame(rows)
 

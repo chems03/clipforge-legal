@@ -118,11 +118,11 @@ if page == "📅 Matchs":
                "choisis l'affiche dans « 🔍 Analyse d'un match » (Ligue des champions, Ligue Europa, "
                "Conférence, Coupe du monde, Euro, qualifs, Ligue des nations, amicaux).")
     t_all = engine.upcoming_table(m, leagues=list(LEAGUES))
-    avail = [c for c in LEAGUES if not t_all.empty and c in set(t_all.comp)]
-    st.session_state.setdefault("lg_pills", [c for c in MAIN_LEAGUES if c in avail] or avail)
+    avail = [c for c in ["CL", "EL", "ECL", *LEAGUES] if not t_all.empty and c in set(t_all.comp)]
+    st.session_state.setdefault("lg_pills", [c for c in ["CL", "EL", "ECL", *MAIN_LEAGUES] if c in avail] or avail)
     st.session_state.lg_pills = [c for c in st.session_state.lg_pills if c in avail]
     leagues = st.pills("Championnats", avail, selection_mode="multi", key="lg_pills",
-                       format_func=lambda c: comp_label(c, LEAGUES), label_visibility="collapsed")
+                       format_func=lambda c: comp_label(c, COMPETITIONS), label_visibility="collapsed")
     t = t_all[t_all.comp.isin(leagues)] if not t_all.empty else t_all
     if t.empty:
         st.info("Pas de matchs à venir publiés pour l'instant (le fichier est mis à jour en milieu de "
@@ -134,10 +134,10 @@ if page == "📅 Matchs":
         if only_value:
             t = t[t.value != ""]
         if table_view:
-            show = t.drop(columns=["cale_marche", "o_h", "o_d", "o_a", "o_o25", "o_u25"]).copy()
+            show = t.drop(columns=["cale_marche", "approx", "o_h", "o_d", "o_a", "o_o25", "o_u25"]).copy()
             for c in ["P1", "PN", "P2", "P+2.5", "BTTS"]:
                 show[c] = (show[c] * 100).round(1)
-            show["comp"] = show["comp"].map(LEAGUES)
+            show["comp"] = show["comp"].map(COMPETITIONS)
             st.dataframe(show.round(2), hide_index=True, width="stretch",
                          column_config={c: st.column_config.ProgressColumn(c, format="%.1f %%", min_value=0,
                                                                            max_value=100)
@@ -155,9 +155,12 @@ if page == "📅 Matchs":
                              (f"xG {r.xg_dom:.1f} – {r.xg_ext:.1f}", False)]
                     if r.value:
                         chips.insert(0, (f"💰 Value : {r.value}", True))
-                    ui.match_card(comp_label(r.comp, LEAGUES), str(r.heure), r.home, r.away, r.P1, r.PN, r.P2,
+                    if r.approx:
+                        chips.insert(0, ("⚠️ Estimation : équipe hors base", False))
+                    ui.match_card(comp_label(r.comp, COMPETITIONS), str(r.heure), r.home, r.away, r.P1, r.PN, r.P2,
                                   r.score_probable.split(" ")[0], chips)
-                    st.button("Analyse complète ›", key=f"an_{r.comp}_{r.home}_{r.away}",
+                    if not r.approx:
+                      st.button("Analyse complète ›", key=f"an_{r.comp}_{r.home}_{r.away}",
                               on_click=open_match, args=(r.comp, r.home, r.away,
                                                          (r.o_h, r.o_d, r.o_a, r.o_o25, r.o_u25)),
                               width="stretch")
@@ -383,15 +386,15 @@ elif page == "🎮 Simulateur":
             st.info("Aucun match à venir publié pour l'instant. Tu peux parier sur n'importe quelle affiche "
                     "(C1, sélections…) depuis 🔍 Analyse → « Parier avec de l'argent fictif ».")
         else:
-            labels = {i: f"{comp_label(r.comp, LEAGUES)} · {r.home} – {r.away} · {pd.Timestamp(r.date):%d/%m} {r.heure}"
+            labels = {i: f"{comp_label(r.comp, COMPETITIONS)} · {r.home} – {r.away} · {pd.Timestamp(r.date):%d/%m} {r.heure}"
                       for i, r in up.iterrows()}
             i = st.selectbox("Match", list(labels), format_func=labels.get)
             r = up.loc[i]
             odds = {k_: (v if v == v else None) for k_, v in
                     dict(h=r.o_h, d=r.o_d, a=r.o_a, o25=r.o_o25, u25=r.o_u25).items()}
-            res = engine.predict(m, r.home, r.away, r.comp, odds=odds if odds["h"] else None)
+            res = engine.predict(m, r.home, r.away, r.comp, odds=odds if odds["h"] else None, allow_unknown=True)
             kk = res["markets"]
-            ui.match_card(comp_label(r.comp, LEAGUES), f"{pd.Timestamp(r.date):%d/%m} {r.heure}", r.home, r.away,
+            ui.match_card(comp_label(r.comp, COMPETITIONS), f"{pd.Timestamp(r.date):%d/%m} {r.heure}", r.home, r.away,
                           kk["1X2"]["1"], kk["1X2"]["N"], kk["1X2"]["2"], next(iter(kk["Score exact"])), [])
             opts = sim_options(kk)
             c1, c2 = st.columns(2)

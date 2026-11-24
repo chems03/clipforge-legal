@@ -27,6 +27,17 @@ FD_BASE = "https://www.football-data.co.uk/mmz4281/{season}/{code}.csv"
 FD_FIXTURES = "https://www.football-data.co.uk/fixtures.csv"
 OF_CUP_TXT = "https://raw.githubusercontent.com/openfootball/champions-league/master/{season}/{file}.txt"
 FD_NEW = "https://www.football-data.co.uk/new/{code}.csv"
+# calendrier + résultats des coupes d'Europe de la saison en cours (gratuit, JSON)
+FIXDL = "https://fixturedownload.com/feed/json/{slug}-{year}"
+FIXDL_SLUGS = {"CL": "champions-league", "EL": "europa-league", "ECL": "conference-league"}
+FIXDL_ALIASES = {
+    "AEK Athens": "AEK", "Atleti": "Ath Madrid", "B. Dortmund": "Dortmund", "Bayern München": "Bayern Munich",
+    "Braga": "Sp Braga", "Copenhagen": "FC Copenhagen", "Leipzig": "RB Leipzig", "Man Utd": "Man United",
+    "Olympiacos": "Olympiakos", "PSV": "PSV Eindhoven", "Paris": "Paris SG", "Real Betis": "Betis",
+    "Real Sociedad": "Sociedad", "Sint-Truidense": "St Truiden", "Sporting CP": "Sp Lisbon",
+    "U. Craiova": "Univ. Craiova", "Union SG": "St. Gilloise", "N.E.C.": "Nijmegen", "Atlético Madrid": "Ath Madrid",
+    "Inter Milan": "Inter", "AC Milan": "Milan", "Tottenham Hotspur": "Tottenham", "Newcastle United": "Newcastle",
+}
 INTL_RESULTS = "https://raw.githubusercontent.com/martj42/international_results/master/results.csv"
 INTL_SCORERS = "https://raw.githubusercontent.com/martj42/international_results/master/goalscorers.csv"
 
@@ -425,6 +436,43 @@ def load_internationals(years: int = 10, force: bool = False) -> tuple[pd.DataFr
     return df.sort_values("date").reset_index(drop=True), g
 
 
+def _fixdl_team(name: str, by_norm: dict[str, str]) -> str | None:
+    if name in FIXDL_ALIASES:
+        return FIXDL_ALIASES[name]
+    return by_norm.get(_norm(name))  # correspondance exacte uniquement (pas d'approximation risquée)
+
+
+def load_cup_calendar(all_teams: set[str], force: bool = False) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """C1 / C3 / C4 saison en cours (fixturedownload.com) -> (résultats joués, matchs à venir)."""
+    y0 = 2000 + int(season_codes(1)[0][:2])
+    by_norm = {_norm(t): t for t in all_teams}
+    played, upcoming = [], []
+    for comp, slug in FIXDL_SLUGS.items():
+        content = _get(FIXDL.format(slug=slug, year=y0), f"fixdl_{slug}_{y0}.json", max_age_h=1, force=force)
+        if not content:
+            continue
+        try:
+            rows = pd.read_json(io.BytesIO(content))
+        except ValueError:
+            continue
+        if rows.empty:
+            continue
+        dt = pd.to_datetime(rows["DateUtc"], utc=True).dt.tz_convert("Europe/Paris")
+        for r, d in zip(rows.itertuples(), dt):
+            home, away = _fixdl_team(r.HomeTeam, by_norm), _fixdl_team(r.AwayTeam, by_norm)
+            rec = dict(date=pd.Timestamp(d.date()), time=d.strftime("%H:%M"), comp=comp, home=home or r.HomeTeam,
+                       away=away or r.AwayTeam, covered=bool(home and away), neutral=False, season=season_codes(1)[0])
+            if pd.notna(r.HomeTeamScore) and pd.notna(r.AwayTeamScore):
+                if home and away:
+                    played.append({**rec, "hg": float(r.HomeTeamScore), "ag": float(r.AwayTeamScore)})
+            else:
+                upcoming.append(rec)
+    pl = pd.DataFrame(played)
+    if not pl.empty:
+        pl = pl.drop(columns=["time", "covered"])
+    return pl, pd.DataFrame(upcoming)
+
+
 def load_manual_results() -> pd.DataFrame:
     """Résultats saisis à la main (ex. C1 2026-27 pas encore publiée par openfootball)."""
     p = ROOT / "data" / "resultats_manuels.csv"
@@ -443,8 +491,10 @@ def load_all(n_seasons: int = 4, force: bool = False) -> tuple[pd.DataFrame, dic
     dom = load_league_history(n_seasons, force=force)
     teams_by_league = {lg: set(g.home) | set(g.away) for lg, g in dom.groupby("comp")}
     cl, unmatched = load_euro_cups(teams_by_league, n_seasons=min(n_seasons, 3), force=force)
+    cup_now, _ = load_cup_calendar(set(dom.home) | set(dom.away), force=force)
     man = load_manual_results()
-    df = pd.concat([d for d in (dom, cl, man) if not d.empty], ignore_index=True)
+    df = pd.concat([d for d in (dom, cl, cup_now, man) if not d.empty], ignore_index=True)
+    df = df.drop_duplicates(["date", "home", "away"], keep="first")
     df = df.sort_values("date").reset_index(drop=True)
     info = dict(n_matches=len(df), n_cl=len(cl), last_date=df.date.max(), cl_unmatched=unmatched,
                 loaded_at=datetime.now())
