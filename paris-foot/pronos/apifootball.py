@@ -44,7 +44,7 @@ ALIASES = {
     "nottingham forest": "Nott'm Forest", "wolverhampton wanderers": "Wolves", "newcastle": "Newcastle",
     "tottenham": "Tottenham", "olympiakos piraeus": "Olympiakos", "fc copenhagen": "FC Copenhagen",
     "union st gilloise": "St. Gilloise", "red bull salzburg": "Salzburg", "stade brestois 29": "Brest",
-    "paris fc": "Paris FC", "fenerbahce": "Fenerbahce", "galatasaray": "Galatasaray", "besiktas": "Besiktas",
+    "paris fc": "Paris FC", "sheffield utd": "Sheffield United", "lask linz": "LASK", "bodo/glimt": "Bodo/Glimt", "fenerbahce": "Fenerbahce", "galatasaray": "Galatasaray", "besiktas": "Besiktas",
 }
 
 
@@ -69,6 +69,22 @@ def usage_today() -> int:
         return 0
 
 
+RATE = CACHE / "apifootball_rate.json"
+
+
+def _throttle(max_per_min: int = 9):
+    """Plan gratuit : ~10 requêtes/minute. Attend si nécessaire."""
+    try:
+        ts = [t for t in json.loads(RATE.read_text()) if time.time() - t < 60]
+    except (OSError, ValueError):
+        ts = []
+    if len(ts) >= max_per_min:
+        time.sleep(max(0.0, 60.5 - (time.time() - min(ts))))
+        ts = [t for t in ts if time.time() - t < 60]
+    ts.append(time.time())
+    RATE.write_text(json.dumps(ts))
+
+
 def _count():
     try:
         u = json.loads(USAGE.read_text())
@@ -79,6 +95,19 @@ def _count():
 
 
 def call(endpoint: str, params: dict, ttl_h: float) -> list:
+    """Version tolérante : une erreur (ex. date hors du plan gratuit) renvoie [] sans bloquer le reste."""
+    try:
+        return _call(endpoint, params, ttl_h)
+    except APIError as e:
+        ERRORS.append(f"{endpoint}: {e}")
+        return []
+
+
+ERRORS: list[str] = []
+FREE_DAYS = 2   # plan gratuit : seulement hier / aujourd'hui / demain
+
+
+def _call(endpoint: str, params: dict, ttl_h: float) -> list:
     """Appel mis en cache. Renvoie la liste 'response' (toutes pages) ; [] si indisponible."""
     if not enabled():
         return []
@@ -91,6 +120,7 @@ def call(endpoint: str, params: dict, ttl_h: float) -> list:
         if usage_today() >= MAX_PER_DAY:
             break
         q = dict(params, **({"page": page} if page > 1 else {}))
+        _throttle()
         try:
             r = requests.get(f"{BASE}/{endpoint}", params=q, timeout=25,
                              headers={"x-apisports-key": api_key()})
@@ -138,7 +168,7 @@ def map_team(name: str, candidates) -> str | None:
 
 
 # --------------------------------------------------------------------------- matchs, blessés, compos, cotes
-def fixtures(days: int = 3) -> pd.DataFrame:
+def fixtures(days: int = FREE_DAYS) -> pd.DataFrame:
     rows = []
     for i in range(days):
         d = date.today() + timedelta(days=i)
@@ -154,7 +184,7 @@ def fixtures(days: int = 3) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
-def injuries(days: int = 3) -> pd.DataFrame:
+def injuries(days: int = FREE_DAYS) -> pd.DataFrame:
     rows = []
     for i in range(days):
         d = date.today() + timedelta(days=i)
@@ -173,7 +203,7 @@ def lineups(fixture_id: int) -> list[dict]:
                  subs=[p["player"]["name"] for p in x.get("substitutes", [])]) for x in res]
 
 
-def cup_odds(days: int = 3) -> pd.DataFrame:
+def cup_odds(days: int = FREE_DAYS) -> pd.DataFrame:
     """Vraies cotes (Bet365 si dispo) des matchs de C1/C3/C4 des prochains jours."""
     rows = []
     yr = season_year()
@@ -190,6 +220,20 @@ def cup_odds(days: int = 3) -> pd.DataFrame:
                                  o_a=vals.get((1, "Away")), o_o25=vals.get((5, "Over 2.5")),
                                  o_u25=vals.get((5, "Under 2.5"))))
     return pd.DataFrame(rows)
+
+
+def fixture_odds(fixture_id: int) -> dict:
+    """Vraies cotes (Bet365, sinon 1er bookmaker) d'un match : {h,d,a,o25,u25,bookmaker}."""
+    res = call("odds", {"fixture": fixture_id}, ttl_h=3)
+    if not res:
+        return {}
+    bks = res[0].get("bookmakers", [])
+    bk = next((b for b in bks if b.get("id") == 8), bks[0] if bks else None)
+    if not bk:
+        return {}
+    vals = {(bet["id"], str(v["value"])): float(v["odd"]) for bet in bk.get("bets", []) for v in bet.get("values", [])}
+    return dict(h=vals.get((1, "Home")), d=vals.get((1, "Draw")), a=vals.get((1, "Away")),
+                o25=vals.get((5, "Over 2.5")), u25=vals.get((5, "Under 2.5")), bookmaker=bk.get("name"))
 
 
 def top_scorers() -> pd.DataFrame:
@@ -215,6 +259,7 @@ def enrich(model_teams, team_league: dict) -> dict:
                ok=False, error=None)
     if not enabled():
         return out
+    ERRORS.clear()
     try:
         fx = fixtures()
         teams = set(model_teams)
@@ -225,14 +270,10 @@ def enrich(model_teams, team_league: dict) -> dict:
         if not inj.empty and not fx.empty:
             idmap = {**dict(zip(fx.home_id, fx.home)), **dict(zip(fx.away_id, fx.away))}
             inj["team"] = inj.team_id.map(idmap)
-        od = cup_odds()
-        if not od.empty and not fx.empty:
-            od = od.merge(fx[["id", "date", "home", "away"]], on="id", how="inner")
-        sc = top_scorers()
-        if not sc.empty:
-            sc["equipe"] = [map_team(n, [t for t in teams if team_league.get(t) == c]) if n else None
-                            for n, c in zip(sc.team_api, sc.comp)]
-        out.update(fixtures=fx, injuries=inj, odds=od, scorers=sc, ok=True)
+        od = pd.DataFrame()   # cotes : chargées à la demande par match (fixture_odds), plan gratuit oblige
+        sc = pd.DataFrame()   # meilleurs buteurs : saison en cours non accessible au plan gratuit
+        out.update(fixtures=fx, injuries=inj, odds=od, scorers=sc, ok=not fx.empty or not ERRORS,
+                   error="; ".join(ERRORS[:3]) or None)
     except APIError as e:
         out["error"] = str(e)
     return out
@@ -240,13 +281,17 @@ def enrich(model_teams, team_league: dict) -> dict:
 
 def injury_adjustment(team: str, absent: list[str], scorers: pd.DataFrame, results: pd.DataFrame) -> tuple[float, float]:
     """Impact estimé des absents : (variation attaque, variation défense) en fraction.
-    Attaque : part des buts de l'équipe marqués par les absents × 0,6 (le remplaçant compense en partie).
-    Défense : −1,5 % par autre absent, plafonné à −8 %."""
+    Attaque : part des buts de l'équipe marqués par les absents connus × 0,6, et −1,5 % par autre absent.
+    Défense : −1,5 % par absent non buteur, plafonné à −8 %. Estimation volontairement prudente."""
     if not absent:
         return 0.0, 0.0
     from .scorers import team_season_goals
     goals, _ = team_season_goals(results, team)
     sc = scorers[scorers.equipe == team] if not scorers.empty and "equipe" in scorers else pd.DataFrame()
+    if sc.empty:  # buteurs saisis dans data/joueurs.csv
+        from .scorers import load_players
+        pl = load_players()
+        sc = pl[pl.equipe == team][["joueur", "buts"]] if not pl.empty else pd.DataFrame()
     abs_norm = {_norm(a) for a in absent}
     lost = 0.0
     others = 0
@@ -257,7 +302,7 @@ def injury_adjustment(team: str, absent: list[str], scorers: pd.DataFrame, resul
             lost += float(hit.iloc[0].buts) / goals
         else:
             others += 1
-    att = -min(0.25, 0.6 * lost)
+    att = -min(0.25, 0.6 * lost + 0.015 * others)
     dfn = -min(0.08, 0.015 * others)
     _ = abs_norm
     return att, dfn

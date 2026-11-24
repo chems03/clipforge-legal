@@ -385,6 +385,11 @@ elif page == "🔍 Analyse":
         adj = {k_: adj.get(k_, 0) + auto.get(k_, 0) for k_ in ("att_h", "def_h", "att_a", "def_a")}
     if odds is None and ctx["odds"].get("h"):
         odds = ctx["odds"]
+    if odds is None and ctx["fixture_id"] and comp in CUPS:   # vraies cotes de coupe à la demande
+        _fo = apifootball.fixture_odds(ctx["fixture_id"])
+        if _fo.get("h"):
+            odds = {k_: _fo.get(k_) for k_ in ("h", "d", "a", "o25", "u25")}
+            st.caption(f"Cotes réelles {_fo.get('bookmaker') or ''} chargées automatiquement (API-Football).")
     r = engine.predict(mod, home, away, comp, neutral, odds=odds, adj=adj)
     k = r["markets"]
     lh, la = r["lambda"]
