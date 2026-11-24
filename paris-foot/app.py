@@ -54,14 +54,24 @@ API = api_data(st.session_state.nonce)
 engine.set_api(API, results)
 info = getattr(m, "info", {})
 
-# ------------------------------------------------------------------ navigation
-PAGES = ["📅 Matchs", "🔒 Sûrs", "🎟️ Combinés", "🔍 Analyse", "🎮 Simu", "📊 Bilan", "☰ Plus"]
-MORE = ["🧾 Mon ticket", "🏆 Classement", "👟 Buteurs", "📈 Fiabilité", "⚙️ Données"]
-ui.brand(f"{m.n_matches:,} matchs analysés · données au "
-         f"{pd.Timestamp(m.ref_date - pd.Timedelta(days=1)):%d/%m/%Y}".replace(",", " "))
+# ------------------------------------------------------------------ navigation (barre d'onglets en bas)
+NAV = ["🏠 Accueil", "⚽ Matchs", "🎟️ Combinés", "🎮 Simu", "🧩 Plus"]
+SUB = ["🔒 Pronos sûrs", "🔍 Analyse", "📊 Bilan", "🧾 Mon ticket", "🏆 Classement", "👟 Buteurs", "📈 Fiabilité",
+       "⚙️ Données"]
+SLUGS = {"accueil": "🏠 Accueil", "matchs": "⚽ Matchs", "combines": "🎟️ Combinés", "simu": "🎮 Simu",
+         "surs": "🔒 Pronos sûrs", "analyse": "🔍 Analyse", "bilan": "📊 Bilan", "donnees": "⚙️ Données"}
+
+
+def goto(target: str):
+    if target in NAV:
+        st.session_state.nav, st.session_state.more = target, None
+    else:
+        st.session_state.nav, st.session_state.more = "🧩 Plus", target
+
+
 _qp = st.query_params
 if "h" in _qp and "a" in _qp and "c" in _qp:
-    st.session_state.page = "🔍 Analyse"
+    goto("🔍 Analyse")
     st.session_state.kind = "⚽ Clubs"
     _c = _qp["c"]
     st.session_state.comp_pill = _c if _c in ["F1", "E0", "SP1", "I1", "D1", "CL", "EL", "ECL"] else "➕"
@@ -74,15 +84,54 @@ if "h" in _qp and "a" in _qp and "c" in _qp:
         except ValueError:
             st.session_state[_key] = 0.0
     st.query_params.clear()
-st.session_state.setdefault("page", PAGES[0])
-if st.session_state.page not in PAGES:
-    st.session_state.page = PAGES[0]
-page = st.pills("Menu", PAGES, label_visibility="collapsed", key="page") or PAGES[0]
-if page == "☰ Plus":
-    st.session_state.setdefault("page2", MORE[0])
-    page = st.pills("Plus", MORE, label_visibility="collapsed", key="page2") or MORE[0]
+elif "p" in _qp:
+    goto(SLUGS.get(_qp["p"], NAV[0]))
+    st.query_params.clear()
+st.session_state.setdefault("nav", NAV[0])
+if st.session_state.nav not in NAV:
+    st.session_state.nav = NAV[0]
+with st.container(key="bottomnav"):
+    nav = st.pills("Navigation", NAV, label_visibility="collapsed", key="nav",
+                   on_change=lambda: st.session_state.update(more=None)) or NAV[0]
+page = nav
+if nav == "🧩 Plus":
+    if st.session_state.get("more"):
+        st.button("‹ Plus", type="tertiary", on_click=lambda: st.session_state.update(more=None))
+        page = st.session_state.more
+    else:
+        ui.page_title("Plus", "Tous les outils de l'appli.")
+        with st.container(key="moregrid"):
+            st.pills("Plus", SUB, label_visibility="collapsed", key="more_pick",
+                     on_change=lambda: st.session_state.update(more=st.session_state.more_pick, more_pick=None))
 for _k, _v in dict(ch=0.0, cd=0.0, ca=0.0, co=0.0, cu=0.0).items():
     st.session_state.setdefault(_k, _v)
+
+
+@st.cache_data(ttl=1800, show_spinner=False)
+def upcoming_cached(_m, nonce, day):
+    return engine.upcoming_table(_m, leagues=list(LEAGUES))
+
+
+@st.cache_data(ttl=1800, show_spinner=False)
+def combos_cached(_m, nonce, day):
+    return engine.build_combos(_m)
+
+
+@st.cache_data(ttl=1800, show_spinner=False)
+def safe_cached(_m, nonce, day, min_p, min_c):
+    return engine.safe_picks(_m, min_p, min_c)
+
+
+_today = str(pd.Timestamp.today().date())
+
+
+def analysis_href(r) -> str | None:
+    from urllib.parse import urlencode
+    if getattr(r, "approx", False):
+        return None
+    vals = [getattr(r, c, None) for c in ("o_h", "o_d", "o_a", "o_o25", "o_u25")]
+    return "?" + urlencode(dict(h=r.home, a=r.away, c=r.comp, **{k_: (f"{v:.2f}" if v and v == v else "0")
+                                                                  for k_, v in zip(["ch", "cd", "ca", "co", "cu"], vals)}))
 
 
 QUICK_COMPS = ["F1", "E0", "SP1", "I1", "D1", "CL", "EL", "ECL"]
@@ -90,7 +139,7 @@ QUICK_COMPS = ["F1", "E0", "SP1", "I1", "D1", "CL", "EL", "ECL"]
 
 def open_match(comp, home, away, odds):
     """Bouton « Analyser » d'une carte : ouvre l'analyse détaillée pré-remplie (équipes + cotes)."""
-    st.session_state.page = "🔍 Analyse"
+    goto("🔍 Analyse")
     st.session_state.kind = "⚽ Clubs"
     if comp in QUICK_COMPS:
         st.session_state.comp_pill = comp
@@ -144,8 +193,71 @@ def team_label(t):
     return f"{t} ({m.team_league[t]})"
 
 
+
 # ------------------------------------------------------------------ pages
-if page == "📅 Matchs":
+if page == "🏠 Accueil":
+    t_all = upcoming_cached(m, st.session_state.nonce, _today)
+    n_today = int((pd.to_datetime(t_all.date) == pd.Timestamp(_today)).sum()) if not t_all.empty else 0
+    ui.top_bar(n_today)
+    days_fr = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"]
+
+    def when(r):
+        d = pd.Timestamp(r.date)
+        return f"{days_fr[d.weekday()]} {d.day} · {r.heure}"
+
+    if t_all.empty:
+        st.info("Pas de match publié pour les prochains jours. Utilise ☰ Plus → 🔍 Analyse pour n'importe quelle affiche.")
+    else:
+        strength = m.ratings().set_index("equipe")["diff"].to_dict()
+        soon = t_all[pd.to_datetime(t_all.date) <= pd.Timestamp(_today) + pd.Timedelta(days=3)]
+        top = sorted(soon[~soon.approx].itertuples(), key=lambda r: -min(strength.get(r.home, -9), strength.get(r.away, -9)))[:6]
+        ui.h2("★", "À la une", "?p=matchs")
+        ui.carousel([ui.card_une(f"{COMPETITIONS.get(r.comp, r.comp)} · {when(r)}", r.home, r.away,
+                                 f"Favori : {(r.home if r.P1 >= r.P2 else r.away)} {max(r.P1, r.P2):.0%} · "
+                                 f"score probable {r.score_probable.split(' ')[0]}", analysis_href(r)) for r in top])
+
+        ui.h2("📅", "Matchs à l'affiche", "?p=matchs")
+        big = t_all[t_all.comp.isin(["CL", "EL", "ECL", *MAIN_LEAGUES])]
+        nxt = (big if len(big) >= 4 else t_all).sort_values(["date", "heure"]).head(14)
+        ui.carousel([ui.card_affiche(r.comp, COMPETITIONS.get(r.comp, r.comp), when(r), r.home, r.away,
+                                     {"1": r.P1, "N": r.PN, "2": r.P2}, analysis_href(r)) for r in nxt.itertuples()])
+
+        picks = safe_cached(m, st.session_state.nonce, _today, 0.75, 1.15)
+        if not picks.empty:
+            ui.h2("🔒", "Pronos sûrs", "?p=surs")
+            ui.carousel([ui.card_small(f"{COMPETITIONS.get(r.comp, r.comp)} · {pd.Timestamp(r.date):%d/%m} {r.heure}",
+                                       f"{r.home} – {r.away}", f"{r.proba:.0%}", f"@ {r.cote:.2f}",
+                                       engine.leg_label(r.marche, r.pari, r.home, r.away), href="?p=surs")
+                         for r in picks.head(10).itertuples()])
+
+        combos = combos_cached(m, st.session_state.nonce, _today)
+        if combos:
+            ui.h2("🎟️", "Combinés du jour", "?p=combines")
+            ui.carousel([ui.card_small(f"{len(cb['legs'])} matchs", cb["name"], f"{cb['odds']:.2f}", "cote",
+                                       f"{cb['proba']:.0%} de chances · 10 € → {10 * cb['odds']:.0f} €",
+                                       grad=(cb["c1"], cb["c2"]), href="?p=combines") for cb in combos.values()])
+
+    pf = get_portfolio()
+    bal = sim.balance(pf)
+    ui.h2("🎮", "Mon simulateur", "?p=simu")
+    ui.carousel([
+        ui.card_small("Solde fictif", "Argent virtuel", f"{bal['solde']:.0f} €", "",
+                      f"{bal['solde'] + bal['en_jeu'] - pf['start']:+.0f} € depuis le départ", href="?p=simu"),
+        ui.card_small("Paris", "En cours", f"{bal['en_cours']}", "pari(s)", f"{bal['en_jeu']:.0f} € en jeu", href="?p=simu"),
+        ui.card_small("Réussite", "Paris réglés", f"{bal['gagnes'] / max(1, bal['gagnes'] + bal['perdus']):.0%}", "",
+                      f"✅ {bal['gagnes']} · ❌ {bal['perdus']}", href="?p=simu")])
+
+    try:
+        hs = hist.build_history(results, "clubs")
+        s5 = hist.summary(hs[hs.comp.isin(MAIN_LEAGUES)])
+        ui.h2("📊", "Bilan de l'appli", "?p=bilan")
+        ui.carousel([ui.card_small("Saison 2026-27", row["Pari"], f"{row['% réussite']:.0%}", "réussis",
+                                   f"✅ {row['✅ Réussis']} · ❌ {row['❌ Ratés']}", href="?p=bilan")
+                     for _, row in s5.iterrows()])
+    except Exception:
+        pass
+
+elif page == "⚽ Matchs":
     ui.page_title("Prochains matchs", "Touche une affiche pour la dérouler. Les 3 pourcentages = victoire "
                   "domicile, nul, victoire extérieur.")
     _info = st.expander("ℹ️ Comment lire une carte")
@@ -160,7 +272,7 @@ if page == "📅 Matchs":
     _info.caption("Coupes d'Europe et sélections nationales : aucun calendrier gratuit n'est disponible → "
                "choisis l'affiche dans « 🔍 Analyse d'un match » (Ligue des champions, Ligue Europa, "
                "Conférence, Coupe du monde, Euro, qualifs, Ligue des nations, amicaux).")
-    t_all = engine.upcoming_table(m, leagues=list(LEAGUES))
+    t_all = upcoming_cached(m, st.session_state.nonce, _today)
     avail = [c for c in ["CL", "EL", "ECL", *LEAGUES] if not t_all.empty and c in set(t_all.comp)]
     st.session_state.setdefault("lg_pills", [c for c in ["CL", "EL", "ECL", *MAIN_LEAGUES] if c in avail] or avail)
     st.session_state.lg_pills = [c for c in st.session_state.lg_pills if c in avail]
@@ -233,7 +345,7 @@ if page == "📅 Matchs":
 elif page == "🎟️ Combinés":
     ui.page_title("Combinés", "Trois tickets construits par l'appli sur les matchs à venir, du plus sûr au plus "
                   "audacieux. Une seule sélection par match.")
-    combos = engine.build_combos(m)
+    combos = combos_cached(m, st.session_state.nonce, _today)
     if not combos:
         st.info("Pas assez de matchs publiés pour construire des combinés. Reviens quand le calendrier du "
                 "week-end sera sorti (jeudi/vendredi).")
@@ -258,13 +370,13 @@ elif page == "🎟️ Combinés":
                         "- « estimée » = cote calculée par l'appli (vraie cote inconnue). **Vérifie chez ton "
                         "bookmaker** : si sa cote est plus basse, le ticket rapportera moins.")
 
-elif page == "🔒 Sûrs":
+elif page == "🔒 Pronos sûrs":
     ui.page_title("Pronos sûrs", "Le pari le plus probable de chaque match, avec une cote minimum. "
                   "Rien n'est sûr à 100 % : un prono à 80 % perd 1 fois sur 5.")
     c1, c2 = st.columns(2)
     min_p = c1.slider("Probabilité minimum", 0.60, 0.95, 0.75, 0.01, format="%.2f")
     min_c = c2.slider("Cote minimum", 1.05, 2.00, 1.15, 0.01, format="%.2f")
-    picks = engine.safe_picks(m, min_p, min_c)
+    picks = safe_cached(m, st.session_state.nonce, _today, min_p, min_c)
     if picks.empty:
         st.info("Aucun pari ne remplit ces conditions pour les matchs publiés. Baisse un peu la probabilité "
                 "minimum ou attends la publication du calendrier du week-end (jeudi/vendredi).")
@@ -560,7 +672,7 @@ elif page == "🎮 Simu":
     t_bet, t_mine, t_strat, t_save = st.tabs(["Parier", "Mes paris", "Tester une stratégie", "Sauvegarde"])
 
     with t_bet:
-        up = engine.upcoming_table(m, leagues=list(LEAGUES))
+        up = upcoming_cached(m, st.session_state.nonce, _today)
         if up.empty:
             st.info("Aucun match à venir publié pour l'instant. Tu peux parier sur n'importe quelle affiche "
                     "(C1, sélections…) depuis 🔍 Analyse → « Parier avec de l'argent fictif ».")
