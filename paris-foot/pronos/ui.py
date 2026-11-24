@@ -252,7 +252,8 @@ a.pf-cardlink { text-decoration:none !important; color:inherit !important; }
 /* barre d'onglets fixe en bas */
 .st-key-bottomnav { position:fixed !important; left:0; right:0; bottom:0; z-index:1000; gap:0 !important;
   background:rgba(28,28,30,.94); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
-  border-top:1px solid #38383a; padding:6px 4px calc(8px + env(safe-area-inset-bottom)) 4px !important; }
+  border-top:1px solid #38383a; padding:6px 84px calc(8px + env(safe-area-inset-bottom)) 4px !important; }
+/* laisse la place au bouton Streamlit Cloud (coin bas-droit) */
 .st-key-bottomnav .stElementContainer, .st-key-bottomnav [data-testid="stButtonGroup"] { width:100% !important; }
 .st-key-bottomnav [role="radiogroup"] { display:flex !important; flex-wrap:nowrap !important; justify-content:space-around !important;
   gap:0 !important; width:100%; max-width:620px; margin:0 auto; }
