@@ -4,374 +4,641 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Alliance Viti Services – Prestataire viticole à vos côtés</title>
-<meta name="description" content="Alliance Viti Services : prestataire viticole pour tous vos travaux manuels – taille, liage, travaux en vert, palissage, vendanges manuelles et entretien des parcelles. Demandez votre devis.">
+<meta name="description" content="Alliance Viti Services : prestataire viticole pour tous vos travaux manuels – taille, liage, travaux en vert, palissage, vendanges manuelles et entretien des parcelles. Devis gratuit.">
+<meta name="theme-color" content="#1a0d11">
 <link rel="icon" href="images/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bordeaux:#7a1631; --bordeaux-dark:#5a0f24; --bordeaux-light:#9c2a47;
-  --or:#c9a24a; --vert:#5f7d2e; --creme:#faf6ef; --texte:#2b2222; --gris:#6b6060;
-  --serif:'Cormorant Garamond',Georgia,serif; --sans:'Lato',Arial,sans-serif;
+  --noir:#170b0f; --noir-2:#22121a; --bordeaux:#7a1631; --bordeaux-2:#9c2445; --vin:#4a0d1f;
+  --or:#d4ad5c; --vert:#8fae4a; --creme:#f4ede2; --creme-2:#ebe1d1; --texte:#231a1c; --gris:#7a6e6c;
+  --serif:'Cormorant Garamond',Georgia,serif; --sans:'Manrope',system-ui,sans-serif;
+  --ease:cubic-bezier(.16,1,.3,1); --r:22px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth;scroll-padding-top:80px}
-body{font-family:var(--sans);color:var(--texte);background:#fff;line-height:1.6}
+html{scroll-padding-top:90px;overflow-x:clip}
+body{font-family:var(--sans);color:var(--texte);background:var(--creme);line-height:1.6;overflow-x:clip;-webkit-font-smoothing:antialiased}
+body.loading{overflow:hidden}
 img{max-width:100%;display:block}
 a{color:inherit;text-decoration:none}
-.container{width:min(1200px,100% - 32px);margin-inline:auto}
-.btn{display:inline-flex;align-items:center;gap:.6em;padding:.75em 1.4em;border-radius:4px;font-weight:700;font-size:.85rem;letter-spacing:.06em;text-transform:uppercase;transition:.2s;cursor:pointer;border:2px solid transparent;font-family:var(--sans)}
-.btn::after{content:"→";font-size:1.1em}
-.btn-primary{background:var(--bordeaux);color:#fff}
-.btn-primary:hover{background:var(--bordeaux-dark)}
-.btn-outline{border-color:#fff;color:#fff}
-.btn-outline:hover{background:#fff;color:var(--bordeaux)}
-.btn-green{background:var(--vert);color:#fff;border-color:var(--or)}
-.btn-green:hover{filter:brightness(1.1)}
-.eyebrow{display:flex;align-items:center;gap:12px;color:var(--bordeaux);font-family:var(--serif);font-weight:700;font-size:.95rem;letter-spacing:.12em;text-transform:uppercase}
-.eyebrow::before,.eyebrow::after{content:"";height:1px;width:40px;background:var(--bordeaux)}
-.eyebrow.center{justify-content:center}
-h2{font-family:var(--serif);font-weight:500;font-size:clamp(1.8rem,3.5vw,2.6rem);line-height:1.15;color:var(--texte)}
-h2 em{color:var(--bordeaux);font-weight:700}
-h2 strong{font-weight:700}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+::selection{background:var(--bordeaux);color:#fff}
+.wrap{width:min(1320px,100% - 40px);margin-inline:auto}
+.serif{font-family:var(--serif)}
+em{font-style:italic;font-family:var(--serif)}
 
-/* HEADER */
-header{position:sticky;top:0;z-index:50;background:#fff;box-shadow:0 2px 12px rgba(0,0,0,.08)}
-.nav{display:flex;align-items:center;justify-content:space-between;height:76px}
-.logo{align-self:flex-start;position:relative;z-index:2}
-.logo img{height:118px;width:auto;background:#fff;padding:6px 14px 10px;border-radius:0 0 50% 50%/0 0 30% 30%;box-shadow:0 6px 14px rgba(0,0,0,.12)}
-.menu{display:flex;align-items:center;gap:6px;list-style:none}
-.menu a{display:block;padding:.5em 1em;font-family:var(--serif);font-weight:700;font-size:1rem;letter-spacing:.04em;text-transform:uppercase;border-radius:3px;transition:.2s}
-.menu a:hover,.menu a.active{background:var(--bordeaux);color:#fff}
-.menu .sep{width:1px;height:18px;background:#ccc}
-.burger{display:none;background:none;border:0;font-size:1.8rem;color:var(--bordeaux);cursor:pointer}
+/* Grain */
+body::after{content:"";position:fixed;inset:-50%;z-index:9998;pointer-events:none;opacity:.05;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation:grain 1s steps(4) infinite}
+@keyframes grain{0%{transform:translate(0,0)}25%{transform:translate(-3%,2%)}50%{transform:translate(2%,-3%)}75%{transform:translate(-2%,-2%)}}
+
+/* Preloader */
+.loader{position:fixed;inset:0;z-index:10000;background:var(--noir);display:grid;place-items:center;transition:clip-path 1.1s var(--ease) .1s;clip-path:inset(0 0 0 0)}
+.loader.done{clip-path:inset(0 0 100% 0)}
+.loader-inner{text-align:center;color:var(--creme)}
+.loader-logo{width:180px;background:#fff;border-radius:50%;aspect-ratio:1;display:grid;place-items:center;padding:22px;margin:0 auto 26px;animation:pop 1s var(--ease) both}
+.loader-count{font-family:var(--serif);font-size:1rem;letter-spacing:.3em;color:var(--or)}
+.loader-bar{width:180px;height:1px;background:rgba(255,255,255,.15);margin:14px auto 0;overflow:hidden}
+.loader-bar i{display:block;height:100%;width:0;background:var(--or);transition:width .2s}
+@keyframes pop{from{transform:scale(.6);opacity:0}}
+
+/* Cursor */
+.cursor{position:fixed;left:0;top:0;width:10px;height:10px;border-radius:50%;background:var(--or);pointer-events:none;z-index:9999;transform:translate(-50%,-50%);mix-blend-mode:difference;transition:width .35s var(--ease),height .35s var(--ease),background .3s}
+.cursor.big{width:84px;height:84px;background:#fff}
+.cursor-label{position:fixed;left:0;top:0;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);font-size:.7rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--noir);opacity:0;transition:opacity .2s}
+.cursor-label.show{opacity:1}
+@media (hover:none),(max-width:860px){.cursor,.cursor-label{display:none}}
+
+/* Progress */
+.progress{position:fixed;top:0;left:0;height:3px;width:100%;transform-origin:0 50%;transform:scaleX(0);background:linear-gradient(90deg,var(--or),var(--bordeaux-2));z-index:200}
+
+/* Header */
+header{position:fixed;inset:14px 0 auto;z-index:100;transition:transform .5s var(--ease)}
+header.hide{transform:translateY(-130%)}
+.nav{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:8px 8px 8px 10px;border-radius:999px;background:rgba(23,11,15,.35);backdrop-filter:blur(16px) saturate(1.4);-webkit-backdrop-filter:blur(16px) saturate(1.4);border:1px solid rgba(255,255,255,.12);transition:background .4s}
+header.solid .nav{background:rgba(23,11,15,.82)}
+.brand{display:flex;align-items:center;gap:12px;color:#fff}
+.brand-logo{width:58px;height:58px;border-radius:50%;background:#fff;display:grid;place-items:center;padding:5px;flex:none}
+.brand-txt{font-family:var(--serif);font-size:1.15rem;line-height:1;letter-spacing:.06em;text-transform:uppercase}
+.brand-txt small{display:block;font-size:.72rem;letter-spacing:.2em;color:var(--or);margin-top:4px}
+.menu{display:flex;list-style:none;gap:4px}
+.menu a{display:block;color:#fff;padding:.6em 1.05em;border-radius:999px;font-size:.88rem;font-weight:500;position:relative;overflow:hidden}
+.menu a span{display:block;transition:transform .45s var(--ease)}
+.menu a span::after{content:attr(data-t);position:absolute;left:0;top:100%;width:100%;text-align:center;color:var(--or)}
+.menu a:hover span{transform:translateY(-100%)}
+.menu a.active{background:rgba(255,255,255,.1)}
+.btn{position:relative;display:inline-flex;white-space:nowrap;align-items:center;gap:12px;padding:.95em 1.15em .95em 1.6em;border-radius:999px;font-weight:600;font-size:.92rem;overflow:hidden;isolation:isolate;transition:color .4s;will-change:transform}
+.btn .dot{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;transition:transform .45s var(--ease)}
+.btn:hover .dot{transform:rotate(-45deg)}
+.btn::before{content:"";position:absolute;inset:0;z-index:-1;border-radius:inherit;transform:translateY(101%);transition:transform .5s var(--ease)}
+.btn:hover::before{transform:none}
+.btn-or{background:var(--or);color:var(--noir)}.btn-or .dot{background:var(--noir);color:var(--or)}.btn-or::before{background:#fff}
+.btn-ghost{border:1px solid rgba(255,255,255,.35);color:#fff}.btn-ghost .dot{background:#fff;color:var(--noir)}.btn-ghost::before{background:#fff}.btn-ghost:hover{color:var(--noir)}
+.btn-dark{background:var(--bordeaux);color:#fff}.btn-dark .dot{background:#fff;color:var(--bordeaux)}.btn-dark::before{background:var(--noir)}
+.burger{display:none;width:48px;height:48px;border-radius:50%;background:var(--or);position:relative}
+.burger i{position:absolute;left:14px;right:14px;height:2px;background:var(--noir);transition:.4s var(--ease)}
+.burger i:first-child{top:19px}.burger i:last-child{top:27px}
+.burger.open i:first-child{top:23px;transform:rotate(45deg)}.burger.open i:last-child{top:23px;transform:rotate(-45deg)}
+
+/* Reveal utilities */
+.line{display:block;overflow:hidden;padding-bottom:.08em}
+.line>span{display:inline-block;transform:translateY(110%);transition:transform 1.2s var(--ease);transition-delay:calc(var(--i,0)*.09s)}
+.in .line>span,.line.in>span{transform:none}
+[data-reveal]{opacity:0;transform:translateY(50px);transition:opacity 1s var(--ease),transform 1.2s var(--ease);transition-delay:calc(var(--d,0)*1s)}
+[data-reveal].in{opacity:1;transform:none}
+.clip{clip-path:inset(100% 0 0 0 round var(--r));transition:clip-path 1.5s var(--ease)}
+.clip.in{clip-path:inset(0 0 0 0 round var(--r))}
 
 /* HERO */
-.hero{position:relative;min-height:560px;display:flex;align-items:center;background:url(images/hero.jpg) center/cover no-repeat;overflow:hidden}
-.hero::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(90,15,36,.96) 0%,rgba(122,22,49,.9) 33%,rgba(122,22,49,0) 55%)}
-.hero-content{position:relative;color:#fff;max-width:520px;text-align:center;padding:60px 0}
-.hero h1{font-family:var(--serif);font-weight:600;font-size:clamp(2.6rem,5.5vw,4.2rem);line-height:1;letter-spacing:.02em;text-transform:uppercase}
-.hero .tagline{font-family:var(--serif);font-style:italic;font-size:1.6rem;margin:.4em 0 .6em}
-.hero .leaf{font-size:1.4rem;color:#a8c26a}
-.hero p{font-family:var(--serif);font-size:1.35rem;line-height:1.3;margin:.5em 0 1.6em}
-.hero .btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.hero{position:relative;height:100vh;min-height:680px;background:var(--noir);color:#fff;overflow:hidden}
+.hero-media{position:absolute;inset:0;overflow:hidden}
+.hero-media img{width:100%;height:100%;object-fit:cover;transform:scale(1.3);transition:transform 2.4s var(--ease);will-change:transform}
+.ready .hero-media img{transform:scale(1.08)}
+.hero-media::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 70% 40%,transparent 0%,rgba(23,11,15,.35) 50%,rgba(23,11,15,.9) 100%),linear-gradient(180deg,rgba(23,11,15,.55),transparent 30%,transparent 55%,var(--noir))}
+.hero-inner{position:relative;height:100%;display:flex;flex-direction:column;justify-content:flex-end;padding-bottom:9vh}
+.kicker{display:inline-flex;align-items:center;gap:12px;font-size:.78rem;font-weight:600;letter-spacing:.28em;text-transform:uppercase;color:var(--or)}
+.kicker::before{content:"";width:34px;height:1px;background:currentColor}
+.hero h1{font-family:var(--serif);font-weight:400;font-size:clamp(3.2rem,10.5vw,10.5rem);line-height:.88;letter-spacing:-.02em;margin:22px 0 34px}
+.hero h1 em{color:var(--or)}
+.hero-bottom{display:flex;align-items:flex-end;justify-content:space-between;gap:30px;flex-wrap:wrap}
+.hero-bottom p{max-width:420px;color:rgba(255,255,255,.78);font-size:1.05rem}
+.hero-ctas{display:flex;gap:12px;flex-wrap:wrap}
+.hero-float{position:absolute;right:4vw;top:22vh;width:min(250px,22vw);border-radius:var(--r);overflow:hidden;box-shadow:0 30px 60px rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.2)}
+.hero-float img{aspect-ratio:3/4;object-fit:cover}
+.hero-float figcaption{position:absolute;inset:auto 10px 10px;background:rgba(23,11,15,.6);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-radius:14px;padding:10px 12px;font-size:.78rem;line-height:1.3}
+.hero-float b{display:block;color:var(--or);font-family:var(--serif);font-size:1.1rem;font-weight:500}
+.scroll-ind{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);width:26px;height:42px;border:1px solid rgba(255,255,255,.4);border-radius:20px}
+.scroll-ind::after{content:"";position:absolute;left:50%;top:8px;width:3px;height:8px;margin-left:-1.5px;border-radius:2px;background:var(--or);animation:scr 1.8s var(--ease) infinite}
+@keyframes scr{0%{opacity:0;transform:translateY(0)}30%{opacity:1}100%{opacity:0;transform:translateY(16px)}}
+.badge{position:absolute;right:5vw;bottom:13vh;width:130px;height:130px;display:grid;place-items:center}
+.badge svg{position:absolute;inset:0;animation:spin 18s linear infinite}
+.badge span{width:52px;height:52px;border-radius:50%;background:var(--or);color:var(--noir);display:grid;place-items:center;font-size:1.3rem}
+@keyframes spin{to{transform:rotate(360deg)}}
 
-/* ENTREPRISE */
-.entreprise{background:var(--creme);padding:80px 0}
-.entreprise-grid{display:grid;grid-template-columns:1fr 1.1fr .9fr;gap:40px;align-items:center}
-.entreprise-img{border-radius:6px;box-shadow:0 10px 30px rgba(0,0,0,.18);aspect-ratio:4/3;object-fit:cover;width:100%}
-.entreprise-text h2{margin:.4em 0 .6em}
-.entreprise-text p{color:var(--gris);margin-bottom:1em}
-.entreprise-text strong{color:var(--texte)}
-.atouts{list-style:none;border-left:1px solid #ddd;padding-left:32px;display:grid;gap:24px}
-.atouts li{display:flex;gap:16px;align-items:flex-start}
-.atouts svg{flex:none;width:38px;height:38px;color:var(--bordeaux)}
-.atouts b{display:block;font-family:var(--serif);font-size:1.2rem}
-.atouts span{font-size:.9rem;color:var(--gris)}
+/* Marquee */
+.marquee{background:var(--bordeaux);color:var(--creme);overflow:hidden;padding:22px 0;transform:rotate(-2deg) scale(1.04);margin:-30px 0 0;position:relative;z-index:3;box-shadow:0 20px 40px rgba(0,0,0,.25)}
+.marquee.alt{background:var(--or);color:var(--noir);transform:rotate(1.5deg) scale(1.04);margin:-62px 0 0;z-index:2}
+.marquee-track{display:flex;width:max-content;will-change:transform}
+.marquee-track span{font-family:var(--serif);font-size:clamp(1.8rem,3.6vw,3rem);white-space:nowrap;padding-right:40px;display:flex;align-items:center;gap:40px}
+.marquee-track span::after{content:"❦";font-size:.7em;color:var(--or)}
+.marquee.alt .marquee-track span::after{color:var(--bordeaux)}
 
-/* PRESTATIONS */
-.prestations{padding:80px 0;text-align:center}
-.prestations h2{margin:.3em 0 1.4em}
-.cards{display:grid;grid-template-columns:repeat(6,1fr);gap:16px}
-.card{background:var(--bordeaux);color:#fff;border-radius:6px;overflow:hidden;text-align:left;display:flex;flex-direction:column;box-shadow:0 6px 18px rgba(0,0,0,.15);transition:.25s}
-.card:hover{transform:translateY(-6px);box-shadow:0 14px 28px rgba(0,0,0,.25)}
-.card-img{position:relative}
-.card-img img{aspect-ratio:4/3;object-fit:cover;width:100%}
-.card-icon{position:absolute;left:12px;bottom:-20px;width:42px;height:42px;border-radius:50%;background:#fff;border:2px solid var(--bordeaux);display:grid;place-items:center;color:var(--bordeaux)}
-.card-icon svg{width:22px;height:22px}
-.card-body{padding:28px 14px 16px;flex:1;display:flex;flex-direction:column}
-.card h3{font-family:var(--serif);font-weight:600;font-size:1.3rem;line-height:1.1;margin-bottom:.4em}
-.card p{font-size:.85rem;opacity:.9;flex:1}
-.card .arrow{align-self:flex-end;margin-top:8px;font-size:1.1rem}
+/* Sections */
+section{position:relative}
+.sec{padding:clamp(90px,13vw,170px) 0}
+.h2{font-family:var(--serif);font-weight:400;font-size:clamp(2.4rem,6vw,5.4rem);line-height:.98;letter-spacing:-.015em}
+.h2 em{color:var(--bordeaux)}
+.dark .h2 em{color:var(--or)}
+.lead{font-size:1.1rem;color:var(--gris);max-width:520px}
 
-/* ENGAGEMENTS */
-.engagements{display:grid;grid-template-columns:1fr 1.4fr;background:var(--creme);align-items:stretch}
-.engagements-img{background:url(images/paysage.jpg) center/cover;min-height:320px;-webkit-mask-image:linear-gradient(90deg,#000 70%,transparent);mask-image:linear-gradient(90deg,#000 70%,transparent)}
-.engagements-content{padding:60px 32px;text-align:center}
-.engagements h2{margin:.3em 0 1.2em}
-.valeurs{display:grid;grid-template-columns:repeat(4,1fr)}
-.valeurs div{padding:0 12px;border-left:1px solid #ddd}
-.valeurs div:first-child{border-left:0}
-.valeurs svg{width:40px;height:40px;color:var(--bordeaux);margin:0 auto 10px}
-.valeurs b{display:block;font-family:var(--serif);font-size:1.15rem}
-.valeurs span{font-size:.85rem;color:var(--gris)}
+/* About */
+.about-grid{display:grid;grid-template-columns:1.05fr 1fr;gap:clamp(40px,7vw,110px);align-items:center}
+.about-media{position:relative;height:clamp(460px,52vw,680px)}
+.about-media .m1{position:absolute;left:0;top:0;width:78%;height:82%;border-radius:var(--r);overflow:hidden}
+.about-media .m2{position:absolute;right:0;bottom:0;width:48%;height:46%;border-radius:var(--r);overflow:hidden;border:8px solid var(--creme);box-shadow:0 30px 60px rgba(0,0,0,.2)}
+.about-media img{width:100%;height:115%;object-fit:cover}
+.about-media .stamp{position:absolute;left:58%;top:6%;width:110px;height:110px;border-radius:50%;background:var(--noir);color:var(--or);display:grid;place-items:center;text-align:center;font-family:var(--serif);font-size:.95rem;line-height:1.1;z-index:2;box-shadow:0 20px 40px rgba(0,0,0,.3)}
+.about-text .h2{margin:22px 0 28px}
+.about-text p{color:var(--gris);margin-bottom:1em;font-size:1.05rem}
+.about-text strong{color:var(--texte)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);margin-top:38px;border-top:1px solid #d9cdbb}
+.stats div{padding:24px 10px 0 0}
+.stats b{display:block;font-family:var(--serif);font-weight:500;font-size:clamp(2.4rem,4vw,3.6rem);line-height:1;color:var(--bordeaux)}
+.stats span{font-size:.85rem;color:var(--gris)}
 
-/* GALERIE */
-.galerie{background:linear-gradient(90deg,var(--bordeaux-dark),var(--bordeaux),var(--bordeaux-dark));padding:40px 0;color:#fff}
-.galerie-inner{display:flex;align-items:center;gap:32px}
-.galerie .eyebrow{color:var(--or);font-size:1.3rem;flex:none}
-.galerie .eyebrow::before,.galerie .eyebrow::after{background:var(--or)}
-.thumbs{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;flex:1}
-.thumbs button{border:2px solid var(--or);border-radius:4px;overflow:hidden;padding:0;cursor:zoom-in;background:none}
-.thumbs img{aspect-ratio:2/1;object-fit:cover;width:100%;transition:.3s}
-.thumbs button:hover img{transform:scale(1.08)}
-.galerie .btn-outline{border-color:var(--or);flex:none}
-.lightbox{position:fixed;inset:0;background:rgba(0,0,0,.88);display:none;align-items:center;justify-content:center;z-index:100;padding:20px;cursor:zoom-out}
-.lightbox.open{display:flex}
-.lightbox img{max-height:90vh;border-radius:6px}
+/* Horizontal services */
+.hs{background:var(--noir);color:var(--creme)}
+.hs-sticky{position:sticky;top:0;height:100vh;overflow:hidden;display:flex;flex-direction:column;justify-content:center}
+.hs-head{display:flex;justify-content:space-between;align-items:flex-end;gap:30px;margin-bottom:5vh}
+.hs-head .lead{color:rgba(244,237,226,.6)}
+.hs-track{display:flex;gap:26px;padding-left:max(20px,(100vw - 1320px)/2);will-change:transform}
+.svc{flex:none;width:clamp(290px,30vw,420px);height:min(60vh,540px);border-radius:var(--r);position:relative;overflow:hidden;background:var(--noir-2);isolation:isolate}
+.svc img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2;transition:transform 1.2s var(--ease),filter .6s;filter:saturate(.85)}
+.svc::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(23,11,15,.1) 20%,rgba(23,11,15,.92) 75%);transition:.6s}
+.svc:hover img{transform:scale(1.1);filter:saturate(1.1)}
+.svc:hover::after{background:linear-gradient(180deg,rgba(122,22,49,.25) 0%,rgba(74,13,31,.95) 70%)}
+.svc-body{position:absolute;inset:auto 26px 26px}
+.svc-num{position:absolute;top:22px;left:26px;font-family:var(--serif);font-size:1.1rem;color:var(--or)}
+.svc-tag{position:absolute;top:20px;right:20px;font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;border:1px solid rgba(255,255,255,.3);padding:6px 12px;border-radius:999px;backdrop-filter:blur(8px)}
+.svc h3{font-family:var(--serif);font-weight:400;font-size:clamp(2rem,2.8vw,2.6rem);line-height:1;margin-bottom:12px}
+.svc p{color:rgba(244,237,226,.75);font-size:.95rem;max-height:0;opacity:0;overflow:hidden;transition:max-height .7s var(--ease),opacity .5s}
+.svc:hover p,.svc:focus-within p{max-height:120px;opacity:1}
+.svc .plus{position:absolute;right:0;bottom:4px;width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.4);display:grid;place-items:center;transition:.5s var(--ease)}
+.svc:hover .plus{background:var(--or);color:var(--noir);border-color:var(--or);transform:rotate(45deg)}
+.svc-end{flex:none;width:clamp(290px,30vw,420px);height:min(60vh,540px);border-radius:var(--r);border:1px dashed rgba(212,173,92,.5);display:flex;flex-direction:column;justify-content:center;align-items:flex-start;padding:36px;gap:22px}
+.svc-end h3{font-family:var(--serif);font-weight:400;font-size:2.4rem;line-height:1}
+.svc-end h3 em{color:var(--or)}
+.hs-bar{margin:5vh max(20px,(100vw - 1320px)/2) 0;height:2px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden}
+.hs-bar i{display:block;height:100%;background:var(--or);transform-origin:0;transform:scaleX(0)}
 
-/* CONTACT */
-.contact{padding:80px 0;background:#fff}
-.contact-grid{display:grid;grid-template-columns:1fr 1.3fr;gap:56px}
-.contact h2{margin:.4em 0 .6em}
-.contact-info p{color:var(--gris);margin-bottom:1.5em}
-.coord{list-style:none;display:grid;gap:16px}
-.coord li{display:flex;align-items:center;gap:14px;font-weight:700}
-.coord .ico{width:44px;height:44px;border-radius:50%;background:var(--bordeaux);color:#fff;display:grid;place-items:center;flex:none}
-.coord .ico svg{width:20px;height:20px}
-.coord a:hover{color:var(--bordeaux)}
-form{background:var(--creme);padding:32px;border-radius:8px;border-top:4px solid var(--bordeaux);box-shadow:0 8px 24px rgba(0,0,0,.08)}
-form h3{font-family:var(--serif);font-size:1.7rem;color:var(--bordeaux);margin-bottom:.6em}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.field{display:flex;flex-direction:column;margin-bottom:16px}
-.field label{font-size:.85rem;font-weight:700;margin-bottom:6px}
-.field label .req{color:var(--bordeaux)}
-.field input,.field select,.field textarea{font:inherit;padding:.7em .9em;border:1px solid #d6cfc4;border-radius:4px;background:#fff;transition:.2s}
-.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--bordeaux);box-shadow:0 0 0 3px rgba(122,22,49,.15)}
-.checks{display:grid;grid-template-columns:repeat(2,1fr);gap:6px 16px;margin-bottom:16px}
-.checks label{display:flex;gap:8px;align-items:center;font-size:.9rem;cursor:pointer}
-.checks input{accent-color:var(--bordeaux);width:16px;height:16px}
-.form-note{font-size:.8rem;color:var(--gris);margin-top:12px}
-.form-ok{display:none;background:#eaf3e0;border:1px solid var(--vert);color:#3d5a1a;padding:14px;border-radius:4px;margin-bottom:16px}
+/* Seasons */
+.seasons{background:var(--creme)}
+.seasons-head{text-align:center;max-width:820px;margin:0 auto 80px}
+.seasons-head .lead{margin:22px auto 0}
+.timeline{position:relative;display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
+.timeline::before{content:"";position:absolute;left:0;right:0;top:34px;height:2px;background:#ddd0bd}
+.timeline .fill{position:absolute;left:0;top:34px;height:2px;width:100%;background:linear-gradient(90deg,var(--vert),var(--or),var(--bordeaux));transform-origin:0;transform:scaleX(0)}
+.season{position:relative;padding-top:90px}
+.season .ic{position:absolute;top:0;left:0;width:70px;height:70px;border-radius:50%;background:var(--creme);border:2px solid #ddd0bd;display:grid;place-items:center;font-size:1.6rem;transition:.6s var(--ease)}
+.season.on .ic{background:var(--bordeaux);border-color:var(--bordeaux);transform:scale(1.1);box-shadow:0 0 0 10px rgba(122,22,49,.12)}
+.season small{font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;color:var(--bordeaux);font-weight:700}
+.season h3{font-family:var(--serif);font-weight:500;font-size:2rem;margin:4px 0 10px}
+.season ul{list-style:none;color:var(--gris);font-size:.95rem}
+.season li{padding:6px 0;border-bottom:1px solid #e3d8c7}
 
-/* FOOTER */
-footer{background:var(--bordeaux-dark);color:#e9dcd0;padding:28px 0;font-size:.9rem}
-.footer-inner{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
-footer a:hover{color:#fff}
+/* Stacked engagements */
+.stack{background:var(--creme)}
+.stack-head{display:flex;justify-content:space-between;align-items:flex-end;gap:30px;flex-wrap:wrap;margin-bottom:60px}
+.stack-cards{display:grid;gap:30px;padding-bottom:10vh}
+.scard{position:sticky;top:calc(110px + var(--i)*28px);min-height:420px;border-radius:30px;overflow:hidden;display:grid;grid-template-columns:1fr 1fr;transform-origin:50% 0;will-change:transform;box-shadow:0 -20px 50px rgba(23,11,15,.12)}
+.scard:nth-child(1){background:var(--noir);color:var(--creme)}
+.scard:nth-child(2){background:var(--bordeaux);color:var(--creme)}
+.scard:nth-child(3){background:var(--creme-2);color:var(--texte)}
+.scard:nth-child(4){background:var(--or);color:var(--noir)}
+.scard-txt{padding:clamp(30px,5vw,60px);display:flex;flex-direction:column;justify-content:space-between;gap:30px}
+.scard-txt .n{font-family:var(--serif);font-size:1.1rem;opacity:.7}
+.scard h3{font-family:var(--serif);font-weight:400;font-size:clamp(2.6rem,5vw,4.6rem);line-height:.95}
+.scard p{font-size:1.1rem;opacity:.8;max-width:420px}
+.scard-img{position:relative;overflow:hidden}
+.scard-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 
-/* RESPONSIVE */
-@media (max-width:1100px){
-  .cards{grid-template-columns:repeat(3,1fr)}
-  .entreprise-grid{grid-template-columns:1fr 1fr}
-  .atouts{grid-column:1/-1;border-left:0;padding-left:0;grid-template-columns:repeat(2,1fr)}
-  .galerie-inner{flex-wrap:wrap;justify-content:center}
-  .thumbs{flex-basis:100%;order:2}
-  .galerie .btn-outline{order:3}
+/* Gallery bento */
+.gallery{background:var(--noir);color:var(--creme)}
+.gallery-head{display:flex;justify-content:space-between;align-items:flex-end;gap:30px;flex-wrap:wrap;margin-bottom:60px}
+.bento{display:grid;grid-template-columns:repeat(12,1fr);grid-auto-rows:clamp(120px,13vw,180px);gap:16px}
+.bento button{position:relative;border-radius:var(--r);overflow:hidden;cursor:zoom-in}
+.bento img{width:100%;height:120%;object-fit:cover;transition:transform 1.2s var(--ease)}
+.bento button:hover img{transform:scale(1.08)}
+.bento button::after{content:attr(data-cap);position:absolute;left:14px;bottom:14px;font-size:.78rem;padding:6px 12px;border-radius:999px;background:rgba(23,11,15,.6);backdrop-filter:blur(8px);opacity:0;transform:translateY(10px);transition:.5s var(--ease)}
+.bento button:hover::after{opacity:1;transform:none}
+.b1{grid-column:span 7;grid-row:span 3}.b2{grid-column:span 5;grid-row:span 2}.b3{grid-column:span 5;grid-row:span 2}.b4{grid-column:span 3;grid-row:span 2}.b5{grid-column:span 4;grid-row:span 2}.b6{grid-column:span 5;grid-row:span 1}
+.lightbox{position:fixed;inset:0;z-index:300;background:rgba(10,5,7,.92);display:grid;place-items:center;padding:24px;opacity:0;pointer-events:none;transition:opacity .4s}
+.lightbox.open{opacity:1;pointer-events:auto}
+.lightbox img{max-height:86vh;border-radius:18px;transform:scale(.92);transition:transform .6s var(--ease)}
+.lightbox.open img{transform:none}
+.lb-close{position:absolute;top:22px;right:22px;width:52px;height:52px;border-radius:50%;background:var(--or);color:var(--noir);font-size:1.4rem}
+.lb-nav{position:absolute;top:50%;width:52px;height:52px;margin-top:-26px;border-radius:50%;border:1px solid rgba(255,255,255,.3);color:#fff;font-size:1.2rem}
+.lb-prev{left:22px}.lb-next{right:22px}
+
+/* Contact */
+.contact{background:var(--noir);color:var(--creme);padding-top:0}
+.cta-big{font-family:var(--serif);font-weight:400;font-size:clamp(3.4rem,13vw,13rem);line-height:.85;letter-spacing:-.03em;padding:40px 0 70px;border-top:1px solid rgba(255,255,255,.1)}
+.cta-big em{color:var(--or)}
+.contact-grid{display:grid;grid-template-columns:.85fr 1.15fr;gap:clamp(40px,6vw,90px)}
+.contact-info p{color:rgba(244,237,226,.65);margin:20px 0 34px;font-size:1.05rem}
+.coord{display:grid;gap:14px}
+.coord a{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:22px 26px;border-radius:18px;background:var(--noir-2);border:1px solid rgba(255,255,255,.08);transition:.5s var(--ease)}
+.coord a:hover{background:var(--bordeaux);border-color:var(--bordeaux);transform:translateX(8px)}
+.coord small{display:block;font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--or)}
+.coord b{font-family:var(--serif);font-weight:500;font-size:clamp(1.3rem,2.2vw,1.8rem);word-break:break-word}
+.coord .arr{width:44px;height:44px;flex:none;border-radius:50%;background:rgba(255,255,255,.08);display:grid;place-items:center}
+form{background:var(--creme);color:var(--texte);border-radius:30px;padding:clamp(26px,4vw,50px)}
+form h3{font-family:var(--serif);font-weight:400;font-size:clamp(2rem,3.4vw,2.8rem);line-height:1;margin-bottom:8px}
+form h3 em{color:var(--bordeaux)}
+.form-sub{color:var(--gris);margin-bottom:30px;font-size:.95rem}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:0 22px}
+.f{position:relative;margin-bottom:22px}
+.f input,.f textarea,.f select{width:100%;font:inherit;font-size:1rem;padding:22px 2px 10px;border:0;border-bottom:1.5px solid #cdbfa9;background:transparent;color:var(--texte);border-radius:0;transition:border-color .3s}
+.f textarea{resize:vertical;min-height:110px}
+.f label{position:absolute;left:2px;top:20px;color:var(--gris);pointer-events:none;transition:.35s var(--ease);font-size:1rem}
+.f input:focus,.f textarea:focus,.f select:focus{outline:none;border-color:var(--bordeaux)}
+.f input:focus+label,.f input:not(:placeholder-shown)+label,.f textarea:focus+label,.f textarea:not(:placeholder-shown)+label,.f select+label{top:0;font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;color:var(--bordeaux);font-weight:700}
+.f select{appearance:none;cursor:pointer;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a1631' stroke-width='1.5' fill='none'/%3E%3C/svg%3E") right 4px center no-repeat}
+.chips-label{font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;color:var(--bordeaux);font-weight:700;margin:6px 0 12px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:26px}
+.chips input{position:absolute;opacity:0;pointer-events:none}
+.chips label{padding:10px 16px;border-radius:999px;border:1.5px solid #cdbfa9;font-size:.88rem;font-weight:500;cursor:pointer;transition:.35s var(--ease);user-select:none}
+.chips label:hover{border-color:var(--bordeaux)}
+.chips input:checked+label{background:var(--bordeaux);border-color:var(--bordeaux);color:#fff}
+.chips input:focus-visible+label{outline:2px solid var(--or);outline-offset:2px}
+.form-foot{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-top:8px}
+.form-foot small{color:var(--gris);font-size:.8rem;max-width:260px}
+.form-ok{display:none;background:#e8f0d8;color:#3d5a1a;padding:16px 18px;border-radius:14px;margin-bottom:20px;font-weight:600}
+
+footer{background:var(--noir);color:rgba(244,237,226,.55);padding:70px 0 34px;font-size:.88rem}
+.foot{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;border-top:1px solid rgba(255,255,255,.1);padding-top:30px}
+.foot-logo{width:110px;background:#fff;border-radius:50%;aspect-ratio:1;padding:10px;display:grid;place-items:center;margin-bottom:40px}
+.to-top{width:52px;height:52px;border-radius:50%;border:1px solid rgba(255,255,255,.2);display:grid;place-items:center;color:var(--or);transition:.4s}
+.to-top:hover{background:var(--or);color:var(--noir)}
+
+/* Responsive */
+@media (max-width:1024px){
+  .menu{display:none}.burger{display:block}
+  .nav .btn-or{display:none}
+  .menu.open{display:flex;position:fixed;inset:0;z-index:-1;flex-direction:column;justify-content:center;align-items:center;background:var(--noir);gap:4px;border-radius:0}
+  .menu.open a{font-family:var(--serif);font-size:2.6rem;padding:.2em .6em}
+  .about-grid,.contact-grid{grid-template-columns:1fr}
+  .timeline{grid-template-columns:1fr 1fr;row-gap:60px}
+  .timeline::before,.timeline .fill{display:none}
 }
 @media (max-width:860px){
-  .burger{display:block}
-  .menu{position:absolute;top:76px;left:0;right:0;background:#fff;flex-direction:column;padding:12px 16px 20px;gap:4px;box-shadow:0 10px 20px rgba(0,0,0,.1);display:none}
-  .menu.open{display:flex}
-  .menu .sep{display:none}
-  .menu li,.menu a{width:100%;text-align:center}
-  .hero{min-height:520px}
-  .hero::before{background:linear-gradient(180deg,rgba(90,15,36,.88),rgba(122,22,49,.75))}
-  .hero-content{margin-inline:auto}
-  .entreprise-grid,.contact-grid,.engagements{grid-template-columns:1fr}
-  .engagements-img{min-height:220px;-webkit-mask-image:none;mask-image:none}
-  .valeurs{grid-template-columns:repeat(2,1fr);gap:24px 0}
-  .valeurs div:nth-child(3){border-left:0}
+  .hero-float,.badge{display:none}
+  .hs{padding:90px 0}
+  .hs-sticky{position:static;height:auto}
+  .hs-track{overflow-x:auto;scroll-snap-type:x mandatory;padding:0 20px 10px;transform:none!important;scrollbar-width:none}
+  .hs-track::-webkit-scrollbar{display:none}
+  .svc,.svc-end{scroll-snap-align:center;width:82vw;height:460px}
+  .svc p{max-height:none;opacity:1}
+  .hs-bar{display:none}
+  .scard{grid-template-columns:1fr;min-height:0;top:calc(90px + var(--i)*18px)}
+  .scard-img{height:200px;order:-1}
+  .bento{grid-template-columns:repeat(2,1fr);grid-auto-rows:160px}
+  .bento button{grid-column:span 1!important;grid-row:span 1!important}
+  .bento .b1{grid-column:span 2!important;grid-row:span 2!important}
+  .brand-txt{display:none}
 }
 @media (max-width:560px){
-  .cards{grid-template-columns:1fr 1fr;gap:12px}
-  .atouts{grid-template-columns:1fr}
-  .row,.checks{grid-template-columns:1fr}
-  .thumbs{grid-template-columns:1fr 1fr}
-  form{padding:22px}
-  .logo img{height:92px}
+  .row{grid-template-columns:1fr}
+  .timeline{grid-template-columns:1fr}
+  .stats b{font-size:2.2rem}
+  .hero-ctas{flex-direction:column;width:100%}.hero-ctas .btn{justify-content:space-between}
+  .marquee{padding:16px 0}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  [data-reveal],.line>span{opacity:1!important;transform:none!important}
+  .clip{clip-path:none!important}
 }
 </style>
 </head>
-<body>
+<body class="loading">
 
-<header>
-  <nav class="container nav">
-    <a href="#accueil" class="logo"><img src="images/logo.png" alt="Alliance Viti Services – prestataire viticole à vos côtés"></a>
-    <button class="burger" aria-label="Ouvrir le menu" aria-expanded="false">☰</button>
-    <ul class="menu">
-      <li><a href="#accueil" class="active">Accueil</a></li><li class="sep"></li>
-      <li><a href="#entreprise">Notre entreprise</a></li><li class="sep"></li>
-      <li><a href="#prestations">Nos prestations</a></li><li class="sep"></li>
-      <li><a href="#galerie">Galerie</a></li><li class="sep"></li>
-      <li><a href="#contact">Contact</a></li>
-      <li><a href="#contact" class="btn btn-primary" style="margin-left:12px">Demander un devis</a></li>
+<div class="loader" id="loader" aria-hidden="true">
+  <div class="loader-inner">
+    <div class="loader-logo"><img src="images/logo.png" alt=""></div>
+    <div class="loader-count"><span id="count">0</span> %</div>
+    <div class="loader-bar"><i id="bar"></i></div>
+  </div>
+</div>
+<div class="progress" id="progress"></div>
+<div class="cursor" id="cursor"></div><div class="cursor-label" id="cursorLabel">Voir</div>
+
+<header id="header">
+  <nav class="wrap nav">
+    <a href="#accueil" class="brand" aria-label="Alliance Viti Services – accueil">
+      <span class="brand-logo"><img src="images/logo.png" alt=""></span>
+      <span class="brand-txt">Alliance<small>Viti Services</small></span>
+    </a>
+    <ul class="menu" id="menu">
+      <li><a href="#entreprise"><span data-t="L’entreprise">L’entreprise</span></a></li>
+      <li><a href="#prestations"><span data-t="Prestations">Prestations</span></a></li>
+      <li><a href="#saisons"><span data-t="Saisons">Saisons</span></a></li>
+      <li><a href="#engagements"><span data-t="Engagements">Engagements</span></a></li>
+      <li><a href="#galerie"><span data-t="Galerie">Galerie</span></a></li>
+      <li><a href="#contact"><span data-t="Contact">Contact</span></a></li>
     </ul>
+    <a href="#contact" class="btn btn-or magnetic">Demander un devis <span class="dot">→</span></a>
+    <button class="burger" id="burger" aria-label="Menu" aria-expanded="false"><i></i><i></i></button>
   </nav>
 </header>
 
+<main>
+<!-- HERO -->
 <section class="hero" id="accueil">
-  <div class="container">
-    <div class="hero-content">
-      <h1>Alliance<br>Viti Services</h1>
-      <div class="tagline">Prestataire viticole à vos côtés</div>
-      <div class="leaf">❦</div>
-      <p>Votre partenaire pour tous vos<br>travaux viticoles manuels</p>
-      <div class="btns">
-        <a href="#contact" class="btn btn-outline">Demander un devis</a>
-        <a href="#prestations" class="btn btn-green">Nos prestations</a>
+  <div class="hero-media"><img src="images/hero.jpg" alt="Vignoble au soleil couchant" id="heroImg"></div>
+  <figure class="hero-float" data-speed="-0.15"><img src="images/equipe.jpg" alt="Taille de la vigne"><figcaption><b>Savoir-faire</b>Travaux manuels réalisés par une équipe qualifiée</figcaption></figure>
+  <div class="badge" aria-hidden="true">
+    <svg viewBox="0 0 130 130"><defs><path id="c" d="M65,65 m-52,0 a52,52 0 1,1 104,0 a52,52 0 1,1 -104,0"/></defs><text fill="#f4ede2" font-size="11.5" letter-spacing="3.2" font-family="Manrope" font-weight="600"><textPath href="#c">PRESTATAIRE VITICOLE • À VOS CÔTÉS • </textPath></text></svg>
+    <span>❦</span>
+  </div>
+  <div class="wrap hero-inner">
+    <div class="kicker" data-hero>Prestataire viticole à vos côtés</div>
+    <h1 data-hero>
+      <span class="line"><span style="--i:1">L’art du travail</span></span>
+      <span class="line"><span style="--i:2"><em>manuel</em> dans</span></span>
+      <span class="line"><span style="--i:3">vos vignes.</span></span>
+    </h1>
+    <div class="hero-bottom">
+      <p data-reveal style="--d:.9">Alliance Viti Services accompagne les exploitations viticoles dans tous leurs travaux saisonniers, de la taille aux vendanges.</p>
+      <div class="hero-ctas" data-reveal style="--d:1.05">
+        <a href="#contact" class="btn btn-or magnetic">Demander un devis <span class="dot">→</span></a>
+        <a href="#prestations" class="btn btn-ghost magnetic">Nos prestations <span class="dot">↓</span></a>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-ind" aria-hidden="true"></div>
+</section>
+
+<div class="marquee" aria-hidden="true"><div class="marquee-track" data-dir="1">
+  <span>Taille de la vigne</span><span>Baissage &amp; liage</span><span>Travaux en vert</span><span>Palissage</span><span>Vendanges manuelles</span><span>Entretien des parcelles</span>
+</div></div>
+<div class="marquee alt" aria-hidden="true"><div class="marquee-track" data-dir="-1">
+  <span>Qualité</span><span>Respect du végétal</span><span>Réactivité</span><span>Confiance</span><span>Flexibilité</span><span>Rigueur</span>
+</div></div>
+
+<!-- ABOUT -->
+<section class="sec" id="entreprise">
+  <div class="wrap about-grid">
+    <div class="about-media" data-group>
+      <div class="m1 clip"><img src="images/equipe.jpg" alt="Taille au sécateur" data-speed="0.08"></div>
+      <div class="m2 clip"><img src="images/vendanges.jpg" alt="Vendanges manuelles" data-speed="0.12"></div>
+      <div class="stamp" data-speed="-0.12">100 %<br>travail<br>manuel</div>
+    </div>
+    <div class="about-text">
+      <div class="kicker" data-reveal>Notre entreprise</div>
+      <h2 class="h2" data-io>
+        <span class="line"><span>Une équipe</span></span>
+        <span class="line"><span style="--i:1"><em>d’experts</em> au</span></span>
+        <span class="line"><span style="--i:2">service de votre</span></span>
+        <span class="line"><span style="--i:3"><em>vignoble.</em></span></span>
+      </h2>
+      <p data-reveal><strong>Alliance Viti Services</strong> accompagne les exploitations viticoles dans leurs travaux saisonniers grâce à une équipe qualifiée, expérimentée et rigoureuse.</p>
+      <p data-reveal style="--d:.1"><strong>Notre objectif :</strong> vous apporter un service fiable, réactif et adapté aux exigences de votre domaine, tout en respectant le végétal et le travail du vigneron.</p>
+      <div class="stats" data-reveal style="--d:.2">
+        <div><b data-count="6">0</b><span>prestations manuelles</span></div>
+        <div><b data-count="12">0</b><span>mois sur 12 à vos côtés</span></div>
+        <div><b data-count="100" data-suffix="%">0</b><span>sur-mesure</span></div>
       </div>
     </div>
   </div>
 </section>
 
-<section class="entreprise" id="entreprise">
-  <div class="container entreprise-grid">
-    <img class="entreprise-img" src="images/equipe.jpg" alt="Taille de la vigne au sécateur">
-    <div class="entreprise-text">
-      <div class="eyebrow">Notre entreprise</div>
-      <h2>Une équipe <em>d’experts</em><br>au service de <em>votre vignoble</em></h2>
-      <p><strong>ALLIANCE VITI SERVICES</strong> accompagne les exploitations viticoles dans leurs travaux saisonniers grâce à une équipe qualifiée, expérimentée et rigoureuse.</p>
-      <p><strong>Notre objectif :</strong> vous apporter un service fiable, réactif et adapté aux exigences de votre domaine, tout en respectant le végétal et le travail du vigneron.</p>
+<!-- HORIZONTAL SERVICES -->
+<section class="hs dark" id="prestations">
+  <div class="hs-sticky">
+    <div class="wrap hs-head">
+      <h2 class="h2" data-io><span class="line"><span>Nos <em>prestations</em></span></span><span class="line"><span style="--i:1">toute l’année.</span></span></h2>
+      <p class="lead" data-reveal>Des travaux viticoles manuels, réalisés avec précision et adaptés à vos pratiques. Survolez une carte pour en savoir plus.</p>
     </div>
-    <ul class="atouts">
-      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="7" r="3"/><circle cx="5" cy="9" r="2.2"/><circle cx="19" cy="9" r="2.2"/><path d="M6 20c0-3.3 2.7-6 6-6s6 2.7 6 6M1.5 18c0-2.2 1.6-4 3.5-4M22.5 18c0-2.2-1.6-4-3.5-4"/></svg><div><b>Équipe expérimentée</b><span>Savoir-faire viticole et rigueur</span></div></li>
-      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 20C4 10 10 4 20 4c0 10-6 16-16 16zM4 20l9-9"/></svg><div><b>Travail soigné</b><span>Respect du végétal et de vos pratiques</span></div></li>
-      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M7 14h2M11 14h2M15 14h2M7 17h2M11 17h2"/></svg><div><b>Flexibilité</b><span>Intervention selon vos besoins et votre calendrier</span></div></li>
-      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 11l4-4 4 2 3-2 3 1 4-1 2 4-3 3M6 7l-4 4 6 6M12 10l-3 3c-1 1 1 3 2 2l3-3M10 16l2 2M13 14l2 2M15 12l2 2"/></svg><div><b>Un véritable partenaire</b><span>À l’écoute des vignerons</span></div></li>
-    </ul>
+    <div class="hs-track" id="hsTrack">
+      <article class="svc" tabindex="0"><img src="images/taille.jpg" alt=""><span class="svc-num">01</span><span class="svc-tag">Hiver</span><div class="svc-body"><h3>Taille de<br>la vigne</h3><p>Taille guyot, taille cordon et autres méthodes adaptées à votre domaine.</p><span class="plus">+</span></div></article>
+      <article class="svc" tabindex="0"><img src="images/baissage.jpg" alt=""><span class="svc-num">02</span><span class="svc-tag">Fin d’hiver</span><div class="svc-body"><h3>Baissage<br>&amp; liage</h3><p>Mise en place et entretien du palissage, liage des bois et bonne conduite de la vigne.</p><span class="plus">+</span></div></article>
+      <article class="svc" tabindex="0"><img src="images/vert.jpg" alt=""><span class="svc-num">03</span><span class="svc-tag">Printemps</span><div class="svc-body"><h3>Travaux<br>en vert</h3><p>Ébourgeonnage, épamprage, effeuillage et éclaircissage.</p><span class="plus">+</span></div></article>
+      <article class="svc" tabindex="0"><img src="images/palissage.jpg" alt=""><span class="svc-num">04</span><span class="svc-tag">Été</span><div class="svc-body"><h3>Palissage</h3><p>Pose, relevage et entretien des fils et des piquets.</p><span class="plus">+</span></div></article>
+      <article class="svc" tabindex="0"><img src="images/vendanges.jpg" alt=""><span class="svc-num">05</span><span class="svc-tag">Automne</span><div class="svc-body"><h3>Vendanges<br>manuelles</h3><p>Récolte sélective et soignée, dans le respect de la qualité de la récolte.</p><span class="plus">+</span></div></article>
+      <article class="svc" tabindex="0"><img src="images/entretien.jpg" alt=""><span class="svc-num">06</span><span class="svc-tag">Toute l’année</span><div class="svc-body"><h3>Entretien des<br>parcelles</h3><p>Travaux ponctuels, nettoyage manuel et assistance aux exploitations.</p><span class="plus">+</span></div></article>
+      <div class="svc-end"><h3>Un besoin <em>spécifique</em> ?</h3><p style="color:rgba(244,237,226,.65)">Nous étudions chaque demande et construisons une intervention sur-mesure.</p><a href="#contact" class="btn btn-or magnetic">Parlons-en <span class="dot">→</span></a></div>
+    </div>
+    <div class="hs-bar"><i id="hsBar"></i></div>
   </div>
 </section>
 
-<section class="prestations" id="prestations">
-  <div class="container">
-    <div class="eyebrow center">Nos prestations</div>
-    <h2>Des travaux viticoles manuels <strong>tout au long de l’année</strong></h2>
-    <div class="cards">
-      <article class="card">
-        <div class="card-img"><img src="images/taille.jpg" alt="Taille de la vigne"><span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="18" r="3"/><circle cx="18" cy="18" r="3"/><path d="M8 16L20 4M16 16L4 4"/></svg></span></div>
-        <div class="card-body"><h3>Taille de la vigne</h3><p>Taille guyot, taille cordon et autres méthodes adaptées.</p><span class="arrow">→</span></div>
-      </article>
-      <article class="card">
-        <div class="card-img"><img src="images/baissage.jpg" alt="Baissage et liage"><span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 14a4 4 0 0 1 0-5.7l3-3a4 4 0 0 1 5.7 5.7l-1.5 1.5M14 10a4 4 0 0 1 0 5.7l-3 3a4 4 0 0 1-5.7-5.7l1.5-1.5"/></svg></span></div>
-        <div class="card-body"><h3>Baissage / Liage</h3><p>Mise en place et entretien du palissage, liage des bois et bonne conduite de la vigne.</p><span class="arrow">→</span></div>
-      </article>
-      <article class="card">
-        <div class="card-img"><img src="images/vert.jpg" alt="Travaux en vert"><span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20C4 10 10 4 20 4c0 10-6 16-16 16zM4 20l9-9"/></svg></span></div>
-        <div class="card-body"><h3>Travaux en vert</h3><p>Ébourgeonnage, épamprage, effeuillage et éclaircissage.</p><span class="arrow">→</span></div>
-      </article>
-      <article class="card">
-        <div class="card-img"><img src="images/palissage.jpg" alt="Palissage"><span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 3v18M17 3v18M3 8h18M3 14h18"/></svg></span></div>
-        <div class="card-body"><h3>Palissage</h3><p>Pose, relevage et entretien des fils et piquets.</p><span class="arrow">→</span></div>
-      </article>
-      <article class="card">
-        <div class="card-img"><img src="images/vendanges.jpg" alt="Vendanges manuelles"><span class="card-icon"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="8" cy="8" r="2.3"/><circle cx="12.5" cy="8" r="2.3"/><circle cx="17" cy="8" r="2.3"/><circle cx="10" cy="12" r="2.3"/><circle cx="14.5" cy="12" r="2.3"/><circle cx="12" cy="16" r="2.3"/><path d="M12 5V2" stroke="currentColor" stroke-width="2"/></svg></span></div>
-        <div class="card-body"><h3>Vendanges manuelles</h3><p>Récolte sélective et soignée. Respect de la qualité de la récolte.</p><span class="arrow">→</span></div>
-      </article>
-      <article class="card">
-        <div class="card-img"><img src="images/entretien.jpg" alt="Entretien des parcelles"><span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 20l7-10 4 5 3-4 6 9z"/></svg></span></div>
-        <div class="card-body"><h3>Entretien des parcelles</h3><p>Travaux ponctuels, nettoyage manuel et assistance aux exploitations.</p><span class="arrow">→</span></div>
-      </article>
+<!-- SEASONS -->
+<section class="sec seasons" id="saisons">
+  <div class="wrap">
+    <div class="seasons-head">
+      <div class="kicker" data-reveal style="justify-content:center">Au fil des saisons</div>
+      <h2 class="h2" data-io style="margin-top:20px"><span class="line"><span>Un partenaire pour</span></span><span class="line"><span style="--i:1">chaque <em>étape</em> du cycle.</span></span></h2>
+      <p class="lead" data-reveal>De la taille hivernale aux vendanges, nos équipes interviennent au bon moment, selon votre calendrier.</p>
+    </div>
+    <div class="timeline" id="timeline">
+      <span class="fill" id="tlFill"></span>
+      <div class="season"><span class="ic">❄️</span><small>Hiver</small><h3>Taille</h3><ul><li>Taille guyot &amp; cordon</li><li>Tirage des bois</li><li>Baissage &amp; liage</li></ul></div>
+      <div class="season"><span class="ic">🌱</span><small>Printemps</small><h3>Travaux en vert</h3><ul><li>Ébourgeonnage</li><li>Épamprage</li><li>Relevage</li></ul></div>
+      <div class="season"><span class="ic">☀️</span><small>Été</small><h3>Palissage</h3><ul><li>Relevage des fils</li><li>Effeuillage</li><li>Éclaircissage</li></ul></div>
+      <div class="season"><span class="ic">🍇</span><small>Automne</small><h3>Vendanges</h3><ul><li>Récolte manuelle</li><li>Tri sélectif</li><li>Entretien des parcelles</li></ul></div>
     </div>
   </div>
 </section>
 
-<section class="engagements">
-  <div class="engagements-img" role="img" aria-label="Paysage de vignoble"></div>
-  <div class="engagements-content">
-    <div class="eyebrow center">Nos engagements</div>
-    <h2>Un service de <strong>qualité</strong><br>pour des vignes d’exception</h2>
-    <div class="valeurs">
-      <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="9" r="6"/><circle cx="12" cy="9" r="3"/><path d="M8 14l-2 8 6-3 6 3-2-8"/></svg><b>Qualité</b><span>Un travail précis et soigné</span></div>
-      <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 20C4 10 10 4 20 4c0 10-6 16-16 16zM4 20l9-9"/></svg><b>Respect du végétal</b><span>Des interventions adaptées et durables</span></div>
-      <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M10 2h4M12 2v3"/></svg><b>Réactivité</b><span>Une organisation efficace selon vos besoins</span></div>
-      <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 11l4-4 4 2 3-2 3 1 4-1 2 4-3 3M6 7l-4 4 6 6M12 10l-3 3c-1 1 1 3 2 2l3-3M10 16l2 2M13 14l2 2M15 12l2 2"/></svg><b>Confiance</b><span>Un partenariat durable avec les vignerons</span></div>
+<!-- STACKED ENGAGEMENTS -->
+<section class="sec stack" id="engagements" style="padding-top:0">
+  <div class="wrap">
+    <div class="stack-head">
+      <h2 class="h2" data-io><span class="line"><span>Nos <em>engagements</em>,</span></span><span class="line"><span style="--i:1">pour des vignes d’exception.</span></span></h2>
+      <p class="lead" data-reveal>Un service de qualité, pensé pour durer.</p>
+    </div>
+    <div class="stack-cards" id="stack">
+      <article class="scard" style="--i:0"><div class="scard-txt"><span class="n">01 / 04</span><div><h3>Qualité</h3><p>Un travail précis et soigné, contrôlé à chaque rang.</p></div></div><div class="scard-img"><img src="images/taille.jpg" alt=""></div></article>
+      <article class="scard" style="--i:1"><div class="scard-txt"><span class="n">02 / 04</span><div><h3>Respect<br>du végétal</h3><p>Des interventions adaptées et durables, au rythme de la vigne.</p></div></div><div class="scard-img"><img src="images/vert.jpg" alt=""></div></article>
+      <article class="scard" style="--i:2"><div class="scard-txt"><span class="n">03 / 04</span><div><h3>Réactivité</h3><p>Une organisation efficace, des équipes disponibles selon vos besoins et votre calendrier.</p></div></div><div class="scard-img"><img src="images/palissage.jpg" alt=""></div></article>
+      <article class="scard" style="--i:3"><div class="scard-txt"><span class="n">04 / 04</span><div><h3>Confiance</h3><p>Un partenariat durable, à l’écoute des vignerons.</p></div></div><div class="scard-img"><img src="images/paysage.jpg" alt=""></div></article>
     </div>
   </div>
 </section>
 
-<section class="galerie" id="galerie">
-  <div class="container galerie-inner">
-    <div class="eyebrow">Galerie</div>
-    <div class="thumbs">
-      <button data-full="images/vendanges.jpg"><img src="images/g1.jpg" alt="Grappes de raisin noir"></button>
-      <button data-full="images/equipe.jpg"><img src="images/g2.jpg" alt="Taille au sécateur"></button>
-      <button data-full="images/vert.jpg"><img src="images/g3.jpg" alt="Feuillage de vigne"></button>
-      <button data-full="images/hero.jpg"><img src="images/g4.jpg" alt="Vignoble au coucher du soleil"></button>
+<!-- GALLERY -->
+<section class="sec gallery dark" id="galerie">
+  <div class="wrap">
+    <div class="gallery-head">
+      <h2 class="h2" data-io><span class="line"><span>Au cœur</span></span><span class="line"><span style="--i:1">des <em>vignes.</em></span></span></h2>
+      <p class="lead" data-reveal style="color:rgba(244,237,226,.6)">Quelques images de nos chantiers et des paysages où nous intervenons.</p>
     </div>
-    <a href="#galerie" class="btn btn-outline" id="voirGalerie">Voir la galerie</a>
+    <div class="bento" id="bento" data-group>
+      <button class="b1 clip" data-cap="Vignoble au coucher du soleil"><img src="images/hero.jpg" alt="Vignoble au coucher du soleil" data-speed="0.06"></button>
+      <button class="b2 clip" data-cap="Taille au sécateur"><img src="images/equipe.jpg" alt="Taille au sécateur" data-speed="0.06"></button>
+      <button class="b3 clip" data-cap="Vendanges manuelles"><img src="images/vendanges.jpg" alt="Vendanges manuelles" data-speed="0.06"></button>
+      <button class="b4 clip" data-cap="Travaux en vert"><img src="images/vert.jpg" alt="Travaux en vert" data-speed="0.06"></button>
+      <button class="b5 clip" data-cap="Paysage viticole"><img src="images/paysage.jpg" alt="Paysage viticole" data-speed="0.06"></button>
+      <button class="b6 clip" data-cap="Rangs de vigne"><img src="images/entretien.jpg" alt="Rangs de vigne" data-speed="0.06"></button>
+    </div>
   </div>
 </section>
-<div class="lightbox" id="lightbox"><img alt=""></div>
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Galerie">
+  <img alt="">
+  <button class="lb-close" aria-label="Fermer">✕</button>
+  <button class="lb-nav lb-prev" aria-label="Précédente">←</button>
+  <button class="lb-nav lb-next" aria-label="Suivante">→</button>
+</div>
 
-<section class="contact" id="contact">
-  <div class="container contact-grid">
-    <div class="contact-info">
-      <div class="eyebrow">Contact</div>
-      <h2>Besoin d’une équipe pour vos <em>travaux viticoles</em> ?</h2>
-      <p>ALLIANCE VITI SERVICES est à votre disposition pour étudier vos besoins et vous proposer une solution adaptée. Remplissez le formulaire, nous vous répondons rapidement avec un devis gratuit et sans engagement.</p>
-      <ul class="coord">
-        <li><span class="ico"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25c1.1.37 2.3.57 3.6.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1z"/></svg></span><a href="tel:+33651718122">06 51 71 81 22</a></li>
-        <li><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 6l10 7 10-7"/></svg></span><a href="mailto:contact@alliancevitiservices.com">contact@alliancevitiservices.com</a></li>
-      </ul>
+<!-- CONTACT -->
+<section class="sec contact dark" id="contact">
+  <div class="wrap">
+    <h2 class="cta-big" data-io><span class="line"><span>Parlons de</span></span><span class="line"><span style="--i:1"><em>vos vignes.</em></span></span></h2>
+    <div class="contact-grid">
+      <div class="contact-info">
+        <div class="kicker" data-reveal>Contact</div>
+        <p data-reveal>Besoin d’une équipe pour vos travaux viticoles ? Alliance Viti Services étudie vos besoins et vous propose une solution adaptée. Devis gratuit et sans engagement.</p>
+        <div class="coord">
+          <a href="tel:+33651718122" data-reveal><span><small>Téléphone</small><b>06 51 71 81 22</b></span><span class="arr">↗</span></a>
+          <a href="mailto:contact@alliancevitiservices.com" data-reveal style="--d:.1"><span><small>E-mail</small><b>contact@alliancevitiservices.com</b></span><span class="arr">↗</span></a>
+        </div>
+      </div>
+
+      <!-- Envoi par e-mail via FormSubmit : au 1er envoi, cliquer sur le lien de confirmation reçu sur l'adresse ci-dessous. -->
+      <form id="devis" action="https://formsubmit.co/contact@alliancevitiservices.com" method="POST" data-reveal>
+        <h3>Demande de <em>devis gratuit</em></h3>
+        <p class="form-sub">Réponse rapide, sans engagement.</p>
+        <div class="form-ok" id="formOk">Merci ! Votre demande a bien été envoyée. Nous vous recontactons très vite.</div>
+        <input type="hidden" name="_subject" value="Nouvelle demande de devis – site Alliance Viti Services">
+        <input type="hidden" name="_template" value="table">
+        <input type="hidden" name="_captcha" value="false">
+        <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
+        <div class="row">
+          <div class="f"><input id="nom" name="Nom" placeholder=" " required autocomplete="name"><label for="nom">Nom / Prénom *</label></div>
+          <div class="f"><input id="domaine" name="Domaine" placeholder=" " autocomplete="organization"><label for="domaine">Domaine / Exploitation</label></div>
+        </div>
+        <div class="row">
+          <div class="f"><input id="tel" name="Téléphone" type="tel" placeholder=" " required autocomplete="tel"><label for="tel">Téléphone *</label></div>
+          <div class="f"><input id="email" name="email" type="email" placeholder=" " required autocomplete="email"><label for="email">E-mail *</label></div>
+        </div>
+        <div class="row">
+          <div class="f"><input id="commune" name="Commune" placeholder=" "><label for="commune">Commune des parcelles</label></div>
+          <div class="f"><input id="surface" name="Surface (ha)" placeholder=" " inputmode="decimal"><label for="surface">Surface (ha)</label></div>
+        </div>
+        <div class="chips-label">Prestations souhaitées</div>
+        <div class="chips">
+          <input type="checkbox" id="p1" name="Prestations[]" value="Taille de la vigne"><label for="p1">Taille</label>
+          <input type="checkbox" id="p2" name="Prestations[]" value="Baissage / Liage"><label for="p2">Baissage / Liage</label>
+          <input type="checkbox" id="p3" name="Prestations[]" value="Travaux en vert"><label for="p3">Travaux en vert</label>
+          <input type="checkbox" id="p4" name="Prestations[]" value="Palissage"><label for="p4">Palissage</label>
+          <input type="checkbox" id="p5" name="Prestations[]" value="Vendanges manuelles"><label for="p5">Vendanges</label>
+          <input type="checkbox" id="p6" name="Prestations[]" value="Entretien des parcelles"><label for="p6">Entretien</label>
+        </div>
+        <div class="f"><select id="periode" name="Période"><option value="">—</option><option>Dès que possible</option><option>Hiver (taille)</option><option>Printemps</option><option>Été</option><option>Vendanges</option><option>À définir ensemble</option></select><label for="periode">Période souhaitée</label></div>
+        <div class="f"><textarea id="message" name="Message" placeholder=" " required></textarea><label for="message">Votre besoin (cépages, nombre de rangs…) *</label></div>
+        <div class="form-foot">
+          <small>Vos informations servent uniquement à répondre à votre demande.</small>
+          <button type="submit" class="btn btn-dark magnetic"><span class="btn-txt">Envoyer ma demande</span> <span class="dot">→</span></button>
+        </div>
+      </form>
     </div>
-
-    <!-- Formulaire envoyé par e-mail via FormSubmit (gratuit, sans serveur).
-         Au 1er envoi, FormSubmit envoie un e-mail de confirmation à l'adresse ci-dessous : il faut cliquer sur le lien pour activer. -->
-    <form id="devis" action="https://formsubmit.co/contact@alliancevitiservices.com" method="POST">
-      <h3>Demande de devis gratuit</h3>
-      <div class="form-ok" id="formOk">Merci ! Votre demande a bien été envoyée. Nous vous recontactons très vite.</div>
-      <input type="hidden" name="_subject" value="Nouvelle demande de devis – site Alliance Viti Services">
-      <input type="hidden" name="_template" value="table">
-      <input type="hidden" name="_captcha" value="false">
-      <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
-      <div class="row">
-        <div class="field"><label for="nom">Nom / Prénom <span class="req">*</span></label><input id="nom" name="Nom" required></div>
-        <div class="field"><label for="domaine">Domaine / Exploitation</label><input id="domaine" name="Domaine"></div>
-      </div>
-      <div class="row">
-        <div class="field"><label for="tel">Téléphone <span class="req">*</span></label><input id="tel" name="Téléphone" type="tel" required></div>
-        <div class="field"><label for="email">E-mail <span class="req">*</span></label><input id="email" name="email" type="email" required></div>
-      </div>
-      <div class="row">
-        <div class="field"><label for="commune">Commune des parcelles</label><input id="commune" name="Commune"></div>
-        <div class="field"><label for="surface">Surface (ha)</label><input id="surface" name="Surface (ha)" inputmode="decimal"></div>
-      </div>
-      <div class="field"><label>Prestations souhaitées</label></div>
-      <div class="checks">
-        <label><input type="checkbox" name="Prestations[]" value="Taille de la vigne"> Taille de la vigne</label>
-        <label><input type="checkbox" name="Prestations[]" value="Baissage / Liage"> Baissage / Liage</label>
-        <label><input type="checkbox" name="Prestations[]" value="Travaux en vert"> Travaux en vert</label>
-        <label><input type="checkbox" name="Prestations[]" value="Palissage"> Palissage</label>
-        <label><input type="checkbox" name="Prestations[]" value="Vendanges manuelles"> Vendanges manuelles</label>
-        <label><input type="checkbox" name="Prestations[]" value="Entretien des parcelles"> Entretien des parcelles</label>
-      </div>
-      <div class="field"><label for="periode">Période souhaitée</label>
-        <select id="periode" name="Période"><option value="">— Choisir —</option><option>Dès que possible</option><option>Hiver (taille)</option><option>Printemps</option><option>Été</option><option>Vendanges</option><option>À définir ensemble</option></select>
-      </div>
-      <div class="field"><label for="message">Votre message <span class="req">*</span></label><textarea id="message" name="Message" rows="4" required placeholder="Décrivez votre besoin : cépages, nombre de rangs, contraintes…"></textarea></div>
-      <button type="submit" class="btn btn-primary">Envoyer ma demande</button>
-      <p class="form-note">Vos informations sont utilisées uniquement pour répondre à votre demande de devis.</p>
-    </form>
   </div>
 </section>
+</main>
 
 <footer>
-  <div class="container footer-inner">
-    <span>© <span id="annee"></span> Alliance Viti Services – Prestataire viticole à vos côtés</span>
-    <span><a href="tel:+33651718122">06 51 71 81 22</a> · <a href="mailto:contact@alliancevitiservices.com">contact@alliancevitiservices.com</a></span>
+  <div class="wrap">
+    <div class="foot-logo"><img src="images/logo.png" alt="Alliance Viti Services"></div>
+    <div class="foot">
+      <span>© <span id="annee"></span> Alliance Viti Services – Prestataire viticole à vos côtés</span>
+      <span><a href="tel:+33651718122">06 51 71 81 22</a> · <a href="mailto:contact@alliancevitiservices.com">contact@alliancevitiservices.com</a></span>
+      <a href="#accueil" class="to-top" aria-label="Haut de page">↑</a>
+    </div>
   </div>
 </footer>
 
 <script>
-document.getElementById('annee').textContent=new Date().getFullYear();
-// Menu mobile
-const burger=document.querySelector('.burger'),menu=document.querySelector('.menu');
-burger.addEventListener('click',()=>{const o=menu.classList.toggle('open');burger.setAttribute('aria-expanded',o)});
-menu.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>menu.classList.remove('open')));
-// Lien actif selon la section visible
-const links=[...document.querySelectorAll('.menu a:not(.btn)')];
-const obs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){links.forEach(l=>l.classList.toggle('active',l.getAttribute('href')==='#'+e.target.id))}}),{rootMargin:'-45% 0px -50% 0px'});
-document.querySelectorAll('section[id]').forEach(s=>obs.observe(s));
-// Galerie (lightbox)
-const lb=document.getElementById('lightbox'),lbImg=lb.querySelector('img');
-const thumbs=[...document.querySelectorAll('.thumbs button')];
-thumbs.forEach(b=>b.addEventListener('click',()=>{lbImg.src=b.dataset.full;lbImg.alt=b.querySelector('img').alt;lb.classList.add('open')}));
-document.getElementById('voirGalerie').addEventListener('click',e=>{e.preventDefault();thumbs[0].click()});
-lb.addEventListener('click',()=>lb.classList.remove('open'));
-document.addEventListener('keydown',e=>{if(e.key==='Escape')lb.classList.remove('open')});
-// Envoi du formulaire sans quitter la page
-document.getElementById('devis').addEventListener('submit',async e=>{
-  e.preventDefault();const f=e.target,btn=f.querySelector('button[type=submit]');
-  btn.disabled=true;btn.textContent='Envoi en cours…';
-  try{
-    const r=await fetch(f.action.replace('formsubmit.co/','formsubmit.co/ajax/'),{method:'POST',headers:{Accept:'application/json'},body:new FormData(f)});
-    if(!r.ok)throw 0;
-    f.reset();document.getElementById('formOk').style.display='block';
-    document.getElementById('formOk').scrollIntoView({behavior:'smooth',block:'center'});
-  }catch(_){f.submit()}
-  finally{btn.disabled=false;btn.textContent='Envoyer ma demande'}
+(()=>{
+const $=(s,c=document)=>c.querySelector(s),$$=(s,c=document)=>[...c.querySelectorAll(s)];
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const fine=matchMedia('(hover:hover) and (pointer:fine)').matches;
+$('#annee').textContent=new Date().getFullYear();
+
+/* Preloader */
+const loader=$('#loader'),count=$('#count'),bar=$('#bar');
+let n=0;const start=performance.now();
+function tick(t){const p=Math.min(1,(t-start)/(reduce?200:1300));n=Math.round((1-Math.pow(1-p,3))*100);count.textContent=n;bar.style.width=n+'%';
+  if(p<1)requestAnimationFrame(tick);else{loader.classList.add('done');document.body.classList.remove('loading');document.body.classList.add('ready');
+    setTimeout(()=>{$$('[data-hero]').forEach(e=>e.classList.add('in'));$$('.hero [data-reveal]').forEach(e=>e.classList.add('in'))},350);
+    setTimeout(()=>loader.remove(),1400)}}
+requestAnimationFrame(tick);
+
+/* Reveal on scroll */
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');if(e.target.hasAttribute('data-group'))$$('.clip',e.target).forEach((c,i)=>setTimeout(()=>c.classList.add('in'),i*120));io.unobserve(e.target);if(e.target.dataset.count!==undefined)countUp(e.target)}}),{threshold:.15,rootMargin:'0px 0px -8% 0px'});
+$$('[data-io],[data-group],[data-reveal]:not(.hero [data-reveal])').forEach(e=>io.observe(e));
+$$('.stats b').forEach(b=>io.observe(b));
+function countUp(el){const to=+el.dataset.count,suf=el.dataset.suffix||'',t0=performance.now();
+  (function s(t){const p=Math.min(1,(t-t0)/1600),v=Math.round(to*(1-Math.pow(1-p,4)));el.textContent=v+suf;if(p<1)requestAnimationFrame(s)})(t0)}
+
+/* Cursor + magnetic */
+if(fine&&!reduce){
+  const c=$('#cursor'),lab=$('#cursorLabel');let mx=innerWidth/2,my=innerHeight/2,cx=mx,cy=my;
+  addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY});
+  (function loop(){cx+=(mx-cx)*.2;cy+=(my-cy)*.2;c.style.transform=`translate(${cx}px,${cy}px) translate(-50%,-50%)`;lab.style.transform=`translate(${cx}px,${cy}px) translate(-50%,-50%)`;requestAnimationFrame(loop)})();
+  $$('.bento button,.svc').forEach(el=>{el.addEventListener('mouseenter',()=>{c.classList.add('big');lab.textContent=el.classList.contains('svc')?'Détails':'Voir';lab.classList.add('show')});el.addEventListener('mouseleave',()=>{c.classList.remove('big');lab.classList.remove('show')})});
+  $$('.magnetic').forEach(b=>{b.addEventListener('mousemove',e=>{const r=b.getBoundingClientRect();b.style.transform=`translate(${(e.clientX-r.left-r.width/2)*.25}px,${(e.clientY-r.top-r.height/2)*.35}px)`});b.addEventListener('mouseleave',()=>{b.style.transition='transform .6s cubic-bezier(.16,1,.3,1)';b.style.transform='';setTimeout(()=>b.style.transition='',600)})});
+}
+
+/* Menu */
+const burger=$('#burger'),menu=$('#menu');
+burger.addEventListener('click',()=>{const o=menu.classList.toggle('open');burger.classList.toggle('open',o);burger.setAttribute('aria-expanded',o);document.body.style.overflow=o?'hidden':''});
+$$('a',menu).forEach(a=>a.addEventListener('click',()=>{menu.classList.remove('open');burger.classList.remove('open');document.body.style.overflow=''}));
+const navLinks=$$('a',menu);
+const so=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)navLinks.forEach(l=>l.classList.toggle('active',l.getAttribute('href')==='#'+e.target.id))}),{rootMargin:'-45% 0px -50% 0px'});
+$$('main section[id]').forEach(s=>so.observe(s));
+
+/* Scroll-driven effects */
+const header=$('#header'),progress=$('#progress'),heroImg=$('#heroImg');
+const hs=$('#prestations'),track=$('#hsTrack'),hsBar=$('#hsBar');
+const speedEls=$$('[data-speed]');
+const marquees=$$('.marquee-track').map(t=>{t.innerHTML+=t.innerHTML;return{t,dir:+t.dataset.dir,x:0}});
+const tl=$('#timeline'),tlFill=$('#tlFill'),seasons=$$('.season');
+const cards=$$('.scard');
+let lastY=scrollY,vel=0;
+function sizeHS(){if(innerWidth>860){hs.style.height=(track.scrollWidth-innerWidth+innerHeight+innerWidth*.1)+'px'}else hs.style.height=''}
+addEventListener('resize',sizeHS);addEventListener('load',sizeHS);sizeHS();
+
+function frame(){
+  const y=scrollY,vh=innerHeight,max=document.documentElement.scrollHeight-vh;
+  vel+=((y-lastY)-vel)*.1;
+  header.classList.toggle('hide',y>lastY&&y>400&&!menu.classList.contains('open'));
+  header.classList.toggle('solid',y>60);
+  lastY=y;
+  progress.style.transform=`scaleX(${max>0?y/max:0})`;
+  if(!reduce){
+    if(y<vh&&document.body.classList.contains('ready'))heroImg.style.transform=`scale(${1.08+y/vh*.18}) translateY(${y*.25}px)`;
+    speedEls.forEach(el=>{const r=el.getBoundingClientRect();if(r.bottom<-200||r.top>vh+200)return;const d=(r.top+r.height/2-vh/2)*+el.dataset.speed;el.style.translate=`0 ${-d}px`});
+    marquees.forEach(m=>{const w=m.t.scrollWidth/2;m.x-=(0.6+Math.min(Math.abs(vel)*.15,8))*m.dir;if(m.x<=-w)m.x+=w;if(m.x>0)m.x-=w;m.t.style.transform=`translateX(${m.x}px)`});
+  }
+  // horizontal services
+  if(innerWidth>860){const r=hs.getBoundingClientRect(),len=hs.offsetHeight-vh,p=Math.min(1,Math.max(0,-r.top/len));
+    track.style.transform=`translateX(${-p*(track.scrollWidth-innerWidth+40)}px)`;hsBar.style.transform=`scaleX(${p})`}
+  // timeline
+  {const r=tl.getBoundingClientRect(),p=Math.min(1,Math.max(0,(vh*.75-r.top)/(r.height+vh*.2)));tlFill.style.transform=`scaleX(${p})`;seasons.forEach((s,i)=>s.classList.toggle('on',p>=i/seasons.length+.02))}
+  // stacked cards
+  cards.forEach((c,i)=>{const next=cards[i+1];if(!next){c.style.transform='';return}
+    const nr=next.getBoundingClientRect(),cr=c.getBoundingClientRect(),p=Math.min(1,Math.max(0,(cr.bottom-nr.top)/cr.height));
+    c.style.transform=reduce?'':`scale(${1-p*.06})`;c.style.filter=`brightness(${1-p*.35})`});
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+/* Lightbox */
+const lb=$('#lightbox'),lbImg=$('img',lb),items=$$('#bento button');let cur=0;
+const show=i=>{cur=(i+items.length)%items.length;const im=$('img',items[cur]);lbImg.src=im.src;lbImg.alt=im.alt};
+items.forEach((b,i)=>b.addEventListener('click',()=>{show(i);lb.classList.add('open')}));
+const close=()=>lb.classList.remove('open');
+$('.lb-close',lb).onclick=close;$('.lb-prev',lb).onclick=e=>{e.stopPropagation();show(cur-1)};$('.lb-next',lb).onclick=e=>{e.stopPropagation();show(cur+1)};
+lb.addEventListener('click',e=>{if(e.target===lb)close()});
+addEventListener('keydown',e=>{if(!lb.classList.contains('open'))return;if(e.key==='Escape')close();if(e.key==='ArrowLeft')show(cur-1);if(e.key==='ArrowRight')show(cur+1)});
+
+/* Smooth anchor scroll */
+$$('a[href^="#"]').forEach(a=>a.addEventListener('click',e=>{const t=$(a.getAttribute('href'));if(!t)return;e.preventDefault();t.scrollIntoView({behavior:reduce?'auto':'smooth'})}));
+
+/* Form */
+$('#devis').addEventListener('submit',async e=>{
+  e.preventDefault();const f=e.target,btn=$('button[type=submit]',f),txt=$('.btn-txt',btn);
+  btn.disabled=true;txt.textContent='Envoi…';
+  try{const r=await fetch(f.action.replace('formsubmit.co/','formsubmit.co/ajax/'),{method:'POST',headers:{Accept:'application/json'},body:new FormData(f)});
+    if(!r.ok)throw 0;f.reset();$('#formOk').style.display='block';$('#formOk').scrollIntoView({behavior:'smooth',block:'center'})}
+  catch(_){f.submit()}
+  finally{btn.disabled=false;txt.textContent='Envoyer ma demande'}
 });
+})();
 </script>
 </body>
 </html>
